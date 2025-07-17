@@ -26,14 +26,17 @@ Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 ## Current implementation
 
 IMPACT NCD Germany was originally adapted to Germany to evaluate the long-term health
-and economic impact of sugar-sweetened beverage taxation in the German population. For this reason
-the model currently supports a limited amount of exposures and diseases. However, given
+and economic impact of sugar-sweetened beverage taxation in the German population.
+
+This version of the model was extended and adapted to enable the evaluation of scenarios for GLP-1 receptor agonist uptake in Germany.
+
+The model currently supports a limited amount of exposures and diseases. However, given
 the appropriate data, the model can flexibly expanded to other disease contexts and exposures clusters.
 
 Currently implemented diseases are: Obesity, coronary heart disease, stroke and type 2 diabetes.
 
 Currently implemented exposures are: Sugar-sweetened beverage consumption (inlc. sugar content),
-fruit juice consumption (incl. sugar content), body mass index.
+fruit juice consumption (incl. sugar content), body mass index, blood pressure, and cholesterol.
 
 Individuals in the model can experience mortality from coronary heart disease, stroke or non-cardiovascular
 causes. The model is currently stratified by age and sex, only. However, similarly to the extension
