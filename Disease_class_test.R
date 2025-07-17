@@ -2036,6 +2036,9 @@ Disease <-
           #rank_mtx[, "juice_r"] <-
           #  rank_mtx[, "juice_r"] * 0.95 / 0.999
           
+          #########################################################################
+          ##              Adding the new exposure: bmi, sbp, chol                ##
+          #########################################################################
           # Restrict the range of some RNs to avoid unrealistic exposures
           # This scaling does not affect correlations
           # /0.999 because I multiplied all the columns below
