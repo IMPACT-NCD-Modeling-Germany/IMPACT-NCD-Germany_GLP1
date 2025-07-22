@@ -882,17 +882,26 @@ SynthPop <-
             # NOTE rankstat_* is unaffected by the RW. Stay constant through the lifecourse
             dt[, c(
               "rank_bmi",
-              "rank_ssb",
-              "rank_juice"
+              "rank_sbp",
+              "rank_chol"
             ) := rank_mtx]
 
             rm(rank_mtx)
 
             # add non-correlated RNs
+            #rank_cols <-
+            #  c(
+            #    "rankstat_ssb_sug",
+            #    "rankstat_juice_sug"
+            #  )
+            
+            # add non-correlated RNs
+            # Jane: here I replaced the 'ssb_sug' and 'juice_sug' with shp and chol, but I am not sure what is 'rankstat_sbp'
+            #       and how it's related to 'rank_sbp'?
             rank_cols <-
               c(
-                "rankstat_ssb_sug",
-                "rankstat_juice_sug"
+                "rankstat_sbp",        
+                "rankstat_chol"
               )
 
 
@@ -955,29 +964,57 @@ SynthPop <-
             # ggplot2::qplot(year, rank_ssb, data = dt[pid %in% sample(1e1, 1)], ylim = c(0,1))
 
 
+            #########################################################################
+            ##              Adding the new exposure: bmi, sbp, chol                ##
+            #########################################################################
+            
             # Generate SSB consumption (LOGNO - WEI2 Mixture) ----
-            if (design_$sim_prm$logs) message("Generate SSB consumption")
+            #if (design_$sim_prm$logs) message("Generate SSB consumption")
 
+            #tbl <-
+            #  read_fst("./inputs/exposure_distributions/ssb_consump_table.fst", as.data.table = TRUE)
+
+            #col_nam <-
+            #  setdiff(names(tbl), intersect(names(dt), names(tbl)))
+            #if (Sys.info()["sysname"] == "Linux") {
+            #lookup_dt(dt, tbl, check_lookup_tbl_validity = FALSE)
+            #} else {
+            #  dt <- absorb_dt(dt, tbl)
+            #}
+            #dt <- merge(dt, tbl, by = c(intersect(names(dt), names(tbl))))
+
+            #dt[, ssb_mx1 := qLOGNO(rank_ssb,
+            #                    mu1, sigma1)]  # mixture component 1
+            #dt[, ssb_mx2 := qWEI2(rank_ssb,
+            #                        mu2, sigma2)]  # mixture component 2
+            #dt[, ssb := ((1-pi) * ssb_mx1 + pi * ssb_mx2)] # ml/day
+            #dt[ssb > 5000, ssb := 5000] #Truncate Juice predictions to avoid unrealistic values.
+            #dt[, (col_nam) := NULL]
+            #dt[, `:=`(rank_ssb = NULL, ssb_mx1 = NULL, ssb_mx2 = NULL)]
+            
+            ##################################################
+            # Generate sbp ----
+            if (design_$sim_prm$logs) message("Generate SBP consumption")
+            
             tbl <-
-              read_fst("./inputs/exposure_distributions/ssb_consump_table.fst", as.data.table = TRUE)
-
+              read_fst("./inputs/exposure_distributions/sbp_table.fst", as.data.table = TRUE)
+            
             col_nam <-
               setdiff(names(tbl), intersect(names(dt), names(tbl)))
             #if (Sys.info()["sysname"] == "Linux") {
             #lookup_dt(dt, tbl, check_lookup_tbl_validity = FALSE)
             #} else {
-              dt <- absorb_dt(dt, tbl)
+            dt <- absorb_dt(dt, tbl)
             #}
             #dt <- merge(dt, tbl, by = c(intersect(names(dt), names(tbl))))
-
-            dt[, ssb_mx1 := qLOGNO(rank_ssb,
-                                mu1, sigma1)]  # mixture component 1
-            dt[, ssb_mx2 := qWEI2(rank_ssb,
-                                    mu2, sigma2)]  # mixture component 2
-            dt[, ssb := ((1-pi) * ssb_mx1 + pi * ssb_mx2)] # ml/day
-            dt[ssb > 5000, ssb := 5000] #Truncate Juice predictions to avoid unrealistic values.
+            
+            dt[, sbp_curr_xps := qBCTo(rank_sbp, mu, sigma, nu, tau, n_cpu = design_$sim_prm$n_cpu)] # Jane: do we really need the 'n_cpu' argument?
+            dt[sbp_curr_xps > 1000, sbp_curr_xps := 1000] #Truncate Juice predictions to avoid unrealistic values.
             dt[, (col_nam) := NULL]
-            dt[, `:=`(rank_ssb = NULL, ssb_mx1 = NULL, ssb_mx2 = NULL)]
+            dt[, `:=`(rank_sbp = NULL)]
+            # Jane: in the Disease_class, at the end of this code trunk, there is xx[, year := year + lag]
+            #       I guess the 'year or lag' is not relevant here?
+
             
             # Generate proportion of diet SSBs ----
             if (design_$sim_prm$logs) message("Adjust SSB consumption for diet drinks")
