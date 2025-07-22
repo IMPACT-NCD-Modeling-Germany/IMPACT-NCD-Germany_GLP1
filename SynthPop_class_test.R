@@ -856,6 +856,24 @@ SynthPop <-
             #  rank_mtx[, "ssb_r"] * 0.95 / 0.999
             #rank_mtx[, "juice_r"] <-
             #  rank_mtx[, "juice_r"] * 0.95 / 0.999
+            
+            #########################################################################
+            ##              Adding the new exposure: bmi, sbp, chol                ##
+            #########################################################################
+            # Restrict the range of some RNs to avoid unrealistic exposures
+            # This scaling does not affect correlations
+            # /0.999 because I multiplied all the columns below
+            rank_mtx <- rank_mtx * 0.999
+            # bmi
+            rank_mtx[, "bmi_r"] <-
+              rank_mtx[, "bmi_r"] * 0.90 / 0.999
+            # sbp
+            rank_mtx[, "sbp_r"] <-
+              rank_mtx[, "sbp_r"] * 0.95 / 0.999
+            # chol
+            rank_mtx[, "chol_r"] <-
+              rank_mtx[, "chol_r"] * 0.95 / 0.999
+            
             # sum((cor(rank_mtx) - cm_mean) ^ 2)
             if (design_$sim_prm$logs) message("correlated ranks matrix to data.table")
 
