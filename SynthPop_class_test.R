@@ -897,7 +897,7 @@ SynthPop <-
             
             # add non-correlated RNs
             # Jane: here I replaced the 'ssb_sug' and 'juice_sug' with shp and chol, but I am not sure what is 'rankstat_sbp'
-            #       and how it's related to 'rank_sbp'?
+            #       and how it's related to 'rank_sbp'? There's no entry of 'rankstat_' in Disease_class
             rank_cols <-
               c(
                 "rankstat_sbp",        
@@ -993,8 +993,8 @@ SynthPop <-
             #dt[, `:=`(rank_ssb = NULL, ssb_mx1 = NULL, ssb_mx2 = NULL)]
             
             ##################################################
-            # Generate sbp ----
-            if (design_$sim_prm$logs) message("Generate SBP consumption")
+            # Generate sbp (qBCTo) ----
+            if (design_$sim_prm$logs) message("Generate SBP")
             
             tbl <-
               read_fst("./inputs/exposure_distributions/sbp_table.fst", as.data.table = TRUE)
@@ -1008,46 +1008,68 @@ SynthPop <-
             #}
             #dt <- merge(dt, tbl, by = c(intersect(names(dt), names(tbl))))
             
-            dt[, sbp_curr_xps := qBCTo(rank_sbp, mu, sigma, nu, tau, n_cpu = design_$sim_prm$n_cpu)] # Jane: do we really need the 'n_cpu' argument?
-            dt[sbp_curr_xps > 1000, sbp_curr_xps := 1000] #Truncate Juice predictions to avoid unrealistic values.
+            dt[, sbp := qBCTo(rank_sbp, mu, sigma, nu, tau, n_cpu = design_$sim_prm$n_cpu)] # Jane: do we really need the 'n_cpu' argument?
+            dt[sbp > 1000, sbp := 1000] #Truncate Juice predictions to avoid unrealistic values.
             dt[, (col_nam) := NULL]
             dt[, `:=`(rank_sbp = NULL)]
-            # Jane: in the Disease_class, at the end of this code trunk, there is xx[, year := year + lag]
-            #       I guess the 'year or lag' is not relevant here?
-
+            # Jane: I realized that, the variable name for exposures are 'sbp_curr_xps' or 'bmi_curr_xps' in Disease_class,
+            #       but 'sbp' and 'bmi' here. 
+            # Jane: In the Disease_class, at the end of this code trunk, there is ff[, year := year + lag],
+            #       I guess the year or lag is not relevant here?
+            ####################################################
             
             # Generate proportion of diet SSBs ----
-            if (design_$sim_prm$logs) message("Adjust SSB consumption for diet drinks")
-            tbl <-
-              read_fst("./inputs/exposure_distributions/ssb_diet_prop.fst", as.data.table = TRUE)
+            #if (design_$sim_prm$logs) message("Adjust SSB consumption for diet drinks")
+            #tbl <-
+            #  read_fst("./inputs/exposure_distributions/ssb_diet_prop.fst", as.data.table = TRUE)
             
-            dt <- absorb_dt(dt, tbl)
+            #dt <- absorb_dt(dt, tbl)
             
-            dt[, ssb := ssb * (1 - diet_prop)][, diet_prop := NULL]
+            #dt[, ssb := ssb * (1 - diet_prop)][, diet_prop := NULL]
 
             # Generate fruit juice consumption (LOGNO2 - PARETO2o Mixture) ----
-            if (design_$sim_prm$logs) message("Generate Juice consumption")
+            #if (design_$sim_prm$logs) message("Generate Juice consumption")
 
+            #tbl <-
+            #  read_fst("./inputs/exposure_distributions/juice_consump_table.fst", as.data.table = TRUE)
+
+            #col_nam <-
+            #  setdiff(names(tbl), intersect(names(dt), names(tbl)))
+            #if (Sys.info()["sysname"] == "Linux") {
+            #  lookup_dt(dt, tbl, check_lookup_tbl_validity = FALSE)
+            #} else {
+            #  dt <- absorb_dt(dt, tbl)
+            #}
+            #dt[, juice_mx1 := qLOGNO2(rank_juice,
+            #                    mu1, sigma1)]  # mixture component 1
+            #dt[, juice_mx2 := qPARETO2o(rank_juice,
+            #                        mu2, sigma2)]  # mixture component 2
+            #dt[, juice := ((1-pi) * juice_mx1 + pi * juice_mx2)] # ml/day
+            #dt[juice > 5000, juice := 5000] #Truncate Juice predictions to avoid unrealistic values.
+            #dt[, (col_nam) := NULL]
+            #dt[, `:=`(rank_juice = NULL, juice_mx1 = NULL, juice_mx2 = NULL)]
+            
+            ##################################################
+            # Generate chol (qBCTo) ----
+            if (design_$sim_prm$logs) message("Generate CHOL")
+            
             tbl <-
-              read_fst("./inputs/exposure_distributions/juice_consump_table.fst", as.data.table = TRUE)
-
+              read_fst("./inputs/exposure_distributions/chol_table.fst", as.data.table = TRUE)
+            
             col_nam <-
               setdiff(names(tbl), intersect(names(dt), names(tbl)))
             #if (Sys.info()["sysname"] == "Linux") {
             #  lookup_dt(dt, tbl, check_lookup_tbl_validity = FALSE)
             #} else {
-              dt <- absorb_dt(dt, tbl)
+            dt <- absorb_dt(dt, tbl)
             #}
-            dt[, juice_mx1 := qLOGNO2(rank_juice,
-                                mu1, sigma1)]  # mixture component 1
-            dt[, juice_mx2 := qPARETO2o(rank_juice,
-                                    mu2, sigma2)]  # mixture component 2
-            dt[, juice := ((1-pi) * juice_mx1 + pi * juice_mx2)] # ml/day
-            dt[juice > 5000, juice := 5000] #Truncate Juice predictions to avoid unrealistic values.
+            dt[, chol := qBCTo(rank_chol, mu, sigma, nu, tau, n_cpu = design_$sim_prm$n_cpu)]
+            dt[chol > 1000, chol := 1000] #Truncate Juice predictions to avoid unrealistic values.
             dt[, (col_nam) := NULL]
-            dt[, `:=`(rank_juice = NULL, juice_mx1 = NULL, juice_mx2 = NULL)]
+            dt[, `:=`(rank_chol = NULL)]
+            ##################################################
 
-            # Generate BMI (BCPEo) ----
+            # Generate BMI (BCTo) ----
             if (design_$sim_prm$logs) message("Generate BMI")
 
             tbl <-
@@ -1064,47 +1086,50 @@ SynthPop <-
             dt[bmi > 80, bmi := 80] #Truncate BMI predictions to avoid unrealistic values.
             dt[, rank_bmi := NULL]
             dt[, (col_nam) := NULL]
+            # Jane: why is everywhere else when you are drawing numbers from the GAMLSS distribution, it's qBCTo()
+            #       but for bmi (or some other exposure), it's my_qBCTo(). What is my_qBCPEo()??
+            ####################################################
 
             # Generate SSB sugar (BCPEo) ----
-            if (design_$sim_prm$logs) message("Generate Sugar from SSBs")
+            #if (design_$sim_prm$logs) message("Generate Sugar from SSBs")
 
-            tbl <-
-              read_fst("./inputs/exposure_distributions/ssb_sugar_table.fst",
-                       as.data.table = TRUE)
-            col_nam <-
-              setdiff(names(tbl), intersect(names(dt), names(tbl)))
+            #tbl <-
+            #  read_fst("./inputs/exposure_distributions/ssb_sugar_table.fst",
+            #           as.data.table = TRUE)
+            #col_nam <-
+            #  setdiff(names(tbl), intersect(names(dt), names(tbl)))
             #if (Sys.info()["sysname"] == "Linux") {
             #  lookup_dt(dt, tbl, check_lookup_tbl_validity = FALSE)
             #} else {
-              dt <- absorb_dt(dt, tbl)
+            #  dt <- absorb_dt(dt, tbl)
             #}
-            dt[, ssb_sugar := ssb * my_qBCPEo(rankstat_ssb_sug, mu, sigma, nu, tau, n_cpu = design_$sim_prm$n_cpu)]
-            dt[, rankstat_ssb_sug := NULL]
-            dt[, (col_nam) := NULL]
+            #dt[, ssb_sugar := ssb * my_qBCPEo(rankstat_ssb_sug, mu, sigma, nu, tau, n_cpu = design_$sim_prm$n_cpu)]
+            #dt[, rankstat_ssb_sug := NULL]
+            #dt[, (col_nam) := NULL]
 
             # Generate Juice sugar (BCPE) ----
-            if (design_$sim_prm$logs) message("Generate Sugar from Fruit Juice")
+            #if (design_$sim_prm$logs) message("Generate Sugar from Fruit Juice")
 
-            tbl <-
-              read_fst("./inputs/exposure_distributions/juice_sugar_table.fst",
-                       as.data.table = TRUE)
-            col_nam <-
-              setdiff(names(tbl), intersect(names(dt), names(tbl)))
+            #tbl <-
+            #  read_fst("./inputs/exposure_distributions/juice_sugar_table.fst",
+            #           as.data.table = TRUE)
+            #col_nam <-
+            #  setdiff(names(tbl), intersect(names(dt), names(tbl)))
             #if (Sys.info()["sysname"] == "Linux") {
             #  lookup_dt(dt, tbl, check_lookup_tbl_validity = FALSE)
             #} else {
-              dt <- absorb_dt(dt, tbl)
+            #  dt <- absorb_dt(dt, tbl)
             #}
-            dt[, juice_sugar := juice * qBCPE(rankstat_juice_sug, mu, sigma, nu, tau)]
-            dt[, rankstat_juice_sug := NULL]
-            dt[, (col_nam) := NULL]
+            #dt[, juice_sugar := juice * qBCPE(rankstat_juice_sug, mu, sigma, nu, tau)]
+            #dt[, rankstat_juice_sug := NULL]
+            #dt[, (col_nam) := NULL]
 
             # Calculate sugar from beverages ----
-            dt[, bev_sugar := juice_sugar + ssb_sugar]
+            #dt[, bev_sugar := juice_sugar + ssb_sugar]
 
             # Calculate sugar per ml of beverages ----
-            dt[, sugar_per_ssb := ssb_sugar/ssb]
-            dt[, sugar_per_juice := juice_sugar/juice]
+            #dt[, sugar_per_ssb := ssb_sugar/ssb]
+            #dt[, sugar_per_juice := juice_sugar/juice]
 
  			      dt[, `:=` (
               pid_mrk = NULL
@@ -1113,8 +1138,8 @@ SynthPop <-
 
             xps_tolag <- c(
               "bmi",
-              "ssb",
-              "juice"
+              "sbp",
+              "chol"
             )
             xps_nam <-  paste0(xps_tolag, "_curr_xps")
             setnames(dt, xps_tolag, xps_nam)

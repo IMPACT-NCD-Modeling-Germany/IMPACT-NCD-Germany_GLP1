@@ -2231,6 +2231,9 @@ Disease <-
             ff <- absorb_dt(ff, tbl)
           #}
           ff[, bmi_curr_xps := my_qBCTo(rank_bmi, mu, sigma, nu, tau, n_cpu = design_$sim_prm$n_cpu)]
+          # Jane: why is everywhere else when you are drawing exposures from the GAMLSS distribution, it's qBCTo()
+          #       but for bmi (or some other exposure), it's my_qBCTo(). What is my_qBCPEo()??
+          ####################################################
           ff[bmi_curr_xps > 80, bmi_curr_xps := 80] #Truncate BMI predictions to avoid unrealistic values.
           ff[, rank_bmi := NULL]
           ff[, (col_nam) := NULL]
