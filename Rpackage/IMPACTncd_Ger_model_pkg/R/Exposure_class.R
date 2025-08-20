@@ -468,11 +468,11 @@ Exposure <-
           if (checkNAs && private$nam_rr %in% names(sp$pop)) {
             # NOTE in case of smok_quit_yrs the risk column is deleted from the
             # rr_extra_fn()
-            print(self$name)
-            print(sp$pop[!is.na(get(self$name)) & is.na(get(private$nam_rr)) &
-                           age >= design_$sim_prm$ageL &
-                           year >= design_$sim_prm$init_year,
-                           table(get(self$name), useNA = "always")])
+            print(self$name) # bmi, sbp, tchol
+            print(sp$pop[!is.na(get(self$name)) & is.na(get(private$nam_rr)) &  # Jane Auhg 2025: it prints the rows of sp$pop
+                           age >= design_$sim_prm$ageL &                        # where exposure is not missing, but the rr is missing
+                           year >= design_$sim_prm$init_year,                   # Exposure level of some people who cannot match
+                           table(get(self$name), useNA = "always")])            # any numbers in the RR file (age category)
           }
 
           if (private$nam_rr %in% names(sp$pop) &&

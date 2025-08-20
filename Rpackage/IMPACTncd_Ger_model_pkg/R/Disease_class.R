@@ -152,7 +152,7 @@ Disease <-
           val <- identical(keys, "year")
         }
 
-        if (nzchar(keys) && !val && meta$incidence$type > 1L)
+        if (any(nzchar(keys)) && !val && meta$incidence$type > 1L)
         stop("If present, 1st key needs to be MC and 2nd key needs to be Year")
 
         # Logic to ensure _indx files are up to date.
@@ -221,7 +221,7 @@ Disease <-
       #' @return The PARF data.table if it was created, otherwise `NULL`.
 
       gen_parf_files = function(design_ = design, diseases_ = diseases,
-                                popsize = 50000, check = design_$sim_prm$logs, #TODO: Right pop size?
+                                popsize = 500, check = design_$sim_prm$logs, #TODO: Right pop size?
                                 keep_intermediate_file = TRUE) {
 
         if ((is.numeric(self$meta$incidence$type) &&
@@ -399,7 +399,7 @@ Disease <-
 
       gen_parf = function(sp = sp, design_ = design, diseases_ = diseases,
                           scenario_p_zero = 1, perc_change_m0 = 1, 
-                          popsize = 500000, check = design_$sim_prm$logs, #TODO: Right pop size?
+                          popsize = 500, check = design_$sim_prm$logs, #TODO: Right pop size?
                           keep_intermediate_file = TRUE) {
 
         # TODO add logic to delete the intermediate synthpop file outside this
@@ -1331,7 +1331,7 @@ Disease <-
   
               if(self$name == "chd"){
                 
-                tbl <- read_fst("./inputs/mortality/mrtl_clbr_chd.fst",
+                tbl <- read_fst("/home/inputs/mortality/mrtl_clbr_chd.fst",
                                 as.data.table = TRUE)
                 
                 absorb_dt(sp$pop, tbl)
@@ -2028,38 +2028,50 @@ Disease <-
           # Restrict the range of some RNs to avoid unrealistic exposures
           # This scaling does not affect correlations
           # /0.999 because I multiplied all the columns below
+          #rank_mtx <- rank_mtx * 0.999
+          #rank_mtx[, "bmi_r"] <-
+          #  rank_mtx[, "bmi_r"] * 0.90 / 0.999
+          #rank_mtx[, "ssb_r"] <-
+          #  rank_mtx[, "ssb_r"] * 0.95 / 0.999
+          #rank_mtx[, "juice_r"] <-
+          #  rank_mtx[, "juice_r"] * 0.95 / 0.999
+          
           rank_mtx <- rank_mtx * 0.999
           rank_mtx[, "bmi_r"] <-
             rank_mtx[, "bmi_r"] * 0.90 / 0.999
-          rank_mtx[, "ssb_r"] <-
-            rank_mtx[, "ssb_r"] * 0.95 / 0.999
-          rank_mtx[, "juice_r"] <-
-            rank_mtx[, "juice_r"] * 0.95 / 0.999
+          rank_mtx[, "sbp_r"] <-
+            rank_mtx[, "sbp_r"] * 0.95 / 0.999
+          rank_mtx[, "tchol_r"] <-
+            rank_mtx[, "tchol_r"] * 0.95 / 0.999
 
           # sum((cor(rank_mtx) - cm_mean) ^ 2)
 
           rank_mtx <- data.table(rank_mtx)
 
           # NOTE rankstat_* is unaffected by the RW. Stay constant through the lifecourse
+          #ff[, c(
+          #  "rank_bmi",
+          #  "rank_ssb",
+          #  "rank_juice"
+          #) := rank_mtx]
+          
           ff[, c(
             "rank_bmi",
-            "rank_ssb",
-            "rank_juice"
+            "rank_sbp",
+            "rank_tchol"
           ) := rank_mtx]
-
+          
           rm(rank_mtx)
 
-
           setkeyv(ff, c("year", "age", "sex")) #STRATA
-
 
           if (max(ff$age) > 90L) {
             ff[, age100 := age]
             ff[age > 90L, age := 90L]
           }
 
-          # Generate SSB consumption ----
-          xps <- c("ssb", "t2dm_prvl")
+          # Generate sbp ----
+          xps <- c("sbp", "t2dm_prvl") # Jane: why is 't2dm_prvl' related here?
           if (any(xps %in% sapply(private$rr, `[[`, "name"))) {
             if (xps[[1]] %in% sapply(private$rr, `[[`, "name")) {
               lag <- private$rr[[paste0(xps[[1]], "~", self$name)]]$lag
@@ -2069,7 +2081,7 @@ Disease <-
             ff[, year := year - lag]
 
           tbl <-
-            read_fst("./inputs/exposure_distributions/ssb_consump_table.fst", as.data.table = TRUE)
+            read_fst("./inputs/exposure_distributions/sbp_table.fst", as.data.table = TRUE)
 
           col_nam <-
             setdiff(names(tbl), intersect(names(ff), names(tbl)))
@@ -2078,28 +2090,16 @@ Disease <-
           #} else {
             ff <- absorb_dt(ff, tbl)
           #}
-
-          ff[, ssb_mx1 := qLOGNO(rank_ssb,
-                              mu1, sigma1)]  # mixture component 1
-          ff[, ssb_mx2 := qWEI2(rank_ssb,
-                                  mu2, sigma2)]  # mixture component 2
-          ff[, ssb_curr_xps := ((1-pi) * ssb_mx1 + pi * ssb_mx2)] # ml/day
-          ff[ssb_curr_xps > 5000, ssb_curr_xps := 5000] #Truncate Juice predictions to avoid unrealistic values.
+          ff[, sbp_curr_xps := my_qBCT(rank_sbp, mu, sigma, nu, tau, n_cpu = design_$sim_prm$n_cpu)]
+          ff[sbp_curr_xps > 1000, sbp_curr_xps := 1000] #Truncate SBP to avoid unrealistic values.
+          
           ff[, (col_nam) := NULL]
-          ff[, `:=`(rank_ssb = NULL, ssb_mx1 = NULL, ssb_mx2 = NULL)]
-          
-          tbl <-
-            read_fst("./inputs/exposure_distributions/ssb_diet_prop.fst", as.data.table = TRUE)
-          
-          ff <- absorb_dt(ff, tbl)
-          
-          ff[, ssb_curr_xps := ssb_curr_xps * (1 - diet_prop)][, diet_prop := NULL]
-          
+          ff[, rank_sbp := NULL]
           ff[, year := year + lag]
           }
 
-          # Generate Fruit Juice consumption ----
-          xps <- c("juice", "t2dm_prvl")
+          # Generate total cholesterol ----
+          xps <- c("tchol", "t2dm_prvl")
           if (any(xps %in% sapply(private$rr, `[[`, "name"))) {
             if (xps[[1]] %in% sapply(private$rr, `[[`, "name")) {
               lag <- private$rr[[paste0(xps[[1]], "~", self$name)]]$lag
@@ -2109,7 +2109,7 @@ Disease <-
             ff[, year := year - lag]
 
           tbl <-
-            read_fst("./inputs/exposure_distributions/juice_consump_table.fst", as.data.table = TRUE)
+            read_fst("./inputs/exposure_distributions/chol_table.fst", as.data.table = TRUE)
 
           col_nam <-
             setdiff(names(tbl), intersect(names(ff), names(tbl)))
@@ -2119,14 +2119,11 @@ Disease <-
             ff <- absorb_dt(ff, tbl)
           #}
 
-          ff[, juice_mx1 := qLOGNO2(rank_juice,
-                                mu1, sigma1)]  # mixture component 1
-          ff[, juice_mx2 := qPARETO2o(rank_juice,
-                                  mu2, sigma2)]  # mixture component 2
-          ff[, juice_curr_xps := ((1-pi) * juice_mx1 + pi * juice_mx2)] # ml/day
-          ff[juice_curr_xps > 5000, juice_curr_xps := 5000] #Truncate Juice predictions to avoid unrealistic values.
+          ff[, tchol_curr_xps := my_qBCT(rank_tchol, mu, sigma, nu, tau, n_cpu = design_$sim_prm$n_cpu)]
+          ff[tchol_curr_xps > 1000, tchol_curr_xps := 1000] #Truncate cholesterol predictions to avoid unrealistic values.
+
           ff[, (col_nam) := NULL]
-          ff[, `:=`(rank_juice = NULL, juice_mx1 = NULL, juice_mx2 = NULL)]
+          ff[, rank_tchol := NULL]
           ff[, year := year + lag]
           }
 
@@ -2150,7 +2147,11 @@ Disease <-
           #} else {
             ff <- absorb_dt(ff, tbl)
           #}
-          ff[, bmi_curr_xps := my_qBCPEo(rank_bmi, mu, sigma, nu, tau, n_cpu = design_$sim_prm$n_cpu)]
+          ff[, bmi_curr_xps := my_qBCT(rank_bmi, mu, sigma, nu, tau, n_cpu = design_$sim_prm$n_cpu)]
+          # Jane: why my_qBCT()? not qBCT()?
+          #       Aug 2025, 
+          #       Could change BCTo distribution to BCT distribution, with the same parameters (mu, sigma,..)
+          #       with my_qBCT, Chris has implemented the codes for this distribution
           ff[bmi_curr_xps > 80, bmi_curr_xps := 80] #Truncate BMI predictions to avoid unrealistic values.
           ff[, rank_bmi := NULL]
           ff[, (col_nam) := NULL]

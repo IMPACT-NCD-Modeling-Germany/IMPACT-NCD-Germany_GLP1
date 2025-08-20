@@ -47,8 +47,18 @@ mk_scenario_init2 <- function(scenario_name, diseases_, sp, design_) {
 # sim$write_synthpop(1:500)
 # sim$delete_synthpop(NULL)
 # ll <- sim$gen_synthpop_demog(design)
+
+#TODO include informative error to check whether exposure table is matching data
 sp  <- SynthPop$new(1L, design)
 
+# Jane Aug.2025
+#library(fst)
+#sp <- read_fst("/home/inputs/synthpop/synthpop_e30e3a513f36aae27579edb28ffdd741_1.fst")
+
+# Remove col1 and col2
+#is.data.table(sp)
+#sp <- as.data.table(sp)
+#sp[, c("rankstat_sbp", "rankstat_tchol") := NULL]
 
 # lapply(diseases, function(x) x$harmonise_epi_tables(sp))
 # lapply(diseases, function(x) {
@@ -58,8 +68,10 @@ sp  <- SynthPop$new(1L, design)
 #lapply(diseases, function(x) {
 #    print(x)
 #    x$gen_parf(sp, design, diseases)
-#})
-#
+#}) # Jane: run the function x (gen_parf) to all the diseases
+    #       the below codes with gen_parf are the same
+    #       look into lapply()
+
 #lapply(diseases, function(x) {
 #    print(x)
 #    x$set_init_prvl(sp, design)
@@ -83,6 +95,7 @@ sp  <- SynthPop$new(1L, design)
 #    x$set_mrtl_prb(sp, design)
 # #})
 # # diseases$t2dm$harmonise_epi_tables(sp)
+# Jane Aug 2025: need to also remove all the old RR files (e.g.'ssb~t2dm.csvy')
  diseases$t2dm$gen_parf(sp, design)
  diseases$t2dm$set_init_prvl(sp, design)
  diseases$t2dm$set_rr(sp, design)
@@ -91,59 +104,63 @@ sp  <- SynthPop$new(1L, design)
  diseases$t2dm$set_mrtl_prb(sp, design)
 # #
 # # # diseases$chd$harmonise_epi_tables(sp)
-# diseases$chd$gen_parf(sp, design)
-# diseases$chd$set_init_prvl(sp, design)
-# diseases$chd$set_rr(sp, design)
-# diseases$chd$set_incd_prb(sp, design)
-# diseases$chd$set_dgns_prb(sp, design)
-# diseases$chd$set_mrtl_prb(sp, design)
+ diseases$chd$gen_parf(sp, design)
+ diseases$chd$set_init_prvl(sp, design)
+ diseases$chd$set_rr(sp, design)
+ diseases$chd$set_incd_prb(sp, design)
+ diseases$chd$set_dgns_prb(sp, design)
+ diseases$chd$set_mrtl_prb(sp, design)
 # 
 # # diseases$stroke$harmonise_epi_tables(sp)
-# diseases$stroke$gen_parf(sp, design)
-# diseases$stroke$set_init_prvl(sp, design)
-# diseases$stroke$set_rr(sp, design)
-# diseases$stroke$set_incd_prb(sp, design)
-# diseases$stroke$set_dgns_prb(sp, design)
-# diseases$stroke$set_mrtl_prb(sp, design)
+ diseases$stroke$gen_parf(sp, design)
+ diseases$stroke$set_init_prvl(sp, design)
+ diseases$stroke$set_rr(sp, design)
+ diseases$stroke$set_incd_prb(sp, design)
+ diseases$stroke$set_dgns_prb(sp, design)
+ diseases$stroke$set_mrtl_prb(sp, design)
 # 
-# diseases$obesity$gen_parf(sp, design)
-# diseases$obesity$set_init_prvl(sp, design)
-# diseases$obesity$set_rr(sp, design)
-# diseases$obesity$set_incd_prb(sp, design)
-# diseases$obesity$set_dgns_prb(sp, design)
-# diseases$obesity$set_mrtl_prb(sp, design)
+ diseases$obesity$gen_parf(sp, design)
+ diseases$obesity$set_init_prvl(sp, design)
+ diseases$obesity$set_rr(sp, design)
+ diseases$obesity$set_incd_prb(sp, design)
+ diseases$obesity$set_dgns_prb(sp, design)
+ diseases$obesity$set_mrtl_prb(sp, design)
 # 
 # #diseases$nonmodelled$harmonise_epi_tables(sp)
-# diseases$nonmodelled$gen_parf(sp, design)
-# diseases$nonmodelled$set_init_prvl(sp, design)
-# diseases$nonmodelled$set_rr(sp, design)
-# diseases$nonmodelled$set_incd_prb(sp, design)
-# diseases$nonmodelled$set_dgns_prb(sp, design)
-# diseases$nonmodelled$set_mrtl_prb(sp, design)
+ diseases$nonmodelled$gen_parf(sp, design)
+ diseases$nonmodelled$set_init_prvl(sp, design)
+ diseases$nonmodelled$set_rr(sp, design)
+ diseases$nonmodelled$set_incd_prb(sp, design)
+ diseases$nonmodelled$set_dgns_prb(sp, design)
+ diseases$nonmodelled$set_mrtl_prb(sp, design)
 
 qsave(sp, "./simulation/tmp_s.qs")
 
 
-lapply(diseases, function(x) {
+lapply(diseases, function(x) {   # run all the functions on all the diseases
     print(x$name)
     x$gen_parf(sp, design)$
     set_init_prvl(sp, design)$
     set_rr(sp, design)$
-    set_incd_prb(sp, design)
-    #set_dgns_prb(sp, design)$
-    #set_mrtl_prb(sp, design)
+    set_incd_prb(sp, design)$
+    set_dgns_prb(sp, design)$
+    set_mrtl_prb(sp, design)
 })
 
-qsave(sp, "./simulation/tmp.qs")
+qsave(sp, "./simulation/tmp.qs") # save that sp with diease prob
 
-transpose(sp$pop[, lapply(.SD, anyNA)], keep.names = "rn")[(V1)]
+library(qs)
+qread("/tmp/myfile.qs")
 
+transpose(sp$pop[, lapply(.SD, anyNA)], keep.names = "rn")[(V1)] # look for NAs, if NAs, debug
+                                                                 # extreme values in exposure
 
 # qsave(sp, "./simulation/tmp.qs")
 # sp <- qread("./simulation/tmp.qs")
-l <- mk_scenario_init2("", diseases, sp, design)
-simcpp(sp$pop, l, sp$mc)
-
+l <- mk_scenario_init2("", diseases, sp, design)   # define an empty scenario
+simcpp(sp$pop, l, sp$mc) # the actual simulation happens here, flips all the coins
+                         # the output will be a lifecourse, within sp
+                         # Jane Aug 2025, task: run until line 154
 sp$update_pop_weights()
 sp$pop[, mc := sp$mc_aggr]
 
@@ -152,8 +169,6 @@ sp$pop[!is.na(all_cause_mrtl), sum(chd_prvl > 0)/.N, keyby = year][, plot(year, 
 sp$pop[!is.na(all_cause_mrtl), sum(stroke_prvl > 0)/.N, keyby = year][, plot(year, V1, type = "l", ylab = "Stroke Prev.")]
 sp$pop[!is.na(all_cause_mrtl), sum(t2dm_prvl > 0)/.N, keyby = year][, plot(year, V1, type = "l", ylab = "T2DM Prev.")]
 sp$pop[!is.na(all_cause_mrtl), sum(obesity_prvl > 0)/.N, keyby = year][, plot(year, V1, type = "l", ylab = "Obesity Prev.")]
-
-
 
 
 # export xps
