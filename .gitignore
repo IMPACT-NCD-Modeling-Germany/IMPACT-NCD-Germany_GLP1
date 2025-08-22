@@ -56,10 +56,12 @@ vignettes/*.pdf
 # IMPACTncd specific
 /outputs/
 /secure_data/
+/inputs/synthpop/
 DELETEme*
 *.png
 *.tiff
 *.jpeg
+
 
 IMPACT NCD Germany GLP1.Rproj
 
