@@ -1,6 +1,6 @@
 
 source("./global.R")
-design <- Design$new("./inputs/sim_design.yaml")
+design <- Design$new("./inputs/sim_design_docker.yaml")
 # RR ----
 # Create a named list of Exposure objects for the files in ./inputs/RR
 fl <- list.files(path = "./inputs/RR", pattern = ".csvy$", full.names = TRUE)

@@ -415,3 +415,115 @@
 1756304903716:if (!nzchar(system.file(package = "remotes"))) install.packages("remotes")
 1756304903744:remotes::install_github("ChristK/CKutils", force = TRUE, upgrade = "never")
 1756304903771:}
+1756724939110:source("./global.R")
+1756725069762:design <- Design$new("./inputs/sim_design.yaml")
+1756725069826:# RR ----
+1756725069827:# Create a named list of Exposure objects for the files in ./inputs/RR
+1756725069827:fl <- list.files(path = "./inputs/RR", pattern = ".csvy$", full.names = TRUE)
+1756725069832:RR <- future_lapply(fl, Exposure$new, design,future.seed = 950480304L)
+1756725073628:names(RR) <- sapply(RR, function(x) x$get_name())
+1756725073630:invisible(future_lapply(RR, function(x) {
+1756725073630:x$gen_stochastic_effect(design, overwrite = TRUE, smooth = FALSE)
+1756725073631:},
+1756725073631:future.seed = 627524136L))
+1756725075944:# # NOTE smooth cannot be exported to Design for now, because the first time
+1756725075944:# # this parameter changes we need logic to overwrite unsmoothed files
+1756725075944:rm(fl)
+1756725075945:#
+1756725075945:# # Generate diseases ----
+1756725075945:diseases <- lapply(design$sim_prm$diseases, function(x) {
+1756725075945:x[["design_"]] <- design
+1756725075946:x[["RR"]] <- RR
+1756725075946:do.call(Disease$new, x)
+1756725075946:})
+1756725179261:names(diseases) <- sapply(design$sim_prm$diseases, `[[`, "name")
+1756725179262:mk_scenario_init2 <- function(scenario_name, diseases_, sp, design_) {
+1756725179262:# scenario_suffix_for_pop <- paste0("_", scenario_name) # TODO get suffix from design
+1756725179262:scenario_suffix_for_pop <- scenario_name
+1756725179262:list(
+1756725179262:"exposures"          = design_$sim_prm$exposures,
+1756725179263:"scenarios"          = design_$sim_prm$scenarios, # to be generated programmatically
+1756725179263:"scenario"           = scenario_name,
+1756725179263:"kismet"             = design_$sim_prm$kismet, # If TRUE random numbers are the same for each scenario.
+1756725179263:"init_year"          = design_$sim_prm$init_year,
+1756725179263:"pids"               = "pid",
+1756725179264:"years"              = "year",
+1756725179264:"ages"               = "age",
+1756725179264:"ageL"               = design_$sim_prm$ageL,
+1756725179264:"all_cause_mrtl"     = paste0("all_cause_mrtl", scenario_suffix_for_pop),
+1756725179264:"cms_score"          = paste0("cms_score", scenario_suffix_for_pop),
+1756725179265:"cms_count"          = paste0("cms_count", scenario_suffix_for_pop),
+1756725179265:"strata_for_outputs" = c("pid", "year", "age", "sex"),
+1756725179265:"diseases"           = lapply(diseases_, function(x) x$to_cpp(sp, design_))
+1756725179265:)
+1756725179265:}
+1756725179266:# sim <- SynthPop$new(0L, design)
+1756725179266:# sim$write_synthpop(1:500)
+1756725179266:# sim$delete_synthpop(NULL)
+1756725179266:# ll <- sim$gen_synthpop_demog(design)
+1756725179267:#TODO include informative error to check whether exposure table is matching data
+1756725179267:sp  <- SynthPop$new(1L, design)
+1756731532656:source("./global.R")
+1756731589762:source("./global.R")
+1756731708065:getwd()
+1756731783605:source("./global.R")
+1756731890370:design <- Design$new("./inputs/sim_design_docker.yaml")
+1756731956511:# Create a named list of Exposure objects for the files in ./inputs/RR
+1756731956512:fl <- list.files(path = "./inputs/RR", pattern = ".csvy$", full.names = TRUE)
+1756731956516:RR <- future_lapply(fl, Exposure$new, design,future.seed = 950480304L)
+1756731957934:names(RR) <- sapply(RR, function(x) x$get_name())
+1756731957935:invisible(future_lapply(RR, function(x) {
+1756731957935:x$gen_stochastic_effect(design, overwrite = TRUE, smooth = FALSE)
+1756731957936:},
+1756731957936:future.seed = 627524136L))
+1756731959478:# # NOTE smooth cannot be exported to Design for now, because the first time
+1756731959478:# # this parameter changes we need logic to overwrite unsmoothed files
+1756731959478:rm(fl)
+1756731959478:#
+1756731959478:# # Generate diseases ----
+1756731959479:diseases <- lapply(design$sim_prm$diseases, function(x) {
+1756731959479:x[["design_"]] <- design
+1756731959479:x[["RR"]] <- RR
+1756731959479:do.call(Disease$new, x)
+1756731959479:})
+1756732039594:names(diseases) <- sapply(design$sim_prm$diseases, `[[`, "name")
+1756732039595:mk_scenario_init2 <- function(scenario_name, diseases_, sp, design_) {
+1756732039595:# scenario_suffix_for_pop <- paste0("_", scenario_name) # TODO get suffix from design
+1756732039595:scenario_suffix_for_pop <- scenario_name
+1756732039595:list(
+1756732039595:"exposures"          = design_$sim_prm$exposures,
+1756732039595:"scenarios"          = design_$sim_prm$scenarios, # to be generated programmatically
+1756732039596:"scenario"           = scenario_name,
+1756732039596:"kismet"             = design_$sim_prm$kismet, # If TRUE random numbers are the same for each scenario.
+1756732039596:"init_year"          = design_$sim_prm$init_year,
+1756732039596:"pids"               = "pid",
+1756732039596:"years"              = "year",
+1756732039596:"ages"               = "age",
+1756732039597:"ageL"               = design_$sim_prm$ageL,
+1756732039597:"all_cause_mrtl"     = paste0("all_cause_mrtl", scenario_suffix_for_pop),
+1756732039597:"cms_score"          = paste0("cms_score", scenario_suffix_for_pop),
+1756732039597:"cms_count"          = paste0("cms_count", scenario_suffix_for_pop),
+1756732039597:"strata_for_outputs" = c("pid", "year", "age", "sex"),
+1756732039597:"diseases"           = lapply(diseases_, function(x) x$to_cpp(sp, design_))
+1756732039598:)
+1756732039598:}
+1756732039598:# sim <- SynthPop$new(0L, design)
+1756732039598:# sim$write_synthpop(1:500)
+1756732039599:# sim$delete_synthpop(NULL)
+1756732039599:# ll <- sim$gen_synthpop_demog(design)
+1756732039599:#TODO include informative error to check whether exposure table is matching data
+1756732039599:sp  <- SynthPop$new(1L, design)
+1756732137493:lapply(diseases, function(x) {   # run all the functions on all the diseases
+1756732137493:print(x$name)
+1756732137494:x$gen_parf(sp, design)$
+1756732137494:set_init_prvl(sp, design)$
+1756732137494:set_rr(sp, design)$
+1756732137494:set_incd_prb(sp, design)$
+1756732137494:set_dgns_prb(sp, design)$
+1756732137495:set_mrtl_prb(sp, design)
+1756732137495:})
+1756732194727:transpose(sp$pop[, lapply(.SD, anyNA)], keep.names = "rn")[(V1)] # look for NAs, if NAs, debug
+1756732202769:# qsave(sp, "./simulation/tmp.qs")
+1756732202769:# sp <- qread("./simulation/tmp.qs")
+1756732202770:l <- mk_scenario_init2("", diseases, sp, design)   # define an empty scenario
+1756732203602:simcpp(sp$pop, l, sp$mc) # the actual simulation happens here, flips all the coins

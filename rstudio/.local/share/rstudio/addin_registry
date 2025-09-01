@@ -1,4 +1,22 @@
 {
+    "clipr::clipr_output": {
+        "name": "Output to clipboard",
+        "package": "clipr",
+        "title": "",
+        "description": "Copies the console output of a selected expression to the system clipboard",
+        "interactive": false,
+        "binding": "clipr_output",
+        "ordinal": 2
+    },
+    "clipr::clipr_result": {
+        "name": "Value to clipboard",
+        "package": "clipr",
+        "title": "",
+        "description": "Copies the results of a selected expression to the system clipboard",
+        "interactive": false,
+        "binding": "clipr_result",
+        "ordinal": 1
+    },
     "colourpicker::colourPickerAddin": {
         "name": "Colour Picker",
         "package": "colourpicker",
@@ -6,7 +24,7 @@
         "description": "Lets you easily select colours.",
         "interactive": true,
         "binding": "colourPickerAddin",
-        "ordinal": 2
+        "ordinal": 4
     },
     "colourpicker::plotHelperAddin": {
         "name": "Plot Colour Helper",
@@ -15,6 +33,6 @@
         "description": "Interactively pick colours to use in your plot.",
         "interactive": true,
         "binding": "plotHelperAddin",
-        "ordinal": 1
+        "ordinal": 3
     }
 }
