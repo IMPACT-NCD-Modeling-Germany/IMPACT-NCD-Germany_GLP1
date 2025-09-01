@@ -134,7 +134,6 @@ sp  <- SynthPop$new(1L, design)
  diseases$nonmodelled$set_dgns_prb(sp, design)
  diseases$nonmodelled$set_mrtl_prb(sp, design)
 
-qsave(sp, "./simulation/tmp_s.qs")
 
 
 lapply(diseases, function(x) {   # run all the functions on all the diseases
