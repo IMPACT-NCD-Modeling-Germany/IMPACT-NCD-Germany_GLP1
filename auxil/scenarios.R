@@ -248,7 +248,8 @@ scenario_4_fn <- function(sp) {
                                        1)]
   
   # New BMI under taxation scenario #
-  sp$pop[year > ((IMPACTncd$design$sim_prm$init_year_intv - 2000) + policy_lag), bmi_curr_xps := bmi_curr_xps - (bmi_delta * bmi_mod)]
+  sp$pop[year > ((IMPACTncd$design$sim_prm$init_year_intv - 2000) + policy_lag), 
+         bmi_curr_xps := bmi_curr_xps - (bmi_delta * bmi_mod)]
   
   # Delete unnecessary variables from synthpop #
   sp$pop[, c("bmi_mod", "ref_mod", "sugar_per_ssb_new", "ssb_xps_reform_delta") := NULL]
