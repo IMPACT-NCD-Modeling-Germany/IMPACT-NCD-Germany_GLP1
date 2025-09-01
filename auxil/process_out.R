@@ -15,7 +15,7 @@ if(Sys.info()["sysname"] == "Windows"){
   dirs <- list.dirs("G:/Meine Ablage/PhD/Publications/2021_Diet_simulation_modeling_Germany/Model/IMPACT-NCD-Germany/outputs",
                     recursive = FALSE, full.names = FALSE)
 } else {
-  dirs <- list.dirs("/media/php-workstation/Storage_1/IMPACT_Storage/outputs/",
+  dirs <- list.dirs("/media/php-workstation/Storage_1/IMPACT_Storage/GLP1/outputs/",
                     recursive = FALSE, full.names = FALSE)
 }
 dirs <- dirs[!(dirs %in% c("Test", "manuscript", "appendix"))]
@@ -35,13 +35,13 @@ for(analysis in dirs){
     if(!Sys.info()[1] == "Windows"){
       
       # Input path for IMPACT results
-      in_path <- paste0("/media/php-workstation/Storage_1/IMPACT_Storage/outputs/", analysis, "/summaries/")
+      in_path <- paste0("/media/php-workstation/Storage_1/IMPACT_Storage/GLP1/outputs/", analysis, "/summaries/")
       
       # Output path for tables
-      out_path_tables <- paste0("/media/php-workstation/Storage_1/IMPACT_Storage/outputs/", analysis, "/tables/")
+      out_path_tables <- paste0("/media/php-workstation/Storage_1/IMPACT_Storage/GLP1/outputs/", analysis, "/tables/")
       
       # Output path for plots
-      out_path_plots <- paste0("/media/php-workstation/Storage_1/IMPACT_Storage/outputs/", analysis, "/plots/")
+      out_path_plots <- paste0("/media/php-workstation/Storage_1/IMPACT_Storage/GLP1/outputs/", analysis, "/plots/")
     
     } else {
       

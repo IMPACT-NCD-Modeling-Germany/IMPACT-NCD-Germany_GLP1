@@ -31,7 +31,7 @@ bmi_1y_samples <- data.table(
 
 #bmi_1y_samples[tax_pth > 1, tax_pth := 1] --> I don't think we need a upper limit here
 
-write_fst(bmi_1y_samples, "bmi_1y_samples.fst")
+write_fst(bmi_1y_samples, "./inputs/other_parameters/bmi_1y_samples.fst")
 
 ###################################################################################################
 #### Simulate uncertainty in bmi efficacy input at treatment year 2 -------------------------------
@@ -54,7 +54,7 @@ bmi_2y_samples <- data.table(
 
 #tax_pth_samples[tax_pth > 1, tax_pth := 1]
 
-write_fst(bmi_2y_samples, "bmi_2y_samples.fst")
+write_fst(bmi_2y_samples, "./inputs/other_parameters/bmi_2y_samples.fst")
 
 ###################################################################################################
 #### Simulate uncertainty in bmi efficacy input at treatment year 3 ------------------------------
@@ -85,7 +85,7 @@ bmi_3y_samples <- data.table(
 
 #tax_pth_samples[tax_pth > 1, tax_pth := 1]
 
-write_fst(bmi_3y_samples, "bmi_3y_samples.fst")
+write_fst(bmi_3y_samples, "./inputs/other_parameters/bmi_3y_samples.fst")
 
 ###################################################################################################
 #### Simulate uncertainty in bmi efficacy input at treatment year 4 ------------------------------
@@ -109,7 +109,7 @@ bmi_4y_samples <- data.table(
 
 #tax_pth_samples[tax_pth > 1, tax_pth := 1]
 
-write_fst(bmi_4y_samples, "bmi_4y_samples.fst")
+write_fst(bmi_4y_samples, "./inputs/other_parameters/bmi_4y_samples.fst")
 
 ####################################################################################################
 ##########################################################################################
@@ -142,7 +142,7 @@ sbp_1y_samples <- data.table(
 
 #sbp_1y_samples[tax_pth > 1, tax_pth := 1] --> I don't think we need a upper limit here
 
-write_fst(sbp_1y_samples, "sbp_1y_samples.fst")
+write_fst(sbp_1y_samples, "./inputs/other_parameters/sbp_1y_samples.fst")
 
 ###################################################################################################
 #### Simulate uncertainty in SBP efficacy input at treatment year 2 -------------------------------
@@ -165,7 +165,7 @@ sbp_2y_samples <- data.table(
 
 #tax_pth_samples[tax_pth > 1, tax_pth := 1]
 
-write_fst(sbp_2y_samples, "sbp_2y_samples.fst")
+write_fst(sbp_2y_samples, "./inputs/other_parameters/sbp_2y_samples.fst")
 
 ###################################################################################################
 ##########################################################################################
@@ -199,7 +199,7 @@ tchol_1y_samples <- data.table(
 
 #tchol_1y_samples[tax_pth > 1, tax_pth := 1] --> I don't think we need a upper limit here
 
-write_fst(tchol_1y_samples, "tchol_1y_samples.fst")
+write_fst(tchol_1y_samples, "./inputs/other_parameters/tchol_1y_samples.fst")
 
 ###################################################################################################
 #### Simulate uncertainty in tchol efficacy input at treatment year 2 -------------------------------
@@ -228,7 +228,7 @@ tchol_2y_samples <- data.table(
 
 #tax_pth_samples[tax_pth > 1, tax_pth := 1]
 
-write_fst(tchol_2y_samples, "tchol_2y_samples.fst")
+write_fst(tchol_2y_samples, "./inputs/other_parameters/tchol_2y_samples.fst")
 
 ###################################################################################################
 

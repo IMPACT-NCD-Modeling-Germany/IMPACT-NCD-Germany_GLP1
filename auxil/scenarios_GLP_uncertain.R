@@ -12,7 +12,7 @@ scenario_0_fn <- function(sp) {
 
 }
 
-scenario_0_fn(sp)
+#scenario_0_fn(sp)
 
 ### Scenario 1 - Cost-effectiveness analysis of semaglutide 2.4 mg for weight management in German adult population
 
@@ -325,7 +325,7 @@ scenario_1_fn <- function(sp) {
   # The model runs faster without them
   # Keep the variables needed for further analysis
 
-  scenario_1_fn(sp) # Works!
+  #scenario_1_fn(sp) # Works!
   #test_uptake <- sp$pop[pid %in% sp$pop[entry_year >= 25 & eligible_bi ==1, unique(pid)]]
   #test_uptake <- sp$pop[pid %in% sp$pop[uptake_one == 1, unique(pid)]]
 

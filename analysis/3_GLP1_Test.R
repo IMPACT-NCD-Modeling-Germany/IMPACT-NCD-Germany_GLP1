@@ -5,8 +5,7 @@
 source("./global.R")
 
 # Load scenario and sensitivity analyses functions
-source("./auxil/scenarios.R")
-source("./auxil/sensitivity_analyses.R")
+source("./auxil/scenarios_GLP_uncertain.R")
 
 # Initiate .Random.seed for safety
 runif(1)
@@ -15,14 +14,12 @@ runif(1)
 new_runs <- TRUE
 new_export <- TRUE
 
-# Exports
-export_type = "cea"
 
 if(new_runs){
   
   # Create batches for batched simulation
   batch_size <- 10
-  iterations <- 10
+  iterations <- 200
   first_iteration <- 1
   batches <- split(seq(first_iteration, iterations + first_iteration - 1),
                    f = findInterval(seq(first_iteration, iterations + first_iteration - 1),
@@ -41,12 +38,12 @@ if(new_runs){
     
     IMPACTncd$
       run(i, multicore = TRUE, "sc0", m_zero_trend = -0.03, p_zero_trend = 0)
-    # 
-    # scenario_fn <- scenario_1_fn
-    # 
-    # IMPACTncd$
-    #   run(i, multicore = TRUE, "sc1", m_zero_trend = -0.03, p_zero_trend = 0)
-    # 
+
+    scenario_fn <- scenario_1_fn
+
+    IMPACTncd$
+      run(i, multicore = TRUE, "sc1", m_zero_trend = -0.03, p_zero_trend = 0)
+
     # scenario_fn <- scenario_2_fn
     # 
     # IMPACTncd$
@@ -65,5 +62,5 @@ if(new_runs){
   }
 }
 if(new_export){
-  IMPACTncd$export_summaries(multicore = TRUE, type = export_type)
+  IMPACTncd$export_summaries(multicore = TRUE)
 }
