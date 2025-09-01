@@ -1331,7 +1331,7 @@ Disease <-
   
               if(self$name == "chd"){
                 
-                tbl <- read_fst("/home/inputs/mortality/mrtl_clbr_chd.fst",
+                tbl <- read_fst("./inputs/mortality/mrtl_clbr_chd.fst",
                                 as.data.table = TRUE)
                 
                 absorb_dt(sp$pop, tbl)

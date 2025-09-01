@@ -147,10 +147,10 @@ lapply(diseases, function(x) {   # run all the functions on all the diseases
     set_mrtl_prb(sp, design)
 })
 
-qsave(sp, "./simulation/tmp.qs") # save that sp with diease prob
+#qsave(sp, "./simulation/tmp.qs") # save that sp with diease prob
 
-library(qs)
-qread("/tmp/myfile.qs")
+#library(qs)
+#qread("/tmp/myfile.qs")
 
 transpose(sp$pop[, lapply(.SD, anyNA)], keep.names = "rn")[(V1)] # look for NAs, if NAs, debug
                                                                  # extreme values in exposure
