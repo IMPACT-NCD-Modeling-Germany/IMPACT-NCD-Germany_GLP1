@@ -29,7 +29,7 @@ if(new_runs){
 
 analysis_name <- "GLP_Test"
 
-IMPACTncd <- Simulation$new("./inputs/sim_design.yaml", analysis_name)
+IMPACTncd <- Simulation$new("./inputs/sim_design_docker.yaml", analysis_name)
 
 if(new_runs){
   for(i in batches){

@@ -122,6 +122,8 @@ cols_for_output:
 - bmi_delta
 - sbp_delta
 - tchol_delta
+- uptake_one 
+- trtm_theo
 strata_for_output:
 - scenario
 - year
