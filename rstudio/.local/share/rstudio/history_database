@@ -1590,3 +1590,116 @@
 1756742988189:# ll <- sim$gen_synthpop_demog(design)
 1756742988189:#TODO include informative error to check whether exposure table is matching data
 1756742988189:sp  <- SynthPop$new(1L, design)
+1757760890937:source("./global.R")
+1757760988739:design <- Design$new("./inputs/sim_design_docker.yaml")
+1757760988768:# RR ----
+1757760988768:# Create a named list of Exposure objects for the files in ./inputs/RR
+1757760988768:fl <- list.files(path = "./inputs/RR", pattern = ".csvy$", full.names = TRUE)
+1757760988772:RR <- future_lapply(fl, Exposure$new, design,future.seed = 950480304L)
+1757760990012:names(RR) <- sapply(RR, function(x) x$get_name())
+1757760990014:invisible(future_lapply(RR, function(x) {
+1757760990014:x$gen_stochastic_effect(design, overwrite = TRUE, smooth = FALSE)
+1757760990014:},
+1757760990015:future.seed = 627524136L))
+1757760996551:# # NOTE smooth cannot be exported to Design for now, because the first time
+1757760996551:# # this parameter changes we need logic to overwrite unsmoothed files
+1757760996551:rm(fl)
+1757760996552:#
+1757760996552:# # Generate diseases ----
+1757760996552:diseases <- lapply(design$sim_prm$diseases, function(x) {
+1757760996553:x[["design_"]] <- design
+1757760996553:x[["RR"]] <- RR
+1757760996553:do.call(Disease$new, x)
+1757760996554:})
+1757761086993:names(diseases) <- sapply(design$sim_prm$diseases, `[[`, "name")
+1757761086993:mk_scenario_init2 <- function(scenario_name, diseases_, sp, design_) {
+1757761086993:# scenario_suffix_for_pop <- paste0("_", scenario_name) # TODO get suffix from design
+1757761086993:scenario_suffix_for_pop <- scenario_name
+1757761086993:list(
+1757761086994:"exposures"          = design_$sim_prm$exposures,
+1757761086994:"scenarios"          = design_$sim_prm$scenarios, # to be generated programmatically
+1757761086994:"scenario"           = scenario_name,
+1757761086994:"kismet"             = design_$sim_prm$kismet, # If TRUE random numbers are the same for each scenario.
+1757761086994:"init_year"          = design_$sim_prm$init_year,
+1757761086994:"pids"               = "pid",
+1757761086995:"years"              = "year",
+1757761086995:"ages"               = "age",
+1757761086995:"ageL"               = design_$sim_prm$ageL,
+1757761086995:"all_cause_mrtl"     = paste0("all_cause_mrtl", scenario_suffix_for_pop),
+1757761086995:"cms_score"          = paste0("cms_score", scenario_suffix_for_pop),
+1757761086995:"cms_count"          = paste0("cms_count", scenario_suffix_for_pop),
+1757761086996:"strata_for_outputs" = c("pid", "year", "age", "sex"),
+1757761086996:"diseases"           = lapply(diseases_, function(x) x$to_cpp(sp, design_))
+1757761086996:)
+1757761086996:}
+1757761086996:# sim <- SynthPop$new(0L, design)
+1757761086996:# sim$write_synthpop(1:500)
+1757761086997:# sim$delete_synthpop(NULL)
+1757761086997:# ll <- sim$gen_synthpop_demog(design)
+1757761086997:#TODO include informative error to check whether exposure table is matching data
+1757761086997:sp  <- SynthPop$new(1L, design)
+1757761136370:lapply(diseases, function(x) {   # run all the functions on all the diseases
+1757761136370:print(x$name)
+1757761136370:x$gen_parf(sp, design)$
+1757761136371:set_init_prvl(sp, design)$
+1757761136371:set_rr(sp, design)$
+1757761136371:set_incd_prb(sp, design)$
+1757761136371:set_dgns_prb(sp, design)$
+1757761136371:set_mrtl_prb(sp, design)
+1757761136372:})
+1757761188622:# qsave(sp, "./simulation/tmp.qs")
+1757761188623:# sp <- qread("./simulation/tmp.qs")
+1757761188623:l <- mk_scenario_init2("", diseases, sp, design)   # define an empty scenario
+1757761189557:simcpp(sp$pop, l, sp$mc) # the actual simulation happens here, flips all the coins
+1757761446616:# Load packages
+1757761446616:source("./global.R")
+1757761531492:# Load scenario and sensitivity analyses functions
+1757761531493:source("./auxil/scenarios_GLP_uncertain.R")
+1757761536719:runif(1)
+1757761536720:# New runs?
+1757761536720:new_runs <- TRUE
+1757761536720:new_export <- TRUE
+1757761575102:if(new_runs){
+1757761575103:# Create batches for batched simulation
+1757761575103:batch_size <- 10
+1757761575103:iterations <- 300
+1757761575103:first_iteration <- 1
+1757761575103:batches <- split(seq(first_iteration, iterations + first_iteration - 1),
+1757761575104:f = findInterval(seq(first_iteration, iterations + first_iteration - 1),
+1757761575104:vec = seq(first_iteration, iterations + first_iteration - 1, batch_size)))
+1757761575104:}
+1757761593032:if(new_runs){
+1757761593033:# Create batches for batched simulation
+1757761593033:batch_size <- 10
+1757761593033:iterations <- 20
+1757761593034:first_iteration <- 1
+1757761593034:batches <- split(seq(first_iteration, iterations + first_iteration - 1),
+1757761593034:f = findInterval(seq(first_iteration, iterations + first_iteration - 1),
+1757761593034:vec = seq(first_iteration, iterations + first_iteration - 1, batch_size)))
+1757761593035:}
+1757761598964:analysis_name <- "GLP_Test"
+1757761600247:IMPACTncd <- Simulation$new("./inputs/sim_design_docker.yaml", analysis_name)
+1757762620230:if(new_runs){
+1757762620232:for(i in batches){
+1757762620233:scenario_fn <- scenario_0_fn
+1757762620233:IMPACTncd$
+1757762620234:run(i, multicore = TRUE, "sc0", m_zero_trend = -0.03, p_zero_trend = 0)
+1757762620235:scenario_fn <- scenario_1_fn
+1757762620236:IMPACTncd$
+1757762620237:run(i, multicore = TRUE, "sc1", m_zero_trend = -0.03, p_zero_trend = 0)
+1757762620237:# scenario_fn <- scenario_2_fn
+1757762620238:#
+1757762620238:# IMPACTncd$
+1757762620239:#   run(i, multicore = TRUE, "sc2", m_zero_trend = -0.03, p_zero_trend = 0)
+1757762620239:#
+1757762620240:# scenario_fn <- scenario_3_fn
+1757762620240:#
+1757762620241:# IMPACTncd$
+1757762620241:#   run(i, multicore = TRUE, "sc3", m_zero_trend = -0.03, p_zero_trend = 0)
+1757762620242:#
+1757762620242:# scenario_fn <- scenario_4_fn
+1757762620243:#
+1757762620244:# IMPACTncd$
+1757762620245:#   run(i, multicore = TRUE, "sc4", m_zero_trend = -0.03, p_zero_trend = 0)
+1757762620245:}
+1757762620246:}

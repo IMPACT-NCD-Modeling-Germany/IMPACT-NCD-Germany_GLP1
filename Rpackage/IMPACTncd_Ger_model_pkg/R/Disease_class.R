@@ -2090,7 +2090,7 @@ Disease <-
           #} else {
             ff <- absorb_dt(ff, tbl)
           #}
-          ff[, sbp_curr_xps := my_qBCT(rank_sbp, mu, sigma, nu, tau, n_cpu = design_$sim_prm$n_cpu)]
+          ff[, sbp_curr_xps := qBCCG(rank_sbp, mu, sigma, nu)]
           ff[sbp_curr_xps > 1000, sbp_curr_xps := 1000] #Truncate SBP to avoid unrealistic values.
           
           ff[, (col_nam) := NULL]
@@ -2147,11 +2147,7 @@ Disease <-
           #} else {
             ff <- absorb_dt(ff, tbl)
           #}
-          ff[, bmi_curr_xps := my_qBCT(rank_bmi, mu, sigma, nu, tau, n_cpu = design_$sim_prm$n_cpu)]
-          # Jane: why my_qBCT()? not qBCT()?
-          #       Aug 2025, 
-          #       Could change BCTo distribution to BCT distribution, with the same parameters (mu, sigma,..)
-          #       with my_qBCT, Chris has implemented the codes for this distribution
+          ff[, bmi_curr_xps := my_qBCPEo(rank_bmi, mu, sigma, nu, tau, n_cpu = design_$sim_prm$n_cpu)]
           ff[bmi_curr_xps > 80, bmi_curr_xps := 80] #Truncate BMI predictions to avoid unrealistic values.
           ff[, rank_bmi := NULL]
           ff[, (col_nam) := NULL]

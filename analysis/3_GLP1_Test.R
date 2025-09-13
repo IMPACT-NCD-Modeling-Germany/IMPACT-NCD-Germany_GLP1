@@ -19,7 +19,7 @@ if(new_runs){
   
   # Create batches for batched simulation
   batch_size <- 10
-  iterations <- 200
+  iterations <- 20
   first_iteration <- 1
   batches <- split(seq(first_iteration, iterations + first_iteration - 1),
                    f = findInterval(seq(first_iteration, iterations + first_iteration - 1),
@@ -30,6 +30,7 @@ if(new_runs){
 analysis_name <- "GLP_Test"
 
 IMPACTncd <- Simulation$new("./inputs/sim_design_docker.yaml", analysis_name)
+#IMPACTncd <- Simulation$new("./inputs/sim_design_docker.yaml")
 
 if(new_runs){
   for(i in batches){
@@ -61,6 +62,8 @@ if(new_runs){
     
   }
 }
+
 if(new_export){
   IMPACTncd$export_summaries(multicore = TRUE)
 }
+ 

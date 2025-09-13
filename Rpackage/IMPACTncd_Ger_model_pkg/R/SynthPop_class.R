@@ -942,7 +942,7 @@ SynthPop <-
             # ggplot2::qplot(year, rank_ssb, data = dt[pid %in% sample(1e1, 1)], ylim = c(0,1))
 
 
-            # Generate sbp (qBCTo) ----
+            # Generate sbp (qBCCG) ----
             if (design_$sim_prm$logs) message("Generate sbp")
 
             tbl <-
@@ -957,7 +957,7 @@ SynthPop <-
             #}
             #dt <- merge(dt, tbl, by = c(intersect(names(dt), names(tbl))))
 
-              dt[, sbp := my_qBCT(rank_sbp, mu, sigma, nu, tau, n_cpu = design_$sim_prm$n_cpu)] 
+              dt[, sbp := qBCCG(rank_sbp, mu, sigma, nu)] 
               dt[sbp > 1000, sbp := 1000] #Truncate sbp predictions to avoid unrealistic values.
               dt[, (col_nam) := NULL]
               dt[, `:=`(rank_sbp = NULL)]
@@ -995,7 +995,7 @@ SynthPop <-
             #} else {
               dt <- absorb_dt(dt, tbl)
             #}
-            dt[, bmi := my_qBCT(rank_bmi, mu, sigma, nu, tau, n_cpu = design_$sim_prm$n_cpu)] ## Jane: why 'my_qBCPEo()'?
+            dt[, bmi := my_qBCPEo(rank_bmi, mu, sigma, nu, tau, n_cpu = design_$sim_prm$n_cpu)] ## Jane: why 'my_qBCPEo()'?
             dt[bmi > 80, bmi := 80] #Truncate BMI predictions to avoid unrealistic values.
             dt[, rank_bmi := NULL]
             dt[, (col_nam) := NULL]
