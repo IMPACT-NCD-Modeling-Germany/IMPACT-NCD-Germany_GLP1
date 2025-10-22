@@ -38,7 +38,7 @@ if(new_runs){
     scenario_fn <- scenario_0_fn
     
     IMPACTncd$
-      run(i, multicore = TRUE, "sc0", m_zero_trend = -0.03, p_zero_trend = 0)
+      run(i, multicore = TRUE, "sc0", m_zero_trend = -0.03, p_zero_trend = 0) # What is the output of this line?
     
     ##########################################   NEW  ##############################################
     ## add the codes to extract the pids from the scenario 0
@@ -53,7 +53,6 @@ if(new_runs){
     sp$pop[, eligible_bi := ifelse((age<=80 & bmi_curr_xps>=35 & t2dm_prvl==0)|
                                      (age<=80 & bmi_curr_xps>=30 & bmi_curr_xps<35 & t2dm_prvl==0 & chd_prvl>0)|
                                      (age<=80 & bmi_curr_xps>=30 & bmi_curr_xps<35 & t2dm_prvl==0 & stroke_prvl>0), 1, 0)]
-    
     ##############################################################
     #--------- Calculate the constant N_treat each year ---------#
     ##############################################################
@@ -64,19 +63,18 @@ if(new_runs){
     #----- Disperse these patient who uptake the drug over 20 year, to get a constant N patients every year for uptake
     #----- 201500*0.75/20 = 7556.25
     ##############################################################
-    
-    # Let's set some essential parameters
+    # Step 1. Let's set some essential parameters
     start_year <- 25
     end_year   <- 44
     N_treat    <- 6000
     set.seed(123)
     
-    # Step 1. Initialize a person-level table to record uptake year (one row per pid, and their potential uptake year)
+    # Step 2. Initialize a person-level table to record uptake year (one row per pid, and their potential uptake year)
     persons <- unique(sp$pop[, .(pid)])
     persons[, uptake_year := NA_integer_] # NA => not yet treated
     # Everyone starts with NA as uptake year
     
-    # Step 2. Loop through rollout years
+    # Step 3. Loop through all rollout years (2025-2044)
     for (yr in start_year:end_year) {
       
       # eligible & not previously treated pids in this year
@@ -104,6 +102,7 @@ if(new_runs){
       persons[pid %in% sampled, uptake_year := yr]
       
     }
+    # This chunk of codes eventually output a table with each pid and their uptake year.
     #----------------------------------------------------------------------------------------------#
     ##########################################   NEW  ##############################################
 
