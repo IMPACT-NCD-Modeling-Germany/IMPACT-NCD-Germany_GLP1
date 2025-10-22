@@ -767,8 +767,9 @@ Simulation <-
         file.path(self$design$sim_prm$output_dir, self$design$sim_prm$analysis_name, x)
       },
 
-      # function to export summaries from lifecourse files
-      # lc is a lifecourse file
+      # export_summaries_hlpr():
+      # a function to export summaries from lifecourse files
+      # lc is a lifecourse file, key input of the hlpr function
       export_summaries_hlpr = function(lc, type = c("le", "ly",
                                                   "prvl", "incd",
                                                   "mrtl",  "dis_mrtl",
@@ -777,6 +778,21 @@ Simulation <-
         # strata <- setdiff(self$design$sim_prm$cols_for_output, c("age", "pid", "wt"))
         strata <- c("mc",
                     setdiff(self$design$sim_prm$strata_for_output, c("agegrp")))
+        
+        ########################################################################################
+        ##-------------------- Hard code a sub-sample of the population -----------------------#
+        ##--------------- to generate all the summaries for this sub-sample -------------------#
+        ##---- *Later, if would be good to have a logical argument on whether we run ----------#
+        ##----  summaries on the whole population or on a defined sub-sample ------------------#
+        ########################################################################################
+        
+        lc[, eligible_bi := ifelse(bmi_curr_xps >= 35 & age <= 80 & year == 25 & t2dm_prvl == 0, 1, 0)]
+        eligible_ids <- lc[eligible_bi == 1, unique(pid)]
+        lc <- lc[pid %in% eligible_ids]
+        
+        ########################################################################################
+        ##---------- Now we have a new lc, which will be used in the following code -----------#
+        ########################################################################################
         
         if("le" %in% type){
           
@@ -1194,7 +1210,7 @@ Simulation <-
           
           qalys_scaled <- lc[, lapply(.SD, function(x){
 
-            x <- sum(x * wt * dcv)
+            x <- sum(x * wt * dcv, na.rm = TRUE)
             
             return(x)
 
@@ -1207,7 +1223,7 @@ Simulation <-
           
           qalys_esp <- lc[, lapply(.SD, function(x){
             
-            x <- sum(x * wt_esp * dcv)
+            x <- sum(x * wt_esp * dcv, na.rm = TRUE)
             
             return(x)
             
@@ -1224,7 +1240,7 @@ Simulation <-
           
           costs_scl <- lc[, lapply(.SD, function(x){
             
-            x <- sum(x * wt * dcv)
+            x <- sum(x * wt * dcv, na.rm = TRUE)
             
             return(x)
             
@@ -1239,7 +1255,7 @@ Simulation <-
           
           costs_esp <- lc[, lapply(.SD, function(x){
             
-            x <- sum(x * wt_esp * dcv)
+            x <- sum(x * wt_esp * dcv, na.rm = TRUE)
             
             return(x)
             
@@ -1256,7 +1272,7 @@ Simulation <-
           
           indir_costs_scl <- lc[, lapply(.SD, function(x){
             
-            x <- sum(x * wt * dcv)
+            x <- sum(x * wt * dcv, na.rm = TRUE)
             
             return(x)
             
@@ -1274,7 +1290,7 @@ Simulation <-
           
           indir_costs_esp <- lc[, lapply(.SD, function(x){
             
-            x <- sum(x * wt_esp * dcv)
+            x <- sum(x * wt_esp * dcv, na.rm = TRUE)
             
             return(x)
             
@@ -1288,6 +1304,10 @@ Simulation <-
                             "cost_scklv_stroke", "cost_slfmgt_t2dm", "cost_time_t2dm", "cost_time"), "_esp"))
           
           absorb_dt(cea, indir_costs_esp)
+          ### replace all NAs with 0
+          ### in the cea data.table
+          num_cols <- names(cea)[sapply(cea, is.numeric)]
+          cea[, (num_cols) := lapply(.SD, function(x) fifelse(is.na(x), 0, x)), .SDcols = num_cols]
           
           
           cea[, `:=`(

@@ -1,14 +1,14 @@
 analysis_name: GLP1
 iteration_n: 5
 iteration_n_final: 10
-clusternumber: 30 # explicit parallelisation
-clusternumber_export: 4 # NEW: number of clusters for export_summaries
+clusternumber: 1 # explicit parallelisation
+clusternumber_export: 1 # NEW: number of clusters for export_summaries
 n_cpus: 1 # implicit parallelisation
 logs: yes
 export_xps: yes
 keep_lifecourse: yes
 export_PARF: no
-'n': 100000
+'n': 10000
 n_synthpop_aggregation: 2 # number of synthpops to aggregate together
 # n_primers: 10 # better be some multiple of n_synthpop_aggregation
 init_year_long: 2013 # 2008 to 2020 but be careful with max lags
@@ -106,7 +106,7 @@ kismet: yes
 validation: no # or yes. Note, no yes/no
 max_prvl_for_outputs: 2 # duration 1 is incidence and 2 is prevalence
 iteration_n_max: 1000
-output_dir: /home/outputs
+output_dir: /home/outputs/GLP_Test
 synthpop_dir: /home/inputs/synthpop
 scenarios: ''
 cols_for_output:
