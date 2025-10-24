@@ -3,16 +3,24 @@
 #----------------------------------------------------------------------------------------------------------------#
 #-----------------------------------------    Semaglutide Modelling    ------------------------------------------#
 #----------------------------------------------------------------------------------------------------------------#
+#------------------------------------    Scenario base: Nothing happens     -------------------------------------#
+#----------------------------------------------------------------------------------------------------------------#
+##################################################################################################################
+scenario_base_fn <- function(sp) {
+
+  sp$pop[, c("bmi_delta", "sbp_delta", "tchol_delta") := 0]
+
+}
+
+#scenario_0_fn(sp)
+
+##################################################################################################################
+#----------------------------------------------------------------------------------------------------------------#
+#-----------------------------------------    Semaglutide Modelling    ------------------------------------------#
+#----------------------------------------------------------------------------------------------------------------#
 #-------------------------------------    Scenario 0: Nutrition therapy     -------------------------------------#
 #----------------------------------------------------------------------------------------------------------------#
 ##################################################################################################################
-#scenario_0_fn <- function(sp) {
-
-#  sp$pop[, c("bmi_delta", "sbp_delta", "tchol_delta") := 0]
-
-#}
-
-#scenario_0_fn(sp)
 
 ######## Nutrition therapy:---------------------------------------------------------------------------------------
 ######## we assume that the effects on weight loss from the nutrition therapy is nearly identical to effects
@@ -201,7 +209,7 @@ scenario_0_fn <- function(sp) {
   ###############################          Tchol         #################################
   ###################         Nothing happens to Tchol in sc0         ####################
   ########################################################################################
-  sp$pop[, c("tchol_delta") := 0]
+
   ##################### Get rid of unnecessary variables ##########################
   # Delete unnecessary variables from synthpop #
   sp$pop[, c("rankstat_sbp", "rankstat_tchol", "ys_rollout", "uptake_rate",
@@ -645,24 +653,41 @@ scenario_2_fn <- function(sp) {
   ###########################################################################################################
 
   # a variable for how long it has been since the baseline (2024)
-  baseline_yr <- 24 ## it's 2024, but all years should be relative to year 2000
-  sp$pop[, ys_rollout := year - baseline_yr] # baseline_yr == 2024 / year == 24 --> baseline year
+  # baseline_yr <- 24 ## it's 2024, but all years should be relative to year 2000
+  # sp$pop[, ys_rollout := year - baseline_yr] # baseline_yr == 2024 / year == 24 --> baseline year
 
   # a variable for uptake rates based on years after drug roll-out
   # * For Budget impact, We assume a 10% uptake rate every year
   # * This uptake rate is independent of individual simulation history, it only depends on years after roll-out
-  sp$pop[, uptake_rate := ifelse(ys_rollout >= 1, 0.1, 0)]
+  # sp$pop[, uptake_rate := ifelse(ys_rollout >= 1, 0.1, 0)]
 
   # a variable for defining individual's eligibility for accessing Semaglutide by BMI
-  sp$pop[, eligible_bi := ifelse(bmi_curr_xps >= 35, 1, 0)]
+  # sp$pop[, eligible_bi := ifelse(bmi_curr_xps >= 35, 1, 0)]
 
   # a variable for the uptake of the drug conditioning on meeting eligibility (person_year)
-  sp$pop[, uptake_psyr := ifelse(eligible_bi ==1, rbinom(.N, size = 1, prob = uptake_rate), 0)]
+  # sp$pop[, uptake_psyr := ifelse(eligible_bi ==1, rbinom(.N, size = 1, prob = uptake_rate), 0)]
 
   # a variable for the once-in-a-lifetime uptake during an individual's simulation years
-  sp$pop[, uptake_one := 0]
-  sp$pop[uptake_psyr == 1, uptake_one := as.integer(.I == .I[which.min(year)]), by = pid]
+  # sp$pop[, uptake_one := 0]
+  # sp$pop[uptake_psyr == 1, uptake_one := as.integer(.I == .I[which.min(year)]), by = pid]
   ### In this testing, only two ids got the treatment: pid 156, 175
+
+  # Load the pids of uptake patients for each iteration
+  persons <- fread(paste0("./inputs/uptake/", sp$mc_aggr, "_uptake.csv"))
+  ### Test
+  ### persons <- fread(paste0(getwd(), "./inputs/uptake/", 3, "_uptake.csv")) & is.data.table(persons): TURE
+  ### fread() is highly optimized: it’s faster than read_csv(), and it returns a data.table automatically.
+
+  # Join uptake info back to lifecourse rows
+  sp$pop <- merge(sp$pop, persons, by = "pid", all.x = TRUE)
+
+  # Create a row-level indicator for uptake event (1 only in the uptake year row)
+  sp$pop[, uptake_one := as.integer(!is.na(uptake_year) & year == uptake_year)]
+  # --- !is.na(uptake_year): checks whether the uptake_year column is no NA, returns 'TRUE' or 'FALSE'
+  # --- year == uptake_year: checks whether the value in 'year' column is equal to the value in 'uptake_year' column.
+  #                          also returns 'TRUE' or 'FALSE'
+  # --- as.integer(...):     converts the result of the logical expression into an integer.
+  #                          In R, as.integer(TRUE) becomes 1 and as.integer(False) becomes 0.
 
   # a variable for the year someone uptaking the drug
   sp$pop[, anchor_year:=year[uptake_one == 1], by = pid]
