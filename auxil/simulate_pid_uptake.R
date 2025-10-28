@@ -63,13 +63,18 @@ pid_uptake <- function(lc_path, output_dir = paste0(getwd(), "/inputs/uptake"), 
     # record uptake year for those sampled
     persons[pid %in% sampled, uptake_year := yr]
     
-    #Delete NAs from persons file
-    persons <- persons[!is.na(uptake_year), ]
-    
   }
   
   # Step 3. Add mc column in each selected-pid table
+  #         Also delete NAs from persons file
+  persons <- persons[!is.na(uptake_year), ]
   persons[, mc := mc_id]
+  
+  # Step 4. I also need a variable for the year someone enters the lifecourse
+  lc[, entry_year:= min(year), by = pid]
+  entry <- unique(lc[, .(pid, entry_year)], by = "pid")
+  #entry <- unique[lc, by = 'pid'][ , c('pid','entry_year')]
+  persons <- merge(persons, entry, by = "pid", all.x = TRUE)
   
   # Check if output dir exists
   if(!dir.exists(output_dir)) dir.create(output_dir, recursive = TRUE)

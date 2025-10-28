@@ -14,6 +14,14 @@ scenario_base_fn <- function(sp) {
 
 #scenario_0_fn(sp)
 
+scenario_0_fn <- function(sp) {
+
+  sp$pop[, c("bmi_delta", "sbp_delta", "tchol_delta") := 0]
+
+}
+
+#scenario_0_fn(sp)
+
 ##################################################################################################################
 #----------------------------------------------------------------------------------------------------------------#
 #-----------------------------------------    Semaglutide Modelling    ------------------------------------------#
@@ -21,7 +29,6 @@ scenario_base_fn <- function(sp) {
 #-------------------------------------    Scenario 0: Nutrition therapy     -------------------------------------#
 #----------------------------------------------------------------------------------------------------------------#
 ##################################################################################################################
-
 ######## Nutrition therapy:---------------------------------------------------------------------------------------
 ######## we assume that the effects on weight loss from the nutrition therapy is nearly identical to effects
 ######## from the placebo arm in the STEP trials, which is caused by the lifestyle intervention and placebo effects.
@@ -31,33 +38,50 @@ scenario_base_fn <- function(sp) {
 ######## SBP --> 1.1 mmHG at year 1, 1.6 mmHG at year 2
 ######## We assume the weight rebound to baseline at year 3
 ######## ---------------------------------------------------------------------------------------------------------
-scenario_0_fn <- function(sp) {
+scenario_1_fn <- function(sp) {
   # a variable for how long it has been since the baseline (2024)
-  baseline_yr <- 24 ## it's 2024, but all years should be relative to year 2000
-  sp$pop[, ys_rollout := year - baseline_yr] # baseline_yr == 2024 / year == 24 --> baseline year
-
+  # baseline_yr <- 24 ## it's 2024, but all years should be relative to year 2000
+  # sp$pop[, ys_rollout := year - baseline_yr] # baseline_yr == 2024 / year == 24 --> baseline year
+  
   # a variable for uptake rates based on years after drug roll-out
   # * For CEA: 100 % uptake for the eligible patients at the first year of drug roll-out (year == 25 --> rollout year)
   # * This uptake rate is independent of individual simulation history, it only depends on years after roll-out
-  sp$pop[, uptake_rate := ifelse(ys_rollout == 1, 1, 0)] # Set the uptake_rate to be 100% and only possible in year 2025 in CEA
-
+  # sp$pop[, uptake_rate := ifelse(ys_rollout == 1, 1, 0)] # Set the uptake_rate to be 100% and only possible in year 2025 in CEA
+  
   # a variable for defining individual's eligibility for accessing Semaglutide by BMI
-  sp$pop[, eligible_bi := ifelse(bmi_curr_xps >= 35 & age <= 80, 1, 0)]
-
+  # sp$pop[, eligible_bi := ifelse(bmi_curr_xps >= 35 & age <= 80, 1, 0)]
+  
   # a variable for the uptake of the drug conditioning on meeting eligibility (person_year)
-  sp$pop[, uptake_psyr := ifelse(eligible_bi ==1, rbinom(.N, size = 1, prob = uptake_rate), 0)]
-
+  # sp$pop[, uptake_psyr := ifelse(eligible_bi ==1, rbinom(.N, size = 1, prob = uptake_rate), 0)]
+  
   # a variable for the once-in-a-lifetime uptake during an individual's simulation years
-  sp$pop[, uptake_one := 0]
-  sp$pop[uptake_psyr == 1, uptake_one := as.integer(.I == .I[which.min(year)]), by = pid]
+  # sp$pop[, uptake_one := 0]
+  # sp$pop[uptake_psyr == 1, uptake_one := as.integer(.I == .I[which.min(year)]), by = pid]
   ### In this testing, only two ids got the treatment: pid 156, 175
-
+  
+  # Load the pids of uptake patients for each iteration
+  persons <- fread(paste0("./inputs/uptake/", sp$mc_aggr, "_uptake.csv"))
+  ### Test
+  ### persons <- fread(paste0(getwd(), "./inputs/uptake/", 3, "_uptake.csv")) & is.data.table(persons): TURE
+  ### fread() is highly optimized: it’s faster than read_csv(), and it returns a data.table automatically.
+  
+  # Join uptake info back to lifecourse rows
+  sp$pop <- merge(sp$pop, persons, by = "pid", all.x = TRUE)
+  
+  # Create a row-level indicator for uptake event (1 only in the uptake year row)
+  sp$pop[, uptake_one := as.integer(!is.na(uptake_year) & year == uptake_year)]
+  # --- !is.na(uptake_year): checks whether the uptake_year column is no NA, returns 'TRUE' or 'FALSE'
+  # --- year == uptake_year: checks whether the value in 'year' column is equal to the value in 'uptake_year' column.
+  #                          also returns 'TRUE' or 'FALSE'
+  # --- as.integer(...):     converts the result of the logical expression into an integer.
+  #                          In R, as.integer(TRUE) becomes 1 and as.integer(False) becomes 0.
+  
   # a variable for the year someone uptaking the drug
   sp$pop[, anchor_year:=year[uptake_one == 1], by = pid]
-
+  
   # a variable for the year someone enters the synthetic population
-  sp$pop[, entry_year:= min(year), by = pid]
-
+  # sp$pop[, entry_year:= min(year), by = pid]
+  
   # a variable for theorectical treatment trajectory
   ### Step 0: Initialize the column
   sp$pop[, trtm_theo := NA_integer_]
@@ -71,7 +95,7 @@ scenario_0_fn <- function(sp) {
          by = pid]
   ### Step 3: Replace NAs with 0
   sp$pop[, trtm_theo := fifelse(is.na(trtm_theo), 0, trtm_theo)]
-
+  
   ########################################################################################
   ################################          BMI         ##################################
   ########################################################################################
@@ -86,7 +110,7 @@ scenario_0_fn <- function(sp) {
       ### The efficacy inputs are assigned until here, the rest we will revert to the original exposure column (bmi_curr_xps)
     ))
   ]
-
+  
   # a variable for each individual's baseline weight (baseline: year == 24 / ys_rollout == 0)
   # ------------------------------------------ Aug 22, 2025, Jane ------------------------------------------------- #
   # *but, some individuals in the dataset does not have entry at baseline_yr, they came in later than year 24
@@ -101,7 +125,7 @@ scenario_0_fn <- function(sp) {
       bmi_curr_xps[year == (year[trtm_theo == 1][1] - 1)] # baseline_bmi will take the BMI at the year before trtm_theo==1
     }
   }, by = pid] #Works!
-
+  
   ###############################################################################################################
   #----------------------------  Tutorial: if_else function inside data.table  ---------------------------------#
   ###############################################################################################################
@@ -118,7 +142,7 @@ scenario_0_fn <- function(sp) {
   ###############################################################################################################
   #--------------------------------------------  Tutorial: End  ------------------------------------------------#
   ###############################################################################################################
-
+  
   # a variable for new weight after applying efficacy input during treatment influenced period
   sp$pop[, new_bmi := {
     anchor <- unique(anchor_year)                             # This line finds a single anchor year for each person.
@@ -132,10 +156,10 @@ scenario_0_fn <- function(sp) {
       )
     }
   }, by = pid]
-
+  
   # Overwriting the original bmi exposure column with the newly created bmi column
   #sp$pop[, bmi_curr_xps := new_bmi]
-
+  
   ########################################################################################
   ################################          SBP         ##################################
   ########################################################################################
@@ -150,7 +174,7 @@ scenario_0_fn <- function(sp) {
       ### The efficacy inputs are assigned until here, the rest we will revert to the original exposure column (sbp_curr_xps)
     ))
   ]
-
+  
   # a variable for each individual's baseline SBP (baseline: year == 24 / ys_rollout == 0)
   # *but, some individuals in the dataset does not have entry at baseline_yr, they came in later than year 24
   sp$pop[, baseline_sbp := {                # sp$pop[, ... , by = pid]: grouping the operation by pid
@@ -161,14 +185,14 @@ scenario_0_fn <- function(sp) {
       sbp_curr_xps[year == (year[trtm_theo == 1][1] - 1)]  # The baseline year will be (anchor - 1): one year before uptake
     }
   }, by = pid] #Works!
-
+  
   ###############################################################################################################
   #----------------------------  Tutorial: if_else function inside data.table  ---------------------------------#
   ###############################################################################################################
   sp$pop[, sbp_shift := {                 # sp$pop[, ... , by = pid]: grouping the operation by pid
     # { ... } operetion per group: inside {}, you can run any custom R code, it will
     # return a vector that gets assigned to 'sbp_shift' for the rows in that group
-
+    
     anchor <- unique(anchor_year)        # This line finds a single anchor year (e.g., year 30) for each person.
     if (is.na(anchor)) {                 # If no anchor is found, (This is useful to avoid breaking your logic when a person doesn't meet your anchor condition)
       sbp_curr_xps                       # the function simply returns the original sbp_curr_xps as-is
@@ -176,7 +200,7 @@ scenario_0_fn <- function(sp) {
       shift(sbp_curr_xps, type = "lag", n = 3) # by 3 years: 3 years is the duration of efficacy inputs (decrease in SBP and rebound)
     }
   }, by = pid] #Works!
-
+  
   #  A if_else function inside of :={} for creating a new variable
   #  if(condition) {
   #   what should happen if condition is TRUE
@@ -186,7 +210,7 @@ scenario_0_fn <- function(sp) {
   ###############################################################################################################
   #--------------------------------------------  Tutorial: End  ------------------------------------------------#
   ###############################################################################################################
-
+  
   # a variable for new weight after applying efficacy input during treatment influenced period
   sp$pop[, new_sbp := {
     anchor <- unique(anchor_year)                             # This line finds a single anchor year for each person.
@@ -200,23 +224,25 @@ scenario_0_fn <- function(sp) {
       )
     }
   }, by = pid]
-
+  
   # Overwriting the original sbp exposure column with the newly created sbp column
   sp$pop[, sbp_curr_xps := new_sbp]
-
-
+  
+  
   ########################################################################################
   ###############################          Tchol         #################################
   ###################         Nothing happens to Tchol in sc0         ####################
   ########################################################################################
-
+  sp$pop[, c("tchol_delta") := 0]
+  
   ##################### Get rid of unnecessary variables ##########################
   # Delete unnecessary variables from synthpop #
   sp$pop[, c("rankstat_sbp", "rankstat_tchol", "ys_rollout", "uptake_rate",
-             "eligible_bi", "uptake_psyr", "anchor_year",
+             "eligible_bi", "uptake_psyr", "uptake_one", "anchor_year",
              "entry_year", "baseline_bmi", "bmi_shift", "new_bmi",
              "baseline_sbp", "sbp_shift", "new_sbp", "baseline_tchol",
              "tchol_shift", "new_tchol") := NULL]
+
 }
 
 #scenario_0_fn(sp)
@@ -234,8 +260,8 @@ scenario_0_fn <- function(sp) {
 
 ### Scenario 1 - Cost-effectiveness analysis of semaglutide 2.4 mg for weight management in German adult population
 
-scenario_1_fn <- function(sp) {
-
+scenario_2_fn <- function(sp) {
+  
   # Set scenario variables #
   ###########################################################################################################
   # Semag scenario variables:
@@ -251,62 +277,62 @@ scenario_1_fn <- function(sp) {
   # Efficacy for bmi at 1st year after treatment
   tbl <- read_fst("./inputs/other_parameters/bmi_1y_samples.fst", as.data.table = TRUE)
   bmi_1y <- as.numeric(tbl[mc == sp$mc_aggr, "bmi_1y"])
-
+  
   # Efficacy for bmi at 2nd year after treatment
   tbl <- read_fst("./inputs/other_parameters/bmi_2y_samples.fst", as.data.table = TRUE)
   bmi_2y <- as.numeric(tbl[mc == sp$mc_aggr, "bmi_2y"])
-
+  
   # Efficacy for bmi at 3rd year after treatment
   tbl <- read_fst("./inputs/other_parameters/bmi_3y_samples.fst", as.data.table = TRUE)
   bmi_3y <- as.numeric(tbl[mc == sp$mc_aggr, "bmi_3y"])
-
+  
   # Efficacy for bmi at 4th year after treatment
   tbl <- read_fst("./inputs/other_parameters/bmi_4y_samples.fst", as.data.table = TRUE)
   bmi_4y <- as.numeric(tbl[mc == sp$mc_aggr, "bmi_4y"])
-
+  
   # Efficacy for SBP at 1st year after treatment
   tbl <- read_fst("./inputs/other_parameters/sbp_1y_samples.fst", as.data.table = TRUE)
   sbp_1y <- as.numeric(tbl[mc == sp$mc_aggr, "sbp_1y"])
-
+  
   # Efficacy for SBP at 2nd year of treatment
   tbl <- read_fst("./inputs/other_parameters/sbp_2y_samples.fst", as.data.table = TRUE)
   sbp_2y <- as.numeric(tbl[mc == sp$mc_aggr, "sbp_2y"])
-
+  
   # Efficacy for total cholesterol at 1st year of treatment
   tbl <- read_fst("./inputs/other_parameters/tchol_1y_samples.fst", as.data.table = TRUE)
   tchol_1y <- as.numeric(tbl[mc == sp$mc_aggr, "tchol_1y"])
-
+  
   # Efficacy for total cholesterol at 2nd year of treatment
   tbl <- read_fst("./inputs/other_parameters/tchol_2y_samples.fst", as.data.table = TRUE)
   tchol_2y <- as.numeric(tbl[mc == sp$mc_aggr, "tchol_2y"])
   ###########################################################################################################
-
+  
   # a variable for how long it has been since the baseline (2024)
   baseline_yr <- 24 ## it's 2024, but all years should be relative to year 2000
   sp$pop[, ys_rollout := year - baseline_yr] # baseline_yr == 2024 / year == 24 --> baseline year
-
+  
   # a variable for uptake rates based on years after drug roll-out
   # * For CEA: 100 % uptake for the eligible patients at the first year of drug roll-out (year == 25 --> rollout year)
   # * This uptake rate is independent of individual simulation history, it only depends on years after roll-out
   sp$pop[, uptake_rate := ifelse(ys_rollout == 1, 1, 0)] # Set the uptake_rate to be 100% and only possible in year 2025 in CEA
-
+  
   # a variable for defining individual's eligibility for accessing Semaglutide by BMI
   sp$pop[, eligible_bi := ifelse(bmi_curr_xps >= 35 & age <= 80, 1, 0)]
-
+  
   # a variable for the uptake of the drug conditioning on meeting eligibility (person_year)
   sp$pop[, uptake_psyr := ifelse(eligible_bi ==1, rbinom(.N, size = 1, prob = uptake_rate), 0)]
-
+  
   # a variable for the once-in-a-lifetime uptake during an individual's simulation years
   sp$pop[, uptake_one := 0]
   sp$pop[uptake_psyr == 1, uptake_one := as.integer(.I == .I[which.min(year)]), by = pid]
   ### In this testing, only two ids got the treatment: pid 156, 175
-
+  
   # a variable for the year someone uptaking the drug
   sp$pop[, anchor_year:=year[uptake_one == 1], by = pid]
-
+  
   # a variable for the year someone enters the synthetic population
   sp$pop[, entry_year:= min(year), by = pid]
-
+  
   # a variable for theorectical treatment trajectory
   ### Step 0: Initialize the column
   sp$pop[, trtm_theo := NA_integer_]
@@ -320,11 +346,11 @@ scenario_1_fn <- function(sp) {
          by = pid]
   ### Step 3: Replace NAs with 0
   sp$pop[, trtm_theo := fifelse(is.na(trtm_theo), 0, trtm_theo)]
-
+  
   #scenario_1_fn(sp) # Works!
   #test_uptake <- sp$pop[pid %in% sp$pop[entry_year >= 25 & eligible_bi ==1, unique(pid)]]
   #test_uptake <- sp$pop[pid %in% sp$pop[uptake_one == 1, unique(pid)]]
-
+  
   ########################################################################################
   ################################          BMI         ##################################
   ########################################################################################
@@ -344,7 +370,7 @@ scenario_1_fn <- function(sp) {
       ### The efficacy inputs are assigned until here, the rest we will revert to the original exposure column (bmi_curr_xps)
     ))
   ]
-
+  
   # a variable for each individual's baseline weight (baseline: year == 24 / ys_rollout == 0)
   # ------------------------------------------ Aug 22, 2025, Jane ------------------------------------------------- #
   # *but, some individuals in the dataset does not have entry at baseline_yr, they came in later than year 24
@@ -359,7 +385,7 @@ scenario_1_fn <- function(sp) {
       bmi_curr_xps[year == (year[trtm_theo == 1][1] - 1)] # baseline_bmi will take the BMI at the year before trtm_theo==1
     }
   }, by = pid] #Works!
-
+  
   ###############################################################################################################
   #----------------------------  Tutorial: if_else function inside data.table  ---------------------------------#
   ###############################################################################################################
@@ -376,7 +402,7 @@ scenario_1_fn <- function(sp) {
   ###############################################################################################################
   #--------------------------------------------  Tutorial: End  ------------------------------------------------#
   ###############################################################################################################
-
+  
   # a variable for new weight after applying efficacy input during treatment influenced period
   sp$pop[, new_bmi := {
     anchor <- unique(anchor_year)                             # This line finds a single anchor year for each person.
@@ -390,14 +416,14 @@ scenario_1_fn <- function(sp) {
       )
     }
   }, by = pid]
-
+  
   #scenario_1_fn(sp) # Works!
   #test_uptake <- sp$pop[pid %in% sp$pop[entry_year >= 25 & eligible_bi ==1, unique(pid)]]
   #test_uptake <- sp$pop[pid %in% sp$pop[uptake_one == 1, unique(pid)]]
-
+  
   # Overwriting the original bmi exposure column with the newly created bmi column
   sp$pop[, bmi_curr_xps := new_bmi]
-
+  
   ########################################################################################
   ################################          SBP         ##################################
   ########################################################################################
@@ -412,7 +438,7 @@ scenario_1_fn <- function(sp) {
       ### The efficacy inputs are assigned until here, the rest we will revert to the original exposure column (sbp_curr_xps)
     ))
   ]
-
+  
   # a variable for each individual's baseline SBP (baseline: year == 24 / ys_rollout == 0)
   # *but, some individuals in the dataset does not have entry at baseline_yr, they came in later than year 24
   sp$pop[, baseline_sbp := {                # sp$pop[, ... , by = pid]: grouping the operation by pid
@@ -423,14 +449,14 @@ scenario_1_fn <- function(sp) {
       sbp_curr_xps[year == (year[trtm_theo == 1][1] - 1)]  # The baseline year will be (anchor - 1): one year before uptake
     }
   }, by = pid] #Works!
-
+  
   ###############################################################################################################
   #----------------------------  Tutorial: if_else function inside data.table  ---------------------------------#
   ###############################################################################################################
   sp$pop[, sbp_shift := {                 # sp$pop[, ... , by = pid]: grouping the operation by pid
     # { ... } operetion per group: inside {}, you can run any custom R code, it will
     # return a vector that gets assigned to 'sbp_shift' for the rows in that group
-
+    
     anchor <- unique(anchor_year)        # This line finds a single anchor year (e.g., year 30) for each person.
     if (is.na(anchor)) {                 # If no anchor is found, (This is useful to avoid breaking your logic when a person doesn't meet your anchor condition)
       sbp_curr_xps                       # the function simply returns the original sbp_curr_xps as-is
@@ -438,7 +464,7 @@ scenario_1_fn <- function(sp) {
       shift(sbp_curr_xps, type = "lag", n = 3) # by 3 years: 3 years is the duration of efficacy inputs (decrease in SBP and rebound)
     }
   }, by = pid] #Works!
-
+  
   #  A if_else function inside of :={} for creating a new variable
   #  if(condition) {
   #   what should happen if condition is TRUE
@@ -448,7 +474,7 @@ scenario_1_fn <- function(sp) {
   ###############################################################################################################
   #--------------------------------------------  Tutorial: End  ------------------------------------------------#
   ###############################################################################################################
-
+  
   # a variable for new weight after applying efficacy input during treatment influenced period
   sp$pop[, new_sbp := {
     anchor <- unique(anchor_year)                             # This line finds a single anchor year for each person.
@@ -462,10 +488,10 @@ scenario_1_fn <- function(sp) {
       )
     }
   }, by = pid]
-
+  
   # Overwriting the original sbp exposure column with the newly created sbp column
   sp$pop[, sbp_curr_xps := new_sbp]
-
+  
   ########################################################################################
   ###############################          Tchol         #################################
   ########################################################################################
@@ -479,7 +505,7 @@ scenario_1_fn <- function(sp) {
       ### The efficacy inputs are assigned until here, the rest we will revert to the original exposure column (tchol_curr_xps)
     ))
   ]
-
+  
   # a variable for each individual's baseline Tchol (baseline: year == 24 / ys_rollout == 0)
   # *but, some individuals in the dataset does not have entry at baseline_yr, they came in later than year 24
   sp$pop[, baseline_tchol := {                 # sp$pop[, ... , by = pid]: grouping the operation by pid
@@ -490,14 +516,14 @@ scenario_1_fn <- function(sp) {
       tchol_curr_xps[year == (year[trtm_theo == 1][1] - 1)]  # The baseline year will be (anchor - 1): one year before uptake
     }
   }, by = pid] #Works!
-
+  
   ###############################################################################################################
   #----------------------------  Tutorial: if_else function inside data.table  ---------------------------------#
   ###############################################################################################################
   sp$pop[, tchol_shift := {                 # sp$pop[, ... , by = pid]: grouping the operation by pid
     # { ... } operetion per group: inside {}, you can run any custom R code, it will
     # return a vector that gets assigned to 'tchol_shift' for the rows in that group
-
+    
     anchor <- unique(anchor_year)        # This line finds a single anchor year (e.g., year 30) for each person.
     if (is.na(anchor)) {                 # If no anchor is found, (This is useful to avoid breaking your logic when a person doesn't meet your anchor condition)
       tchol_curr_xps                       # the function simply returns the original tchol_curr_xps as-is
@@ -505,12 +531,12 @@ scenario_1_fn <- function(sp) {
       shift(tchol_curr_xps, type = "lag", n = 3) # by 3 years: 3 years is the duration of efficacy inputs (decrease in tchol and reboud)
     }
   }, by = pid] #Works!
-
+  
   # test <- sp$pop[pid %in% c(156, 175)]
   ###############################################################################################################
   #--------------------------------------------  Tutorial: End  ------------------------------------------------#
   ###############################################################################################################
-
+  
   # a variable for new weight after applying efficacy input during treatment influenced period
   sp$pop[, new_tchol := {
     anchor <- unique(anchor_year)                             # This line finds a single anchor year for each person.
@@ -524,19 +550,19 @@ scenario_1_fn <- function(sp) {
       )
     }
   }, by = pid]
-
+  
   # Overwriting the original tchol exposure column with the newly created tchol column
   sp$pop[, tchol_curr_xps := new_tchol]
   ### Jane Aug 2025, test scenario on sp$pop --> Looks like until here everything worked!!!
-
+  
   ##################### Get rid of unnecessary variables ##########################
   # Delete unnecessary variables from synthpop #
   sp$pop[, c("rankstat_sbp", "rankstat_tchol", "ys_rollout", "uptake_rate",
-             "eligible_bi", "uptake_psyr", "anchor_year",
+             "eligible_bi", "uptake_psyr", "uptake_one", "anchor_year",
              "entry_year", "baseline_bmi", "bmi_shift", "new_bmi",
              "baseline_sbp", "sbp_shift", "new_sbp", "baseline_tchol",
              "tchol_shift", "new_tchol") := NULL]
-
+  
 }
 
 # Good to get rid of all the intermediate variables,which were created to get to the new exposure column (tchol_curr_xps)
@@ -617,84 +643,67 @@ scenario_1_fn <- function(sp) {
 
 ### Scenario 2 - Budget impact of semaglutide 2.4 mg for weight management in German adult population
 
-scenario_2_fn <- function(sp) {
-
+scenario_3_fn <- function(sp) {
+  
   # Efficacy for bmi at 1st year after treatment
   tbl <- read_fst("./inputs/other_parameters/bmi_1y_samples.fst", as.data.table = TRUE)
   bmi_1y <- as.numeric(tbl[mc == sp$mc_aggr, "bmi_1y"])
-
+  
   # Efficacy for bmi at 2nd year after treatment
   tbl <- read_fst("./inputs/other_parameters/bmi_2y_samples.fst", as.data.table = TRUE)
   bmi_2y <- as.numeric(tbl[mc == sp$mc_aggr, "bmi_2y"])
-
+  
   # Efficacy for bmi at 3rd year after treatment
   tbl <- read_fst("./inputs/other_parameters/bmi_3y_samples.fst", as.data.table = TRUE)
   bmi_3y <- as.numeric(tbl[mc == sp$mc_aggr, "bmi_3y"])
-
+  
   # Efficacy for bmi at 4th year after treatment
   tbl <- read_fst("./inputs/other_parameters/bmi_4y_samples.fst", as.data.table = TRUE)
   bmi_4y <- as.numeric(tbl[mc == sp$mc_aggr, "bmi_4y"])
-
+  
   # Efficacy for SBP at 1st year after treatment
   tbl <- read_fst("./inputs/other_parameters/sbp_1y_samples.fst", as.data.table = TRUE)
   sbp_1y <- as.numeric(tbl[mc == sp$mc_aggr, "sbp_1y"])
-
+  
   # Efficacy for SBP at 2nd year of treatment
   tbl <- read_fst("./inputs/other_parameters/sbp_2y_samples.fst", as.data.table = TRUE)
   sbp_2y <- as.numeric(tbl[mc == sp$mc_aggr, "sbp_2y"])
-
+  
   # Efficacy for total cholesterol at 1st year of treatment
   tbl <- read_fst("./inputs/other_parameters/tchol_1y_samples.fst", as.data.table = TRUE)
   tchol_1y <- as.numeric(tbl[mc == sp$mc_aggr, "tchol_1y"])
-
+  
   # Efficacy for total cholesterol at 2nd year of treatment
   tbl <- read_fst("./inputs/other_parameters/tchol_2y_samples.fst", as.data.table = TRUE)
   tchol_2y <- as.numeric(tbl[mc == sp$mc_aggr, "tchol_2y"])
   ###########################################################################################################
-
+  
   # a variable for how long it has been since the baseline (2024)
-  # baseline_yr <- 24 ## it's 2024, but all years should be relative to year 2000
-  # sp$pop[, ys_rollout := year - baseline_yr] # baseline_yr == 2024 / year == 24 --> baseline year
-
+  baseline_yr <- 24 ## it's 2024, but all years should be relative to year 2000
+  sp$pop[, ys_rollout := year - baseline_yr] # baseline_yr == 2024 / year == 24 --> baseline year
+  
   # a variable for uptake rates based on years after drug roll-out
   # * For Budget impact, We assume a 10% uptake rate every year
   # * This uptake rate is independent of individual simulation history, it only depends on years after roll-out
-  # sp$pop[, uptake_rate := ifelse(ys_rollout >= 1, 0.1, 0)]
-
+  sp$pop[, uptake_rate := ifelse(ys_rollout >= 1, 0.1, 0)]
+  
   # a variable for defining individual's eligibility for accessing Semaglutide by BMI
-  # sp$pop[, eligible_bi := ifelse(bmi_curr_xps >= 35, 1, 0)]
-
+  sp$pop[, eligible_bi := ifelse(bmi_curr_xps >= 35, 1, 0)]
+  
   # a variable for the uptake of the drug conditioning on meeting eligibility (person_year)
-  # sp$pop[, uptake_psyr := ifelse(eligible_bi ==1, rbinom(.N, size = 1, prob = uptake_rate), 0)]
-
+  sp$pop[, uptake_psyr := ifelse(eligible_bi ==1, rbinom(.N, size = 1, prob = uptake_rate), 0)]
+  
   # a variable for the once-in-a-lifetime uptake during an individual's simulation years
-  # sp$pop[, uptake_one := 0]
-  # sp$pop[uptake_psyr == 1, uptake_one := as.integer(.I == .I[which.min(year)]), by = pid]
+  sp$pop[, uptake_one := 0]
+  sp$pop[uptake_psyr == 1, uptake_one := as.integer(.I == .I[which.min(year)]), by = pid]
   ### In this testing, only two ids got the treatment: pid 156, 175
-
-  # Load the pids of uptake patients for each iteration
-  persons <- fread(paste0("./inputs/uptake/", sp$mc_aggr, "_uptake.csv"))
-  ### Test
-  ### persons <- fread(paste0(getwd(), "./inputs/uptake/", 3, "_uptake.csv")) & is.data.table(persons): TURE
-  ### fread() is highly optimized: it’s faster than read_csv(), and it returns a data.table automatically.
-
-  # Join uptake info back to lifecourse rows
-  sp$pop <- merge(sp$pop, persons, by = "pid", all.x = TRUE)
-
-  # Create a row-level indicator for uptake event (1 only in the uptake year row)
-  sp$pop[, uptake_one := as.integer(!is.na(uptake_year) & year == uptake_year)]
-  # --- !is.na(uptake_year): checks whether the uptake_year column is no NA, returns 'TRUE' or 'FALSE'
-  # --- year == uptake_year: checks whether the value in 'year' column is equal to the value in 'uptake_year' column.
-  #                          also returns 'TRUE' or 'FALSE'
-  # --- as.integer(...):     converts the result of the logical expression into an integer.
-  #                          In R, as.integer(TRUE) becomes 1 and as.integer(False) becomes 0.
-
+  
   # a variable for the year someone uptaking the drug
   sp$pop[, anchor_year:=year[uptake_one == 1], by = pid]
-
+  
   # a variable for the year someone enters the synthetic population
   sp$pop[, entry_year:= min(year), by = pid]
-
+  
   # a variable for theorectical treatment trajectory
   ### Step 0: Initialize the column
   sp$pop[, trtm_theo := NA_integer_]
@@ -708,7 +717,7 @@ scenario_2_fn <- function(sp) {
          by = pid]
   ### Step 3: Replace NAs with 0
   sp$pop[, trtm_theo := fifelse(is.na(trtm_theo), 0, trtm_theo)]
-
+  
   ########################################################################################
   ################################          BMI         ##################################
   ########################################################################################
@@ -725,7 +734,7 @@ scenario_2_fn <- function(sp) {
       ### The efficacy inputs are assigned until here, the rest we will revert to the original exposure column (bmi_curr_xps)
     ))
   ]
-
+  
   # a variable for each individual's baseline weight (baseline: year == 24 / ys_rollout == 0)
   # ------------------------------------------ Aug 22, 2025, Jane ------------------------------------------------- #
   # *but, some individuals in the dataset does not have entry at baseline_yr, they came in later than year 24
@@ -740,7 +749,7 @@ scenario_2_fn <- function(sp) {
       bmi_curr_xps[year == (year[trtm_theo == 1][1] - 1)] # baseline_bmi will take the BMI at the year before trtm_theo==1
     }
   }, by = pid] #Works!
-
+  
   ###############################################################################################################
   #----------------------------  Tutorial: if_else function inside data.table  ---------------------------------#
   ###############################################################################################################
@@ -757,7 +766,7 @@ scenario_2_fn <- function(sp) {
   ###############################################################################################################
   #--------------------------------------------  Tutorial: End  ------------------------------------------------#
   ###############################################################################################################
-
+  
   # a variable for new weight after applying efficacy input during treatment influenced period
   sp$pop[, new_bmi := {
     anchor <- unique(anchor_year)                             # This line finds a single anchor year for each person.
@@ -771,10 +780,10 @@ scenario_2_fn <- function(sp) {
       )
     }
   }, by = pid]
-
+  
   # Overwriting the original bmi exposure column with the newly created bmi column
   sp$pop[, bmi_curr_xps := new_bmi]
-
+  
   ########################################################################################
   ################################          SBP         ##################################
   ########################################################################################
@@ -789,7 +798,7 @@ scenario_2_fn <- function(sp) {
       ### The efficacy inputs are assigned until here, the rest we will revert to the original exposure column (sbp_curr_xps)
     ))
   ]
-
+  
   # a variable for each individual's baseline SBP (baseline: year == 24 / ys_rollout == 0)
   # *but, some individuals in the dataset does not have entry at baseline_yr, they came in later than year 24
   sp$pop[, baseline_sbp := {                # sp$pop[, ... , by = pid]: grouping the operation by pid
@@ -800,14 +809,14 @@ scenario_2_fn <- function(sp) {
       sbp_curr_xps[year == (year[trtm_theo == 1][1] - 1)]  # The baseline year will be (anchor - 1): one year before uptake
     }
   }, by = pid] #Works!
-
+  
   ###############################################################################################################
   #----------------------------  Tutorial: if_else function inside data.table  ---------------------------------#
   ###############################################################################################################
   sp$pop[, sbp_shift := {                 # sp$pop[, ... , by = pid]: grouping the operation by pid
     # { ... } operetion per group: inside {}, you can run any custom R code, it will
     # return a vector that gets assigned to 'sbp_shift' for the rows in that group
-
+    
     anchor <- unique(anchor_year)        # This line finds a single anchor year (e.g., year 30) for each person.
     if (is.na(anchor)) {                 # If no anchor is found, (This is useful to avoid breaking your logic when a person doesn't meet your anchor condition)
       sbp_curr_xps                       # the function simply returns the original sbp_curr_xps as-is
@@ -815,7 +824,7 @@ scenario_2_fn <- function(sp) {
       shift(sbp_curr_xps, type = "lag", n = 3) # by 3 years: 3 years is the duration of efficacy inputs (decrease in SBP and rebound)
     }
   }, by = pid] #Works!
-
+  
   #  A if_else function inside of :={} for creating a new variable
   #  if(condition) {
   #   what should happen if condition is TRUE
@@ -825,7 +834,7 @@ scenario_2_fn <- function(sp) {
   ###############################################################################################################
   #--------------------------------------------  Tutorial: End  ------------------------------------------------#
   ###############################################################################################################
-
+  
   # a variable for new weight after applying efficacy input during treatment influenced period
   sp$pop[, new_sbp := {
     anchor <- unique(anchor_year)                             # This line finds a single anchor year for each person.
@@ -839,10 +848,10 @@ scenario_2_fn <- function(sp) {
       )
     }
   }, by = pid]
-
+  
   # Overwriting the original sbp exposure column with the newly created sbp column
   sp$pop[, sbp_curr_xps := new_sbp]
-
+  
   ########################################################################################
   ###############################          Tchol         #################################
   ########################################################################################
@@ -856,7 +865,7 @@ scenario_2_fn <- function(sp) {
       ### The efficacy inputs are assigned until here, the rest we will revert to the original exposure column (tchol_curr_xps)
     ))
   ]
-
+  
   # a variable for each individual's baseline Tchol (baseline: year == 24 / ys_rollout == 0)
   # *but, some individuals in the dataset does not have entry at baseline_yr, they came in later than year 24
   sp$pop[, baseline_tchol := {                 # sp$pop[, ... , by = pid]: grouping the operation by pid
@@ -867,14 +876,14 @@ scenario_2_fn <- function(sp) {
       tchol_curr_xps[year == (year[trtm_theo == 1][1] - 1)]  # The baseline year will be (anchor - 1): one year before uptake
     }
   }, by = pid] #Works!
-
+  
   ###############################################################################################################
   #----------------------------  Tutorial: if_else function inside data.table  ---------------------------------#
   ###############################################################################################################
   sp$pop[, tchol_shift := {                 # sp$pop[, ... , by = pid]: grouping the operation by pid
     # { ... } operetion per group: inside {}, you can run any custom R code, it will
     # return a vector that gets assigned to 'tchol_shift' for the rows in that group
-
+    
     anchor <- unique(anchor_year)        # This line finds a single anchor year (e.g., year 30) for each person.
     if (is.na(anchor)) {                 # If no anchor is found, (This is useful to avoid breaking your logic when a person doesn't meet your anchor condition)
       tchol_curr_xps                       # the function simply returns the original tchol_curr_xps as-is
@@ -882,12 +891,12 @@ scenario_2_fn <- function(sp) {
       shift(tchol_curr_xps, type = "lag", n = 3) # by 3 years: 3 years is the duration of efficacy inputs (decrease in tchol and reboud)
     }
   }, by = pid] #Works!
-
+  
   # test <- sp$pop[pid %in% c(156, 175)]
   ###############################################################################################################
   #--------------------------------------------  Tutorial: End  ------------------------------------------------#
   ###############################################################################################################
-
+  
   # a variable for new weight after applying efficacy input during treatment influenced period
   sp$pop[, new_tchol := {
     anchor <- unique(anchor_year)                             # This line finds a single anchor year for each person.
@@ -901,22 +910,23 @@ scenario_2_fn <- function(sp) {
       )
     }
   }, by = pid]
-
+  
   # Overwriting the original tchol exposure column with the newly created tchol column
   sp$pop[, tchol_curr_xps := new_tchol]
   ### Jane Aug 2025, test scenario on sp$pop --> Looks like until here everything worked!!!
-
+  
   ##################### Get rid of unnecessary variables ##########################
   # Delete unnecessary variables from synthpop #
   sp$pop[, c("rankstat_sbp", "rankstat_tchol", "ys_rollout", "uptake_rate",
-             "eligible_bi", "uptake_psyr", "anchor_year",
+             "eligible_bi", "uptake_psyr", "uptake_one", "anchor_year",
              "entry_year", "baseline_bmi", "bmi_shift", "new_bmi",
              "baseline_sbp", "sbp_shift", "new_sbp", "baseline_tchol",
              "tchol_shift", "new_tchol") := NULL]
-
+  
 }
 
 # scenario_2_fn(sp) # Works! Aug 25, 2025, Jane
 #test_uptake <- sp$pop[pid %in% sp$pop[entry_year >= 25 & eligible_bi ==1, unique(pid)]]
 #test_uptake <- sp$pop[pid %in% sp$pop[uptake_one == 1, unique(pid)]]
 #test_uptake <- sp$pop[pid %in% sp$pop[entry_year == anchor_year, unique(pid)]]
+
