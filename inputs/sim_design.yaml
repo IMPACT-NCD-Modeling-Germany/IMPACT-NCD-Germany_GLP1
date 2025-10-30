@@ -8,7 +8,7 @@ logs: yes
 export_xps: yes
 keep_lifecourse: yes
 export_PARF: no
-'n': 10000
+'n': 100000
 n_synthpop_aggregation: 2 # number of synthpops to aggregate together
 # n_primers: 10 # better be some multiple of n_synthpop_aggregation
 init_year_long: 2013 # 2008 to 2020 but be careful with max lags
@@ -106,8 +106,8 @@ kismet: yes
 validation: no # or yes. Note, no yes/no
 max_prvl_for_outputs: 2 # duration 1 is incidence and 2 is prevalence
 iteration_n_max: 1000
-output_dir: /media/php-workstation/Storage_1/IMPACT_Storage/GLP1/outputs
-synthpop_dir: /media/php-workstation/Storage_1/IMPACT_Storage/GLP1/inputs/synthpop
+output_dir: /media/php-workstation/Storage_2/IMPACT_Storage/GLP1/outputs
+synthpop_dir: /media/php-workstation/Storage_2/IMPACT_Storage/GLP1/inputs/synthpop
 scenarios: ''
 cols_for_output:
 - pid # NEED TO be 1st (perhaps not anymore)
@@ -122,8 +122,7 @@ cols_for_output:
 - bmi_delta
 - sbp_delta
 - tchol_delta
-- uptake_one 
-- trtm_theo
+- eligible_bi
 strata_for_output:
 - scenario
 - year

@@ -7,7 +7,7 @@
 #----------------------------------------------------------------------------------------------#
 ################################################################################################
 
-pid_uptake <- function(lc_path, output_dir = paste0(getwd(), "/inputs/uptake"), N_treat = 500, 
+pid_uptake <- function(lc_path, output_d = paste0(getwd(), "/inputs/uptake"), N_treat = 500, 
                        start_year = 25, end_year = 44, seed = 123) { 
   
   # Load lifecourse datasets
@@ -69,6 +69,7 @@ pid_uptake <- function(lc_path, output_dir = paste0(getwd(), "/inputs/uptake"), 
   #         Also delete NAs from persons file
   persons <- persons[!is.na(uptake_year), ]
   persons[, mc := mc_id]
+  persons[, eligible_bi := 1]
   
   # Step 4. I also need a variable for the year someone enters the lifecourse
   lc[, entry_year:= min(year), by = pid]
@@ -77,10 +78,10 @@ pid_uptake <- function(lc_path, output_dir = paste0(getwd(), "/inputs/uptake"), 
   persons <- merge(persons, entry, by = "pid", all.x = TRUE)
   
   # Check if output dir exists
-  if(!dir.exists(output_dir)) dir.create(output_dir, recursive = TRUE)
+  if(!dir.exists(output_d)) dir.create(output_d, recursive = TRUE)
   
   # Save output
-  out_file <- file.path(output_dir, paste0(mc_id, "_uptake.csv")) # not just a directory, but with file name included
+  out_file <- file.path(output_d, paste0(mc_id, "_uptake.csv")) # not just a directory, but with file name included
   fwrite(persons, out_file) # writing persons into this file name from file.path()
   message("✅ Processed iteration ", mc_id, " — saved to ", out_file)
   
@@ -90,7 +91,7 @@ pid_uptake <- function(lc_path, output_dir = paste0(getwd(), "/inputs/uptake"), 
 }
 
 # List all lifecourse files
-fl <- list.files(lifecourse_dir, pattern = "_lifecourse\\.csv\\.gz$", full.names = TRUE)
+fl <- list.files(lifecourse_dir, pattern = "_lifecourse.csv.gz$", full.names = TRUE)
 ### Test
 ### fl <- list.files(paste0(getwd()), pattern = "_lifecourse\\.csv\\.gz$", full.names = TRUE) --> Works!!!
 

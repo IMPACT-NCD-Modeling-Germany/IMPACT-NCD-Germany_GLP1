@@ -16,7 +16,7 @@ scenario_base_fn <- function(sp) {
 
 scenario_0_fn <- function(sp) {
 
-  sp$pop[, c("bmi_delta", "sbp_delta", "tchol_delta") := 0]
+  sp$pop[, c("bmi_delta", "sbp_delta", "tchol_delta","eligible_bi") := 0]
 
 }
 
@@ -238,7 +238,7 @@ scenario_1_fn <- function(sp) {
   ##################### Get rid of unnecessary variables ##########################
   # Delete unnecessary variables from synthpop #
   sp$pop[, c("rankstat_sbp", "rankstat_tchol", "ys_rollout", "uptake_rate",
-             "eligible_bi", "uptake_psyr", "uptake_one", "anchor_year",
+             "uptake_psyr", "uptake_one", "anchor_year",
              "entry_year", "baseline_bmi", "bmi_shift", "new_bmi",
              "baseline_sbp", "sbp_shift", "new_sbp", "baseline_tchol",
              "tchol_shift", "new_tchol") := NULL]
@@ -558,7 +558,7 @@ scenario_2_fn <- function(sp) {
   ##################### Get rid of unnecessary variables ##########################
   # Delete unnecessary variables from synthpop #
   sp$pop[, c("rankstat_sbp", "rankstat_tchol", "ys_rollout", "uptake_rate",
-             "eligible_bi", "uptake_psyr", "uptake_one", "anchor_year",
+             "uptake_psyr", "uptake_one", "anchor_year",
              "entry_year", "baseline_bmi", "bmi_shift", "new_bmi",
              "baseline_sbp", "sbp_shift", "new_sbp", "baseline_tchol",
              "tchol_shift", "new_tchol") := NULL]
@@ -918,7 +918,7 @@ scenario_3_fn <- function(sp) {
   ##################### Get rid of unnecessary variables ##########################
   # Delete unnecessary variables from synthpop #
   sp$pop[, c("rankstat_sbp", "rankstat_tchol", "ys_rollout", "uptake_rate",
-             "eligible_bi", "uptake_psyr", "uptake_one", "anchor_year",
+             "uptake_psyr", "uptake_one", "anchor_year",
              "entry_year", "baseline_bmi", "bmi_shift", "new_bmi",
              "baseline_sbp", "sbp_shift", "new_sbp", "baseline_tchol",
              "tchol_shift", "new_tchol") := NULL]
