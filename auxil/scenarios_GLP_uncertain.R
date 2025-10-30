@@ -86,11 +86,11 @@ scenario_1_fn <- function(sp) {
   ### Step 0: Initialize the column
   sp$pop[, trtm_theo := NA_integer_]
   ### Step 1: Identify first year of treatment uptake
-  sp$pop[uptake_one == 1, trtm_theo := fifelse(anchor_year > entry_year, 1,0)]
+  sp$pop[uptake_one == 1, trtm_theo := 0]
   ### Step 2: Fill the sequence in subsequent years
   sp$pop[, trtm_theo := fifelse(cumsum(!is.na(trtm_theo)) > 0,   # cumsum(): computes a cumulative count of non-NA entries:
                                 # fill in a sequence starting from the first non-NA value
-                                seq_len(.N) - min(which(!is.na(trtm_theo))) + fifelse(anchor_year > entry_year, 1L, 0L),
+                                seq_len(.N) - min(which(!is.na(trtm_theo))),
                                 NA_integer_),
          by = pid]
   ### Step 3: Replace NAs with 0
