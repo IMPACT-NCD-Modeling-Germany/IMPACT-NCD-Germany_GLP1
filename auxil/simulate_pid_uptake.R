@@ -31,9 +31,16 @@ pid_uptake <- function(lc_path, output_d = paste0(getwd(), "/inputs/uptake"), N_
                                (age<=80 & bmi_curr_xps>=30 & bmi_curr_xps<35 & t2dm_prvl==0 & chd_prvl>0)|
                                (age<=80 & bmi_curr_xps>=30 & bmi_curr_xps<35 & t2dm_prvl==0 & stroke_prvl>0), 1, 0)]
   
+  ####################################### For Cost Effectiveness Analysis ###########################################
+  # Find pids who are eligible at the year of 2025
+  eligible_cea <- unique(lc[year == 25 & eligible_bi == 1, pid])
+  persons_cea <- data.frame(pid = eligible_cea, uptake_year = 25, mc = mc_id)
+  persons_cea <- as.data.table(persons_cea)
+  
+  ########################################## For Budget Impact Analysis #############################################
   # Step 1. Initialize a person-level table to record uptake year (one row per pid, and their potential uptake year)
-  persons <- unique(lc[, .(pid)])
-  persons[, uptake_year := NA_integer_] # NA => not yet treated
+  persons_bia <- unique(lc[, .(pid)])
+  persons_bia[, uptake_year := NA_integer_] # NA => not yet treated
   # Everyone starts with NA as uptake year
   
   # Step 2. Loop through all rollout years (2025-2044)
@@ -44,7 +51,7 @@ pid_uptake <- function(lc_path, output_d = paste0(getwd(), "/inputs/uptake"), N_
     # ---'eligible_pids' is a vector of person IDs who meet the eligibility criteria in year yr
     
     # remove already treated people
-    eligible_pids <- eligible_pids[is.na(persons[match(eligible_pids, persons$pid), uptake_year])]
+    eligible_pids <- eligible_pids[is.na(persons_bia[match(eligible_pids, persons_bia$pid), uptake_year])]
     # --- It ends up as: eligible_pids[c(TRUE, FALSE, TRUE, FALSE)]
     # --- In R, when you use a logical vector inside [...], it keeps the elements where the value is TRUE.
     # --- This line: keeps only those eligible_pids for which the person’s uptake_year is still NA.
@@ -61,31 +68,34 @@ pid_uptake <- function(lc_path, output_d = paste0(getwd(), "/inputs/uptake"), N_
     sampled <- sample(eligible_pids, N_to_sample)
     
     # record uptake year for those sampled
-    persons[pid %in% sampled, uptake_year := yr]
+    persons_bia[pid %in% sampled, uptake_year := yr]
     
   }
   
   # Step 3. Add mc column in each selected-pid table
-  #         Also delete NAs from persons file
-  persons <- persons[!is.na(uptake_year), ]
-  persons[, mc := mc_id]
-  persons[, eligible_bi := 1]
+  #         Also delete NAs from persons_bia file
+  persons_bia <- persons_bia[!is.na(uptake_year), ]
+  persons_bia[, mc := mc_id]
   
   # Step 4. I also need a variable for the year someone enters the lifecourse
   lc[, entry_year:= min(year), by = pid]
   entry <- unique(lc[, .(pid, entry_year)], by = "pid")
   #entry <- unique[lc, by = 'pid'][ , c('pid','entry_year')]
-  persons <- merge(persons, entry, by = "pid", all.x = TRUE)
+  persons_bia <- merge(persons_bia, entry, by = "pid", all.x = TRUE)
+  persons_cea <- merge(persons_cea, entry, by = "pid", all.x = TRUE)
   
   # Check if output dir exists
   if(!dir.exists(output_d)) dir.create(output_d, recursive = TRUE)
   
   # Save output
-  out_file <- file.path(output_d, paste0(mc_id, "_uptake.csv")) # not just a directory, but with file name included
-  fwrite(persons, out_file) # writing persons into this file name from file.path()
+  out_file <- file.path(output_d, paste0(mc_id, "_uptake_bia.csv")) # not just a directory, but with file name included
+  out_file_1 <- file.path(output_d, paste0(mc_id, "_uptake_cea.csv")) # Jane, Nov 3, 2025
+  fwrite(persons_bia, out_file)   # writing persons_bia into this file name from file.path()
+  fwrite(persons_cea, out_file_1) # writing persons_cea into this file name from file.path(), Jane, Nov 3, 2025
   message("✅ Processed iteration ", mc_id, " — saved to ", out_file)
   
-  return(persons)
+  return(persons_bia)
+  return(persons_cea)
   # This chunk of codes eventually output a table with each pid and their uptake year.
   
 }

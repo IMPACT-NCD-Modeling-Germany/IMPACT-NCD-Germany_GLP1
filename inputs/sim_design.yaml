@@ -122,7 +122,7 @@ cols_for_output:
 - bmi_delta
 - sbp_delta
 - tchol_delta
-- eligible_bi
+- trtm_theo
 strata_for_output:
 - scenario
 - year
