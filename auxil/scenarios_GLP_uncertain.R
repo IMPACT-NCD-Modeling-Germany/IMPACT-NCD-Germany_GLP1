@@ -883,35 +883,35 @@ scenario_3_fn <- function(sp) {
 scenario_4_fn <- function(sp) {
   
   # Efficacy for bmi at 1st year after treatment
-  tbl <- read_fst("./inputs/other_parameters/bmi_1y_samples.fst", as.data.table = TRUE)
+  tbl <- read_fst("./inputs/other_parameters/bmi_1y_samples_semag.fst", as.data.table = TRUE)
   bmi_1y <- as.numeric(tbl[mc == sp$mc_aggr, "bmi_1y"])
   
   # Efficacy for bmi at 2nd year after treatment
-  tbl <- read_fst("./inputs/other_parameters/bmi_2y_samples.fst", as.data.table = TRUE)
+  tbl <- read_fst("./inputs/other_parameters/bmi_2y_samples_semag.fst", as.data.table = TRUE)
   bmi_2y <- as.numeric(tbl[mc == sp$mc_aggr, "bmi_2y"])
   
   # Efficacy for bmi at 3rd year after treatment
-  tbl <- read_fst("./inputs/other_parameters/bmi_3y_samples.fst", as.data.table = TRUE)
+  tbl <- read_fst("./inputs/other_parameters/bmi_3y_samples_semag.fst", as.data.table = TRUE)
   bmi_3y <- as.numeric(tbl[mc == sp$mc_aggr, "bmi_3y"])
   
   # Efficacy for bmi at 4th year after treatment
-  tbl <- read_fst("./inputs/other_parameters/bmi_4y_samples.fst", as.data.table = TRUE)
+  tbl <- read_fst("./inputs/other_parameters/bmi_4y_samples_semag.fst", as.data.table = TRUE)
   bmi_4y <- as.numeric(tbl[mc == sp$mc_aggr, "bmi_4y"])
   
   # Efficacy for SBP at 1st year after treatment
-  tbl <- read_fst("./inputs/other_parameters/sbp_1y_samples.fst", as.data.table = TRUE)
+  tbl <- read_fst("./inputs/other_parameters/sbp_1y_samples_semag.fst", as.data.table = TRUE)
   sbp_1y <- as.numeric(tbl[mc == sp$mc_aggr, "sbp_1y"])
   
   # Efficacy for SBP at 2nd year of treatment
-  tbl <- read_fst("./inputs/other_parameters/sbp_2y_samples.fst", as.data.table = TRUE)
+  tbl <- read_fst("./inputs/other_parameters/sbp_2y_samples_semag.fst", as.data.table = TRUE)
   sbp_2y <- as.numeric(tbl[mc == sp$mc_aggr, "sbp_2y"])
   
   # Efficacy for total cholesterol at 1st year of treatment
-  tbl <- read_fst("./inputs/other_parameters/tchol_1y_samples.fst", as.data.table = TRUE)
+  tbl <- read_fst("./inputs/other_parameters/tchol_1y_samples_semag.fst", as.data.table = TRUE)
   tchol_1y <- as.numeric(tbl[mc == sp$mc_aggr, "tchol_1y"])
   
   # Efficacy for total cholesterol at 2nd year of treatment
-  tbl <- read_fst("./inputs/other_parameters/tchol_2y_samples.fst", as.data.table = TRUE)
+  tbl <- read_fst("./inputs/other_parameters/tchol_2y_samples_semag.fst", as.data.table = TRUE)
   tchol_2y <- as.numeric(tbl[mc == sp$mc_aggr, "tchol_2y"])
   ###########################################################################################################
   

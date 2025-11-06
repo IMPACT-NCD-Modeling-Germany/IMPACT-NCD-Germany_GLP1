@@ -76,22 +76,22 @@ if(new_runs){
       run(i, multicore = TRUE, "sc1", m_zero_trend = -0.03, p_zero_trend = 0)
     
 
-    # scenario_fn <- scenario_2_fn
-    # 
-    # IMPACTncd$
-    #   run(i, multicore = TRUE, "sc2", m_zero_trend = -0.03, p_zero_trend = 0)
+     scenario_fn <- scenario_2_fn
+     
+     IMPACTncd$
+       run(i, multicore = TRUE, "sc2", m_zero_trend = -0.03, p_zero_trend = 0)
     
-    # 
-    # scenario_fn <- scenario_3_fn
-    # 
-    # IMPACTncd$
-    #   run(i, multicore = TRUE, "sc3", m_zero_trend = -0.03, p_zero_trend = 0)
+     
+     scenario_fn <- scenario_3_fn
+     
+     IMPACTncd$
+       run(i, multicore = TRUE, "sc3", m_zero_trend = -0.03, p_zero_trend = 0)
     
-    # 
-    # scenario_fn <- scenario_4_fn
-    # 
-    # IMPACTncd$
-    #   run(i, multicore = TRUE, "sc4", m_zero_trend = -0.03, p_zero_trend = 0)
+     
+     scenario_fn <- scenario_4_fn
+     
+     IMPACTncd$
+       run(i, multicore = TRUE, "sc4", m_zero_trend = -0.03, p_zero_trend = 0)
     
   }
 }
