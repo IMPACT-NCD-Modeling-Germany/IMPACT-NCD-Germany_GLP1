@@ -330,7 +330,7 @@ Simulation <-
       export_summaries = function(multicore = TRUE, type = c("le", "ly",
                                                              "prvl", "incd",
                                                              "mrtl",  "dis_mrtl",
-                                                             "cea")) {            #08 Sep, Jane, deleted 'xps'
+                                                             "cea", "risk_10y")) {       #08 Sep, Jane, deleted 'xps'
 
         fl <- list.files(private$output_dir("lifecourse"), full.names = TRUE)
         # logic to avoid inappropriate dual processing of already processed mcs
@@ -342,7 +342,8 @@ Simulation <-
         if ("incd" %in% type) file_pth <- private$output_dir("summaries/incd_scaled_up.csv.gz") else
         if ("prvl" %in% type) file_pth <- private$output_dir("summaries/prvl_scaled_up.csv.gz") else
         if ("cea" %in% type) file_pth <- private$output_dir("summaries/health_economic_results.csv.gz") else
-          if ("xps" %in% type) file_pth <- private$output_dir("summaries/xps_scaled_up.csv.gz")
+        if ("xps" %in% type) file_pth <- private$output_dir("summaries/xps_scaled_up.csv.gz") else
+        if ("risk_10y" %in% type) file_pth <- private$output_dir("summaries/risk_10y_scaled_up.csv.gz") 
 
         if (file.exists(file_pth)) {
           tt <- unique(fread(file_pth, select = "mc")$mc)
@@ -773,7 +774,7 @@ Simulation <-
       export_summaries_hlpr = function(lc, type = c("le", "ly",
                                                   "prvl", "incd",
                                                   "mrtl",  "dis_mrtl",
-                                                  "cea", "xps")) {
+                                                  "cea", "xps","risk_10y")) {
         if (self$design$sim_prm$logs) message("Exporting summaries...")
         # strata <- setdiff(self$design$sim_prm$cols_for_output, c("age", "pid", "wt"))
         strata <- c("mc",
@@ -786,9 +787,16 @@ Simulation <-
         ##----  summaries on the whole population or on a defined sub-sample ------------------#
         ########################################################################################
 
-        lc[, eligible_bi := ifelse(bmi_curr_xps >= 35 & age <= 80 & year == 25 & t2dm_prvl == 0, 1, 0)]
-        eligible_ids <- lc[eligible_bi == 1, unique(pid)]
-        lc <- lc[pid %in% eligible_ids]
+        #lc[, eligible_bi := ifelse(bmi_curr_xps >= 35 & age <= 80 & year == 25 & t2dm_prvl == 0, 1, 0)]
+        #eligible_ids <- lc[eligible_bi == 1, unique(pid)]
+        #lc <- lc[pid %in% eligible_ids]
+        #---> we don't need this three lines anymore, we have a script for generating pids that
+        #---> will uptake the drug with our eligibility criteria
+        
+        ######################################################################################################
+        ### To generate the files with pids who uptake the drug
+        # source("./auxil/simulate_pid_uptake.R", echo = TRUE)
+        ######################################################################################################
 
         ########################################################################################
         ##---------- Now we have a new lc, which will be used in the following code -----------#
@@ -918,6 +926,42 @@ Simulation <-
                       private$output_dir(paste0("summaries", "/incd_esp.csv.gz"
                       )))
 
+        }
+        
+        if("risk_10y" %in% type){ 
+          
+          # 10y risk: proportion of disease-free people at baseline who developed first CVD event over 10 years
+          
+          if (self$design$sim_prm$logs) message("Exporting 10-year risk...")
+          
+          start_year <- 25L
+          end_year   <- 34L
+          
+          # Per-pid flags
+          lc[, baseline_free   := any(year == start_year & stroke_prvl == 0), by = pid]
+          lc[, had_event_10y := any(stroke_prvl > 0 & year >= start_year & year <= end_year), by = pid]
+          # Final binary variable:
+          # 1 = had event during [25, 34] and event-free at 25
+          # 0 = no event during  [25, 34] and event-free at 25
+          # NA = not event-free at baseline (or not observed at year 25)
+          lc[, stroke_event_10y := fifelse(baseline_free, as.integer(had_event_10y), NA_integer_)]
+          
+          # weighted events and population
+          tt_risk <- lc[
+            !is.na(stroke_event_10y) & year == start_year,  # restrict to baseline-free individuals
+            .(                                              # at start_year only
+              popsize   = sum(wt),                          # weighted baseline disease-free population
+              events10y = sum(stroke_event_10y * wt)        # weighted number of 10-year events
+            ),
+            by = c("mc", "scenario", "year", "agegrp", "sex", "bmi_cate")
+          ]
+          
+          # Save output
+          fwrite_safe(
+            tt_risk,
+            private$output_dir(paste0("summaries", "/stroke_10y_scaled_up.csv.gz"
+          )))
+          
         }
 
         if("mrtl" %in% type){

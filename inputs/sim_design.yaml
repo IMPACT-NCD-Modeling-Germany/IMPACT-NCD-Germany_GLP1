@@ -123,6 +123,7 @@ cols_for_output:
 - sbp_delta
 - tchol_delta
 - trtm_theo
+- bmi_cate
 strata_for_output:
 - scenario
 - year

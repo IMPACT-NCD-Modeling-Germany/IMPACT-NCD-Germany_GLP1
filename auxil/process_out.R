@@ -2599,6 +2599,33 @@ for(analysis in dirs){
         
     }
     
+  if("stroke_10y_scaled_up.csv.gz" %in% list.files(in_path)){
+    
+    ## 10 year risk of stroke from 2025 ## ----
+    
+    tt <- fread(paste0(in_path, "stroke_10y_scaled_up.csv.gz")
+    )[, `:=` (year = year + 2000,
+              agegrp = fifelse(agegrp %in% c("30-34", "35-39", "40-44", "45-49"), "30-49",
+                               ifelse(agegrp %in% c("50-54", "55-59", "60-64", "65-69"), "50-69",
+                                      "70-90")))]
+    
+    tt[, grep("cms", names(tt), value = TRUE) := NULL]
+    
+    outstrata <- c("mc", "sex", "agegrp", "scenario", "bmi_cate")
+    
+    sc_n <- na.omit(as.numeric(gsub("[^1-9]+", "", unique(tt$scenario)))) 
+    
+    # Rate #
+    
+    d <- tt[, lapply(.SD, sum), .SDcols = patterns("10y$|^popsize$"), keyby = eval(outstrata)
+    ][, lapply(.SD, function(x) x/popsize), keyby = outstrata]
+    d <- melt(d, id.vars = outstrata)
+    d <- d[, fquantile_byid(value, prbl, id = as.character(variable)), keyby = eval(setdiff(outstrata, "mc"))]
+    setnames(d, c(setdiff(outstrata, "mc"), "disease", percent(prbl, prefix = "10yevent_rate_")))
+    
+    fwrite(d, paste0(out_path_tables, "10yevent_rate_by_agegrp_sex_bmi.csv"), sep = ";")
+  }   
+    
     if("dis_mrtl_scaled_up.csv.gz" %in% list.files(in_path)){
           
         ## Disease-specific Mortality by age and sex ## ----

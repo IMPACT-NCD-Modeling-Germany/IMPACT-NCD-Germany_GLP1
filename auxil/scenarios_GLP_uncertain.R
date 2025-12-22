@@ -16,8 +16,20 @@
 
 scenario_0_fn <- function(sp) {
 
-  sp$pop[, c("bmi_delta", "sbp_delta", "tchol_delta", "trtm_theo") := 0]
-
+  #sp$pop[, c("bmi_delta", "sbp_delta", "tchol_delta", "trtm_theo") := 0]
+  
+  sp$pop[, `:=`(
+           bmi_delta   = 0,
+           sbp_delta   = 0,
+           tchol_delta = 0,
+           trtm_theo   = 0,
+           
+           bmi_cate = fcase(
+             bmi_curr_xps <30,                    "1",
+             bmi_curr_xps>=30 & bmi_curr_xps<35,  "2",
+             bmi_curr_xps>=35,                    "3")
+         )
+  ]
 }
 
 #scenario_0_fn(sp)
