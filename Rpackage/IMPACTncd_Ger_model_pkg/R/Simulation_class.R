@@ -790,8 +790,6 @@ Simulation <-
         #lc[, eligible_bi := ifelse(bmi_curr_xps >= 35 & age <= 80 & year == 25 & t2dm_prvl == 0, 1, 0)]
         #eligible_ids <- lc[eligible_bi == 1, unique(pid)]
         #lc <- lc[pid %in% eligible_ids]
-        #---> we don't need this three lines anymore, we have a script for generating pids that
-        #---> will uptake the drug with our eligibility criteria
         
         ########################################################################################
         ##---------- Now we have a new lc, which will be used in the following code -----------#

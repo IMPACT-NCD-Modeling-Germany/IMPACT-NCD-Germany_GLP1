@@ -720,7 +720,7 @@ scenario_3_fn <- function(sp) {
     } else {                                                # If yes anchor is found,
       fcase(                                                # We need to assign value to the 'new_sbp' based on the time periods
         year < anchor,  sbp_curr_xps,              # Before anchor year/uptake: original values (including baseline year)
-        year >= anchor, baseline_sbp + sbp_delta,  # After anchor year, the lifetime treatment lead to lifetime effects
+        year >= anchor, baseline_sbp + sbp_delta  # After anchor year, the lifetime treatment lead to lifetime effects
       )
     }
   }, by = pid]
@@ -1230,7 +1230,7 @@ scenario_5_fn <- function(sp) {
     } else {                                                # If yes anchor is found,
       fcase(                                                # We need to assign value to the 'new_sbp' based on the time periods
         year < anchor,  sbp_curr_xps,              # Before anchor year/uptake: original values (including baseline year)
-        year >= anchor, baseline_sbp + sbp_delta,  # After anchor year, the lifetime treatment lead to lifetime effects
+        year >= anchor, baseline_sbp + sbp_delta  # After anchor year, the lifetime treatment lead to lifetime effects
       )
     }
   }, by = pid]
@@ -1970,7 +1970,7 @@ scenario_8_fn <- function(sp) {
     } else {                                                # If yes anchor is found,
       fcase(                                                # We need to assign value to the 'new_sbp' based on the time periods
         year < anchor,  sbp_curr_xps,              # Before anchor year/uptake: original values (including baseline year)
-        year >= anchor, baseline_sbp + sbp_delta,  # After anchor year, the lifetime treatment lead to lifetime effects
+        year >= anchor, baseline_sbp + sbp_delta  # After anchor year, the lifetime treatment lead to lifetime effects
       )
     }
   }, by = pid]
@@ -2468,7 +2468,7 @@ scenario_10_fn <- function(sp) {
     } else {                                                # If yes anchor is found,
       fcase(                                                # We need to assign value to the 'new_sbp' based on the time periods
         year < anchor,  sbp_curr_xps,              # Before anchor year/uptake: original values (including baseline year)
-        year >= anchor, baseline_sbp + sbp_delta,  # After anchor year, the lifetime treatment lead to lifetime effects
+        year >= anchor, baseline_sbp + sbp_delta  # After anchor year, the lifetime treatment lead to lifetime effects
       )
     }
   }, by = pid]
@@ -2969,7 +2969,7 @@ scenario_12_fn <- function(sp) {
     } else {                                                # If yes anchor is found,
       fcase(                                                # We need to assign value to the 'new_sbp' based on the time periods
         year < anchor,  sbp_curr_xps,              # Before anchor year/uptake: original values (including baseline year)
-        year >= anchor, baseline_sbp + sbp_delta,  # After anchor year, the lifetime treatment lead to lifetime effects
+        year >= anchor, baseline_sbp + sbp_delta  # After anchor year, the lifetime treatment lead to lifetime effects
       )
     }
   }, by = pid]
@@ -3470,7 +3470,7 @@ scenario_14_fn <- function(sp) {
     } else {                                                # If yes anchor is found,
       fcase(                                                # We need to assign value to the 'new_sbp' based on the time periods
         year < anchor,  sbp_curr_xps,              # Before anchor year/uptake: original values (including baseline year)
-        year >= anchor, baseline_sbp + sbp_delta,  # After anchor year, the lifetime treatment lead to lifetime effects
+        year >= anchor, baseline_sbp + sbp_delta  # After anchor year, the lifetime treatment lead to lifetime effects
       )
     }
   }, by = pid]
