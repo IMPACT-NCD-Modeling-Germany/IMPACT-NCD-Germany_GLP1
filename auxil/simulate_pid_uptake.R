@@ -7,11 +7,18 @@
 #----------------------------------------------------------------------------------------------#
 ################################################################################################
 
-pid_uptake <- function(lc_path, output_d = paste0(getwd(), "/inputs/uptake"), N_treat = 500, 
-                       start_year = 25, end_year = 44, seed = 123) { 
+pid_uptake <- function(lc_path,
+                       output_d = paste0(getwd(), "/inputs/uptake"),
+                       N_treat = 500,
+                       pct_treat = 0.10,
+                       start_year = 25,
+                       end_year   = 44,
+                       seed = 123) { 
   
-  # Load lifecourse datasets
-  lc <- fread(lc_path)       # lc_path is a single file path (one file path per iteration)
+  #--------------------------------------------------
+  # Load lifecourse
+  #--------------------------------------------------
+  lc <- fread(lc_path)  # lc_path is a single file path for a lifecourse (one file path per iteration)
   
   # Extract iteration number (mc)
   mc_id <- unique(lc$mc)
@@ -24,79 +31,113 @@ pid_uptake <- function(lc_path, output_d = paste0(getwd(), "/inputs/uptake"), N_
   # iteration-specific seeds, make sure the random draw of pids is identical across scenarios 
   # Across iterations, the seeds will be different, that represents stochastic uncertainty in population sampling
   
+  #--------------------------------------------------
   # Eligibility definition
+  #--------------------------------------------------
   # Main:       BMI>35 and no diabetes
   # Secondary:  30<BMI<35 and CHD/Stroke and no diabetes
+  # plus:       30<Age<80
   lc[, eligible_bi := ifelse((age<=80 & bmi_curr_xps>=35 & t2dm_prvl==0)|
                                (age<=80 & bmi_curr_xps>=30 & bmi_curr_xps<35 & t2dm_prvl==0 & chd_prvl>0)|
                                (age<=80 & bmi_curr_xps>=30 & bmi_curr_xps<35 & t2dm_prvl==0 & stroke_prvl>0), 1, 0)]
   
-  ####################################### For Cost Effectiveness Analysis ###########################################
+  #==================================================
+  # CEA: Eligible in 2025
+  #==================================================
   # Find pids who are eligible at the year of 2025
-  eligible_cea <- unique(lc[year == 25 & eligible_bi == 1, pid])
-  persons_cea <- data.frame(pid = eligible_cea, uptake_year = 25, mc = mc_id)
-  persons_cea <- as.data.table(persons_cea)
+  eligible_cea <- unique(lc[year == start_year & eligible_bi == 1, pid])
   
-  ########################################## For Budget Impact Analysis #############################################
-  # Step 1. Initialize a person-level table to record uptake year (one row per pid, and their potential uptake year)
-  persons_bia <- unique(lc[, .(pid)])
-  persons_bia[, uptake_year := NA_integer_] # NA => not yet treated
-  # Everyone starts with NA as uptake year
+  persons_cea <- data.table(
+    pid = eligible_cea,
+    uptake_year = start_year,
+    mc = mc_id
+  )
   
-  # Step 2. Loop through all rollout years (2025-2044)
-  for (yr in start_year:end_year) {
+  #==================================================
+  # Helper function for BIA uptake
+  #==================================================
+  run_bia_uptake <- function(sample_size_fun) {
+    # run_bia_uptake() is a function whose input is another function
+    # This is called a higher-order function
+    # Think of 'sample_size_fun' as a “rule”: Given the number of eligible patients this year (n_eligible), 
+    #                                         apply the rule sample_size_fun to decide how many people to sample.”
     
-    # eligible & not previously treated pids in this year
-    eligible_pids <- unique(lc[year == yr & eligible_bi == 1, pid])
-    # ---'eligible_pids' is a vector of person IDs who meet the eligibility criteria in year yr
+    # Step 1. Initialize a person-level table to record uptake year (one row per pid, and their potential uptake year)
+    persons <- unique(lc[, .(pid)])
+    persons[, uptake_year := NA_integer_] # Everyone starts with NA as uptake year
     
-    # remove already treated people
-    eligible_pids <- eligible_pids[is.na(persons_bia[match(eligible_pids, persons_bia$pid), uptake_year])]
-    # --- It ends up as: eligible_pids[c(TRUE, FALSE, TRUE, FALSE)]
-    # --- In R, when you use a logical vector inside [...], it keeps the elements where the value is TRUE.
-    # --- This line: keeps only those eligible_pids for which the person’s uptake_year is still NA.
+    # Step 2. Loop through all rollout years (2025-2044)
+    for (yr in start_year:end_year) {
+      
+      # eligible & not previously treated pids in this year: 
+      # --'eligible_pids' is a vector of person IDs who meet the eligibility criteria in year yr
+      eligible_pids <- unique(lc[year == yr & eligible_bi == 1, pid])
+      
+      # remove already treated people year by year
+      eligible_pids <- eligible_pids[is.na(persons[match(eligible_pids, pid), uptake_year])]
+      # --- It ends up as: eligible_pids[c(TRUE, FALSE, TRUE, FALSE)]
+      # --- match(x, y) returns the row positions in y where each element of x appears.
+      # --- This line keeps only those *eligible_pids* whose uptake_year is still NA in the persons table.
+      # --- From the currently eligible people, drop anyone who has already taken up the medication in a previous year.
+      
+      n_eligible <- length(eligible_pids)
+      if (n_eligible == 0L) next
+      
+      N_to_sample <- sample_size_fun(n_eligible)
+      if (N_to_sample <= 0L) next
+      
+      sampled <- sample(eligible_pids, min(N_to_sample, n_eligible))
+      
+      persons[pid %in% sampled, uptake_year := yr]
+    }
     
-    # check the number of eligible patients in this year
-    n_eligible <- length(eligible_pids)
-    if (n_eligible == 0L) next
-    # --- A logical statement for whether or not to proceed the loop
-    # --- i.e., if there's no eligible patient in one year, then nothing to do this year
-    
-    # sample N patients from the eligible pool to uptake the drug
-    N_to_sample <- min(N_treat, n_eligible)
-    # --- cap the number of uptake patients if the eligible pool is smaller than N
-    sampled <- sample(eligible_pids, N_to_sample)
-    
-    # record uptake year for those sampled
-    persons_bia[pid %in% sampled, uptake_year := yr]
-    
+    persons[!is.na(uptake_year), ][, mc := mc_id]
   }
   
-  # Step 3. Add mc column in each selected-pid table
-  #         Also delete NAs from persons_bia file
-  persons_bia <- persons_bia[!is.na(uptake_year), ]
-  persons_bia[, mc := mc_id]
+  #--------------------------------------------------
+  # BIA scenario 1: Fixed N per year
+  #--------------------------------------------------
+  persons_bia_N <- run_bia_uptake(
+    function(n_eligible) min(N_treat, n_eligible)
+  )
+  # This is where 'sample_size_fun' is defined.
+  # It is defined at the moment you call run_bia_uptake().
+  # sample_size_fun = (function(n_eligible) min(N_treat, n_eligible))
   
-  # Step 4. I also need a variable for the year someone enters the lifecourse
-  lc[, entry_year:= min(year), by = pid]
-  entry <- unique(lc[, .(pid, entry_year)], by = "pid")
-  #entry <- unique[lc, by = 'pid'][ , c('pid','entry_year')]
-  persons_bia <- merge(persons_bia, entry, by = "pid", all.x = TRUE)
-  persons_cea <- merge(persons_cea, entry, by = "pid", all.x = TRUE)
+  #--------------------------------------------------
+  # BIA scenario 2: Percentage per year
+  #--------------------------------------------------
+  persons_bia_pct <- run_bia_uptake(
+    function(n_eligible) floor(pct_treat * n_eligible)
+  )
+  # This is where 'sample_size_fun' is defined.
+  # It is defined at the moment you call run_bia_uptake().
+  # sample_size_fun = (function(n_eligible) floor(pct_treat * n_eligible))
   
-  # Check if output dir exists
-  if(!dir.exists(output_d)) dir.create(output_d, recursive = TRUE)
+  #==================================================
+  # Save outputs
+  #==================================================
+  if (!dir.exists(output_d)) dir.create(output_d, recursive = TRUE)
   
-  # Save output
-  out_file <- file.path(output_d, paste0(mc_id, "_uptake_bia.csv")) # not just a directory, but with file name included
-  out_file_1 <- file.path(output_d, paste0(mc_id, "_uptake_cea.csv")) # Jane, Nov 3, 2025
-  fwrite(persons_bia, out_file)   # writing persons_bia into this file name from file.path()
-  fwrite(persons_cea, out_file_1) # writing persons_cea into this file name from file.path(), Jane, Nov 3, 2025
-  message("✅ Processed iteration ", mc_id, " — saved to ", out_file)
+  fwrite(persons_cea,
+         file.path(output_d, paste0(mc_id, "_uptake_cea.csv")))
   
-  return(persons_bia)
-  return(persons_cea)
-  # This chunk of codes eventually output a table with each pid and their uptake year.
+  fwrite(persons_bia_N,
+         file.path(output_d, paste0(mc_id, "_uptake_bia_N.csv")))
+  
+  fwrite(persons_bia_pct,
+         file.path(output_d, paste0(mc_id, "_uptake_bia_pct.csv")))
+  
+  message("✅ Processed iteration ", mc_id, " — saved all uptake scenarios")
+  
+  #==================================================
+  # Return all results
+  #==================================================
+  return(list(
+    cea      = persons_cea,
+    bia_N    = persons_bia_N,
+    bia_pct  = persons_bia_pct
+  ))
   
 }
 
@@ -109,7 +150,9 @@ fl <- list.files(lifecourse_dir, pattern = "_lifecourse.csv.gz$", full.names = T
 for (lc in fl) {
   # The variable lc takes one lifecourse of fl, i.e. one file path.
   # 'lc' is passed into the function as the 'lc_path' argument
-  pid_uptake(lc, N_treat = 500)
+  pid_uptake(lc, 
+             N_treat = 500,
+             pct_treat = 0.10)
   
 }
 
