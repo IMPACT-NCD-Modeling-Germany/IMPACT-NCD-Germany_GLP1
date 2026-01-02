@@ -793,11 +793,6 @@ Simulation <-
         #---> we don't need this three lines anymore, we have a script for generating pids that
         #---> will uptake the drug with our eligibility criteria
         
-        ######################################################################################################
-        ### To generate the files with pids who uptake the drug
-        # source("./auxil/simulate_pid_uptake.R", echo = TRUE)
-        ######################################################################################################
-
         ########################################################################################
         ##---------- Now we have a new lc, which will be used in the following code -----------#
         ########################################################################################
@@ -934,12 +929,12 @@ Simulation <-
           
           if (self$design$sim_prm$logs) message("Exporting 10-year risk...")
           
-          start_year <- 25L
-          end_year   <- 34L
+          start_year <- 15L
+          end_year   <- 24L
           
           # Per-pid flags
           lc[, baseline_free   := any(year == start_year & stroke_prvl == 0), by = pid]
-          lc[, had_event_10y := any(stroke_prvl > 0 & year >= start_year & year <= end_year), by = pid]
+          lc[, had_event_10y   := any(stroke_prvl > 0 & year >= start_year & year <= end_year), by = pid]
           # Final binary variable:
           # 1 = had event during [25, 34] and event-free at 25
           # 0 = no event during  [25, 34] and event-free at 25
