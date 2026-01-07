@@ -329,8 +329,8 @@ Simulation <-
       #' @return The invisible self for chaining.
       export_summaries = function(multicore = TRUE, type = c("le", "ly",
                                                              "prvl", "incd",
-                                                             "mrtl",  "dis_mrtl",
-                                                             "cea", "risk_10y")) {       #08 Sep, Jane, deleted 'xps'
+                                                             "mrtl",  "dis_mrtl")) { #08 Sep, Jane, removed "xps"
+                                                            #05 Jan, Jane, removed "cea", "risk_10y"
 
         fl <- list.files(private$output_dir("lifecourse"), full.names = TRUE)
         # logic to avoid inappropriate dual processing of already processed mcs
@@ -773,8 +773,8 @@ Simulation <-
       # lc is a lifecourse file, key input of the hlpr function
       export_summaries_hlpr = function(lc, type = c("le", "ly",
                                                   "prvl", "incd",
-                                                  "mrtl",  "dis_mrtl",
-                                                  "cea", "xps","risk_10y")) {
+                                                  "mrtl",  "dis_mrtl")) {
+                                                  #05 Jan, Jane, removed "xps", "cea", "risk_10y"
         if (self$design$sim_prm$logs) message("Exporting summaries...")
         # strata <- setdiff(self$design$sim_prm$cols_for_output, c("age", "pid", "wt"))
         strata <- c("mc",
@@ -960,12 +960,12 @@ Simulation <-
           
           # weighted events and population
           tt_risk <- lc[
-            !is.na(stroke_event_10y) & year == start_year,  # restrict to baseline-free individuals
+            !is.na(stroke_event_10y) & year == start_year,  # restrict to disease-free individuals
             .(                                              # at start_year only
               popsize   = sum(wt),                          # weighted baseline disease-free population
               events10y = sum(stroke_event_10y * wt)        # weighted number of 10-year events
             ),
-            by = c("mc", "scenario", "year", "agegrp", "sex", "bmi_cate")
+            by = c("mc", "scenario", "year", "agegrp", "sex") # removed "bmi_cate" here because of error
           ]
           
           # Save output
@@ -1453,11 +1453,12 @@ Simulation <-
                         private$output_dir(paste0("summaries/", grp_name, "_cea_results.csv.gz")))
           }
         }
-
-        if (!self$design$sim_prm$keep_lifecourse) file.remove(pth)
-
-        return(invisible(self))
         }
+        
+        if (!self$design$sim_prm$keep_lifecourse) file.remove(pth)
+        
+        return(invisible(self))
+        
       },
 
       # Special deep copy for data.table. Use POP$clone(deep = TRUE) to

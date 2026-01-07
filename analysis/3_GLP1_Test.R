@@ -8,13 +8,13 @@ source("./global.R")
 source("./auxil/scenarios_GLP_uncertain.R")
 
 # Define directories
-lifecourse_dir <- "/media/php-workstation/Storage_2/IMPACT_Storage/GLP1/outputs/GLP_Test/lifecourse"
+lifecourse_dir <- "/media/php-workstation/Storage_1/IMPACT_Storage/GLP1/outputs/GLP_Test/lifecourse"
 
 # Initiate .Random.seed for safety
 runif(1)
 
 # New runs?
-new_runs <- TRUE
+new_runs <- FALSE
 new_export <- TRUE
 
 
@@ -39,11 +39,6 @@ if(new_runs){
   for(i in batches){
     
     message("Running iteration ", i)
-    
-    # scenario_fn <- scenario_base_fn
-    
-    # IMPACTncd$
-    #   run(1:3, multicore = TRUE, "baseline", m_zero_trend = -0.03, p_zero_trend = 0) 
     
     # scenario_fn <- scenario_0_fn
     
@@ -91,7 +86,65 @@ if(new_runs){
      scenario_fn <- scenario_4_fn
      
      IMPACTncd$
-       run(i, multicore = TRUE, "sc4", m_zero_trend = -0.03, p_zero_trend = 0)
+      run(i, multicore = TRUE, "sc4", m_zero_trend = -0.03, p_zero_trend = 0)
+     
+     scenario_fn <- scenario_5_fn
+     
+     IMPACTncd$
+       run(i, multicore = TRUE, "sc5", m_zero_trend = -0.03, p_zero_trend = 0)
+     
+     
+     scenario_fn <- scenario_6_fn
+     
+     IMPACTncd$
+       run(i, multicore = TRUE, "sc6", m_zero_trend = -0.03, p_zero_trend = 0)
+     
+     
+     scenario_fn <- scenario_7_fn
+     
+     IMPACTncd$
+       run(i, multicore = TRUE, "sc7", m_zero_trend = -0.03, p_zero_trend = 0)
+     
+     
+     scenario_fn <- scenario_8_fn
+     
+     IMPACTncd$
+       run(i, multicore = TRUE, "sc8", m_zero_trend = -0.03, p_zero_trend = 0)
+     
+     scenario_fn <- scenario_9_fn
+     
+     IMPACTncd$
+       run(i, multicore = TRUE, "sc9", m_zero_trend = -0.03, p_zero_trend = 0)
+     
+     
+     scenario_fn <- scenario_10_fn
+     
+     IMPACTncd$
+       run(i, multicore = TRUE, "sc10", m_zero_trend = -0.03, p_zero_trend = 0)
+     
+     
+     scenario_fn <- scenario_11_fn
+     
+     IMPACTncd$
+       run(i, multicore = TRUE, "sc11", m_zero_trend = -0.03, p_zero_trend = 0)
+     
+     
+     scenario_fn <- scenario_12_fn
+     
+     IMPACTncd$
+       run(i, multicore = TRUE, "sc12", m_zero_trend = -0.03, p_zero_trend = 0)
+     
+     
+     scenario_fn <- scenario_13_fn
+     
+     IMPACTncd$
+       run(i, multicore = TRUE, "sc13", m_zero_trend = -0.03, p_zero_trend = 0)
+     
+     
+     scenario_fn <- scenario_14_fn
+     
+     IMPACTncd$
+       run(i, multicore = TRUE, "sc14", m_zero_trend = -0.03, p_zero_trend = 0)
     
   }
 }
