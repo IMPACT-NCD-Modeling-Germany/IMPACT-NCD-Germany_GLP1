@@ -50,13 +50,14 @@ pid_uptake <- function(lc_path,
   persons_cea <- data.table(
     pid = eligible_cea,
     uptake_year = start_year,
-    mc = mc_id
+    mc = mc_id,
+    uptake_group = 1L
   )
   
   #==================================================
   # Helper function for BIA uptake
   #==================================================
-  run_bia_uptake <- function(sample_size_fun) {
+  run_bia_uptake <- function(sample_size_fun, group_id) {
     # run_bia_uptake() is a function whose input is another function
     # This is called a higher-order function
     # Think of 'sample_size_fun' as a “rule”: Given the number of eligible patients this year (n_eligible), 
@@ -91,14 +92,20 @@ pid_uptake <- function(lc_path,
       persons[pid %in% sampled, uptake_year := yr]
     }
     
-    persons[!is.na(uptake_year), ][, mc := mc_id]
+    persons[!is.na(uptake_year), ][
+      , `:=`(
+        mc = mc_id,
+        uptake_group = group_id
+      )
+      ]
   }
   
   #--------------------------------------------------
   # BIA scenario 1: Fixed N per year
   #--------------------------------------------------
   persons_bia_N <- run_bia_uptake(
-    function(n_eligible) min(N_treat, n_eligible)
+    function(n_eligible) min(N_treat, n_eligible),
+    group_id = 2L
   )
   # This is where 'sample_size_fun' is defined.
   # It is defined at the moment you call run_bia_uptake().
@@ -108,7 +115,8 @@ pid_uptake <- function(lc_path,
   # BIA scenario 2: Percentage per year
   #--------------------------------------------------
   persons_bia_pct <- run_bia_uptake(
-    function(n_eligible) floor(pct_treat * n_eligible)
+    function(n_eligible) floor(pct_treat * n_eligible),
+    group_id = 3L
   )
   # This is where 'sample_size_fun' is defined.
   # It is defined at the moment you call run_bia_uptake().

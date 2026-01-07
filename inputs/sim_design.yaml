@@ -122,12 +122,15 @@ cols_for_output:
 - bmi_delta
 - sbp_delta
 - tchol_delta
+- anchor_year
 - trtm_theo
+- uptake_group
 strata_for_output:
 - scenario
 - year
 - agegrp
 - sex
+- uptake_group
 exposures:
 - age
 - sex
