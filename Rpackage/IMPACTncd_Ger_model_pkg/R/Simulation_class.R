@@ -791,27 +791,27 @@ Simulation <-
         ##-------------------------------------------------------------------------------------#
         ########################################################################################
         
-        mc_id <- unique(lc$mc)
-        if (length(mc_id) != 1L) {
-          stop("Expected exactly one mc value in lifecourse table")
-        }
+#        mc_id <- unique(lc$mc)
+#        if (length(mc_id) != 1L) {
+#          stop("Expected exactly one mc value in lifecourse table")
+#        }
         
-        pid_groups <- list(
-          fullpop  = NULL,
-          cea      = paste0("./inputs/uptake/", mc_id, "_uptake_cea.csv"),
-          bia_N    = paste0("./inputs/uptake/", mc_id, "_uptake_bia_N.csv"),
-          bia_pct  = paste0("./inputs/uptake/", mc_id, "_uptake_bia_pct.csv")
-        )
+#        pid_groups <- list(
+#          fullpop  = NULL,
+#          cea      = paste0("./inputs/uptake/", mc_id, "_uptake_cea.csv"),
+#          bia_N    = paste0("./inputs/uptake/", mc_id, "_uptake_bia_N.csv"),
+#          bia_pct  = paste0("./inputs/uptake/", mc_id, "_uptake_bia_pct.csv")
+#       )
         
-        for (grp_name in names(pid_groups)) {
+#        for (grp_name in names(pid_groups)) {
           
-          if (is.null(pid_groups[[grp_name]])) {
-            lc <- lc
-          } else {
-            pid_dt <- fread(pid_groups[[grp_name]])
-            eligible_ids <- unique(pid_dt$pid)
-            lc <- lc[pid %in% eligible_ids]
-          }
+#          if (is.null(pid_groups[[grp_name]])) {
+#            lc <- lc
+#          } else {
+#            pid_dt <- fread(pid_groups[[grp_name]])
+#            eligible_ids <- unique(pid_dt$pid)
+#            lc <- lc[pid %in% eligible_ids]
+#          }
 
 
         if("le" %in% type){
@@ -1453,7 +1453,7 @@ Simulation <-
                         private$output_dir(paste0("summaries/", grp_name, "_cea_results.csv.gz")))
           }
         }
-        }
+#        }
         
         if (!self$design$sim_prm$keep_lifecourse) file.remove(pth)
         

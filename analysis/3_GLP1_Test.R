@@ -14,7 +14,7 @@ lifecourse_dir <- "/media/php-workstation/Storage_1/IMPACT_Storage/GLP1/outputs/
 runif(1)
 
 # New runs?
-new_runs <- FALSE
+new_runs <- TRUE
 new_export <- TRUE
 
 
@@ -22,7 +22,7 @@ if(new_runs){
   
   # Create batches for batched simulation
   batch_size <- 10
-  iterations <- 5
+  iterations <- 3
   first_iteration <- 1
   batches <- split(seq(first_iteration, iterations + first_iteration - 1),
                    f = findInterval(seq(first_iteration, iterations + first_iteration - 1),
