@@ -768,13 +768,10 @@ Simulation <-
         file.path(self$design$sim_prm$output_dir, self$design$sim_prm$analysis_name, x)
       },
 
-      # export_summaries_hlpr():
-      # a function to export summaries from lifecourse files
-      # lc is a lifecourse file, key input of the hlpr function
       export_summaries_hlpr = function(lc, type = c("le", "ly",
                                                   "prvl", "incd",
                                                   "mrtl",  "dis_mrtl")) {
-                                                  #05 Jan, Jane, removed "xps", "cea", "risk_10y"
+                                                  #05 Jan 2026, Jane, removed "xps", "cea", "risk_10y"
         if (self$design$sim_prm$logs) message("Exporting summaries...")
         # strata <- setdiff(self$design$sim_prm$cols_for_output, c("age", "pid", "wt"))
         strata <- c("mc",
@@ -822,10 +819,10 @@ Simulation <-
           #             private$output_dir(paste0("summaries/", "le_out.csv.gz"
           #             )))
           fwrite_safe(lc[all_cause_mrtl > 0, .("popsize" = sum(wt), LE = weighted.mean(age, wt)),  keyby = strata],
-                      private$output_dir(paste0("summaries/", grp_name, "_le_scaled_up.csv.gz"
+                      private$output_dir(paste0("summaries", "/le_scaled_up.csv.gz"
                       )))
           fwrite_safe(lc[all_cause_mrtl > 0, .("popsize" = sum(wt_esp), LE = weighted.mean(age, wt_esp)),  keyby = strata],
-                      private$output_dir(paste0("summaries/", grp_name, "_le_esp.csv.gz"
+                      private$output_dir(paste0("summaries", "/le_esp.csv.gz"
                       )))
           # Life expectancy at 60
 
@@ -834,10 +831,10 @@ Simulation <-
             #             private$output_dir(paste0("summaries/", "le60_out.csv.gz"
             #             )))
             fwrite_safe(lc[all_cause_mrtl > 0 & age > 60, .("popsize" = sum(wt), LE60 = weighted.mean(age, wt)),  keyby = strata],
-                        private$output_dir(paste0("summaries/", grp_name, "_le60_scaled_up.csv.gz"
+                        private$output_dir(paste0("summaries", "/le60_scaled_up.csv.gz"
                         )))
             fwrite_safe(lc[all_cause_mrtl > 0 & age > 60, .("popsize" = sum(wt_esp), LE60 = weighted.mean(age, wt_esp)),  keyby = strata],
-                        private$output_dir(paste0("summaries/", grp_name, "_le60_esp.csv.gz"
+                        private$output_dir(paste0("summaries", "/le60_esp.csv.gz"
                         )))
           }
           # Note: for less aggregation use wtd.mean with popsize i.e le_out[, weighted.mean(LE, popsize), keyby = year]
@@ -850,10 +847,10 @@ Simulation <-
           if (self$design$sim_prm$logs) message("Exporting life years...")
 
           fwrite_safe(lc[all_cause_mrtl == 0, .(LY = sum(wt)),  keyby = strata],
-                      private$output_dir(paste0("summaries/", grp_name, "_ly_scaled_up.csv.gz"
+                      private$output_dir(paste0("summaries", "/ly_scaled_up.csv.gz"
                       )))
           fwrite_safe(lc[all_cause_mrtl == 0, .(LY = sum(wt_esp)),  keyby = strata],
-                      private$output_dir(paste0("summaries/", grp_name, "_ly_esp.csv.gz"
+                      private$output_dir(paste0("summaries", "/ly_esp.csv.gz"
                       )))
           }
           # Note: for less aggregation use wtd.mean with popsize i.e le_out[, weighted.mean(LE, popsize), keyby = year]
@@ -906,12 +903,12 @@ Simulation <-
           fwrite_safe(lc[, c("popsize" = sum(wt),
                              lapply(.SD, function(x, wt) sum((x > 0) * wt), wt)),
                          .SDcols = patterns("_prvl$"), keyby = strata],
-                      private$output_dir(paste0("summaries/", grp_name, "_prvl_scaled_up.csv.gz"
+                      private$output_dir(paste0("summaries", "/prvl_scaled_up.csv.gz"
                       )))
           fwrite_safe(lc[, c("popsize" = sum(wt_esp),
                              lapply(.SD, function(x, wt) sum((x > 0) * wt), wt_esp)),
                          .SDcols = patterns("_prvl$"), keyby = strata],
-                      private$output_dir(paste0("summaries/", grp_name, "_prvl_esp.csv.gz"
+                      private$output_dir(paste0("summaries", "/prvl_esp.csv.gz"
                       )))
 
         }
@@ -930,12 +927,12 @@ Simulation <-
           fwrite_safe(lc[, c("popsize" = sum(wt),
                              lapply(.SD, function(x, wt) sum((x == 1) * wt), wt)),
                          .SDcols = patterns("_prvl$"), keyby = strata],
-                      private$output_dir(paste0("summaries/", grp_name, "_incd_scaled_up.csv.gz"
+                      private$output_dir(paste0("summaries", "/incd_scaled_up.csv.gz"
                       )))
           fwrite_safe(lc[, c("popsize" = sum(wt_esp),
                              lapply(.SD, function(x, wt) sum((x == 1) * wt), wt_esp)),
                          .SDcols = patterns("_prvl$"), keyby = strata],
-                      private$output_dir(paste0("summaries/", grp_name, "_incd_esp.csv.gz"
+                      private$output_dir(paste0("summaries", "/incd_esp.csv.gz"
                       )))
 
         }
@@ -971,7 +968,7 @@ Simulation <-
           # Save output
           fwrite_safe(
             tt_risk,
-            private$output_dir(paste0("summaries/", grp_name, "_stroke_10y_scaled_up.csv.gz"
+            private$output_dir(paste0("summaries", "/stroke_10y_scaled_up.csv.gz"
           )))
           
         }
@@ -989,12 +986,12 @@ Simulation <-
           fwrite_safe(lc[, .("popsize" = sum(wt),
                              "all_cause_mrtl" = sum((all_cause_mrtl > 0) * wt)),
                          keyby = strata],
-                      private$output_dir(paste0("summaries/", grp_name, "_mrtl_scaled_up.csv.gz"
+                      private$output_dir(paste0("summaries", "/mrtl_scaled_up.csv.gz"
                       )))
           fwrite_safe(lc[, .("popsize" = sum(wt_esp),
                              "all_cause_mrtl" = sum((all_cause_mrtl > 0) * wt_esp)),
                          keyby = strata],
-                      private$output_dir(paste0("summaries/", grp_name, "_mrtl_esp.csv.gz"
+                      private$output_dir(paste0("summaries", "/mrtl_esp.csv.gz"
                       )))
 
         }
@@ -1043,7 +1040,7 @@ Simulation <-
             alive = NULL
           ), .SDcols = !strata]
           fwrite_safe(dis_mrtl_out,
-                      private$output_dir(paste0("summaries/", grp_name, "_dis_mrtl_scaled_up.csv.gz"
+                      private$output_dir(paste0("summaries", "/dis_mrtl_scaled_up.csv.gz"
                       )))
 
           dis_mrtl_out <- # scale up esp
@@ -1064,7 +1061,7 @@ Simulation <-
             alive = NULL
           ), .SDcols = !strata]
           fwrite_safe(dis_mrtl_out,
-                      private$output_dir(paste0("summaries/", grp_name, "_dis_mrtl_esp.csv.gz"
+                      private$output_dir(paste0("summaries", "/dis_mrtl_esp.csv.gz"
                       )))
 
         }
@@ -1077,7 +1074,7 @@ Simulation <-
 
           fwrite_safe(lc[, lapply(.SD, weighted.mean, wt),
                          .SDcols = patterns("_xps$"), keyby = strata],
-                      private$output_dir(paste0("summaries/", grp_name, "_xps_scaled_up.csv.gz"
+                      private$output_dir(paste0("summaries", "/xps_scaled_up.csv.gz"
                       )))
 
         }
@@ -1415,7 +1412,7 @@ Simulation <-
           cea_agg[, mc := mc_]
 
           fwrite_safe(cea_agg,
-                      private$output_dir(paste0("summaries/", grp_name, "_health_economic_results.csv.gz")))
+                      private$output_dir(paste0("summaries", "/health_economic_results.csv.gz")))
 
           scenarios <- unique(cea_agg$scenario)[unique(cea_agg$scenario) != "sc0"] # Exclude baseline scenario
 
@@ -1450,7 +1447,7 @@ Simulation <-
             cea_diff[, mc := mc_]
 
             fwrite_safe(cea_diff,
-                        private$output_dir(paste0("summaries/", grp_name, "_cea_results.csv.gz")))
+                        private$output_dir(paste0("summaries", "/cea_results.csv.gz")))
           }
         }
 #        }
