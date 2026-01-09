@@ -145,11 +145,17 @@ if(new_runs){
      
      IMPACTncd$
        run(i, multicore = TRUE, "sc14", m_zero_trend = -0.03, p_zero_trend = 0)
+     
+     
+     scenario_fn <- scenario_15_fn
+     
+     IMPACTncd$
+       run(i, multicore = TRUE, "sc15", m_zero_trend = -0.03, p_zero_trend = 0)
     
   }
 }
 
 if(new_export){
   IMPACTncd$export_summaries(multicore = TRUE) 
-}
+} 
  
