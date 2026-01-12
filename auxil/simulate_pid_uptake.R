@@ -50,7 +50,6 @@ pid_uptake <- function(lc_path,
   persons_cea <- data.table(
     pid = eligible_cea,
     uptake_year = start_year,
-    mc = mc_id,
     uptake_group = 1L
   )
   
@@ -94,7 +93,6 @@ pid_uptake <- function(lc_path,
     
     persons[!is.na(uptake_year), ][
       , `:=`(
-        mc = mc_id,
         uptake_group = group_id
       )
       ]
