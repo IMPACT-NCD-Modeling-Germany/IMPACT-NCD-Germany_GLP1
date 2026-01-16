@@ -14,7 +14,7 @@ lifecourse_dir <- "/media/php-workstation/Storage_1/IMPACT_Storage/GLP1/outputs/
 runif(1)
 
 # New runs?
-new_runs <- TRUE
+new_runs <- FALSE
 new_export <- TRUE
 
 
@@ -158,4 +158,11 @@ if(new_runs){
 if(new_export){
   IMPACTncd$export_summaries(multicore = TRUE) 
 } 
+
+# Selective Exports
+export_type = "cea"
+if(new_export){
+  IMPACTncd$export_summaries(multicore = TRUE, type = export_type)
+}
+
  
