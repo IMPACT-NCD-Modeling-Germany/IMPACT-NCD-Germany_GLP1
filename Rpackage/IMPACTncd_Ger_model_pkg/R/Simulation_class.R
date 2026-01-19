@@ -1436,30 +1436,41 @@ Simulation <-
             if (self$design$sim_prm$logs)
               message("Calculating cost-effectiveness...")
             
-            cea_diff <- data.table(NULL)
+            strata_no_scenario <- cea_strata[cea_strata != "scenario"]
             
-            # Loop through scenario–baseline pairs
+            cea_diff <- data.table()
+            
             for (i in scenarios) {
               
               base <- sc_map[scenario == i, baseline]
               
-              # Extract only the baseline + scenario rows
+              # Keep only baseline + scenario
               xx <- cea_agg[scenario %in% c(base, i)]
               
-              # Sort by all strata except scenario
-              setkeyv(xx, cea_strata[cea_strata != "scenario"])
+              # Mark baseline rows
+              xx[, is_base := scenario == base]
               
-              # Compute incremental values: scenario_i - baseline
-              xx[, (paste0("incr_",
-                           c(grep("cost", names(xx), value = TRUE),
-                             "qalys_scl", "qalys_esp"))) :=
-                   lapply(.SD, function(var) var - shift(var)),
-                 .SDcols = c(grep("cost", names(xx), value = TRUE),
-                             "qalys_scl", "qalys_esp"),
-                 keyby = eval(cea_strata[cea_strata != "scenario"])]
-
+              # Ensure deterministic ordering: baseline first
+              setorderv(xx, c(strata_no_scenario, "is_base"))
               
-              cea_diff <- rbind(cea_diff, xx)
+              # Columns for incremental calculation
+              incr_cols <- c(
+                grep("cost", names(xx), value = TRUE),
+                "qalys_scl",
+                "qalys_esp"
+              )
+              
+              # Incremental calculation: scenario − baseline
+              xx[, paste0("incr_", incr_cols) :=
+                   lapply(.SD, function(v) v - shift(v)),
+                 .SDcols = incr_cols,
+                 by = strata_no_scenario]
+              
+              # Drop helper column
+              xx[, is_base := NULL]
+              
+              # Collect results
+              cea_diff <- rbind(cea_diff, xx, fill = TRUE)
             }
             
             # Add back baseline rows (averaged across mc)
@@ -1480,8 +1491,6 @@ Simulation <-
           }
           
         }
-      
-#        }
         
         if (!self$design$sim_prm$keep_lifecourse) file.remove(pth)
         
