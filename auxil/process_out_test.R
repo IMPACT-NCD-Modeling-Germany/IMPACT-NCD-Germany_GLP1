@@ -18,7 +18,7 @@ if(Sys.info()["sysname"] == "Windows"){
                     recursive = FALSE, full.names = FALSE)
 }
 dirs <- dirs[!(dirs %in% c("Test", "manuscript", "appendix"))]
-
+ 
 # Export options:
 plot_format <- "png" # File format for plots
 
@@ -5175,30 +5175,30 @@ for(analysis in dirs){
 
       ## Total ##
       cea_tot <- cea[, lapply(.SD, sum),
-                     .SDcols = !c("analysis","scenario","sex","agegrp","mc","uptake_group"),
-                     by = c("scenario","mc","analysis","uptake_group")]
+                     .SDcols = !c("analysis","scenario","sex","agegrp","mc"),
+                     by = c("scenario","mc","analysis")]
 
       ## Sex ##
       cea_sex <- cea[, lapply(.SD, sum),
-                     .SDcols = !c("analysis","scenario","sex","agegrp","mc","uptake_group"),
-                     by = c("scenario","mc","analysis","sex","uptake_group")]
+                     .SDcols = !c("analysis","scenario","sex","agegrp","mc"),
+                     by = c("scenario","mc","analysis","sex")]
 
       ## Age ##
       cea_age <- cea[, lapply(.SD, sum),
-                     .SDcols = !c("analysis","scenario","sex","agegrp","mc","uptake_group"),
-                     by = c("scenario","mc","analysis","agegrp","uptake_group")]
+                     .SDcols = !c("analysis","scenario","sex","agegrp","mc"),
+                     by = c("scenario","mc","analysis","agegrp")]
 
       ## Year ##
       cea_year <- cea[, lapply(.SD, sum),
-                      .SDcols = !c("analysis","scenario","sex","agegrp","mc","uptake_group"),
-                      by = c("scenario","mc","analysis","year","uptake_group")]
+                      .SDcols = !c("analysis","scenario","sex","agegrp","mc"),
+                      by = c("scenario","mc","analysis","year")]
 
       for(i in export_vars){
 
         # Total results #
 
-        dd <- cea_tot[, fquantile_byid(get(i), prbl, id = analysis), keyby = c("scenario","uptake_group")]
-        setnames(dd, c("scenario", "uptake_group", "analysis", percent(prbl, prefix = paste0(i, "_"))))
+        dd <- cea_tot[, fquantile_byid(get(i), prbl, id = analysis), keyby = c("scenario")]
+        setnames(dd, c("scenario", "analysis", percent(prbl, prefix = paste0(i, "_"))))
 
         dd <- na.omit(dd)
 
@@ -5206,8 +5206,8 @@ for(analysis in dirs){
 
         # Sex results #
 
-        dd <- cea_sex[, fquantile_byid(get(i), prbl, id = analysis), keyby = c("sex", "scenario", "uptake_group")]
-        setnames(dd, c("sex", "scenario", "uptake_group", "analysis", percent(prbl, prefix = paste0(i, "_"))))
+        dd <- cea_sex[, fquantile_byid(get(i), prbl, id = analysis), keyby = c("sex", "scenario")]
+        setnames(dd, c("sex", "scenario", "analysis", percent(prbl, prefix = paste0(i, "_"))))
 
         dd <- na.omit(dd)
 
@@ -5215,8 +5215,8 @@ for(analysis in dirs){
 
         # Age results #
 
-        dd <- cea_age[, fquantile_byid(get(i), prbl, id = analysis), keyby = c("agegrp", "scenario", "uptake_group")]
-        setnames(dd, c("agegrp", "scenario", "uptake_group", "analysis", percent(prbl, prefix = paste0(i, "_"))))
+        dd <- cea_age[, fquantile_byid(get(i), prbl, id = analysis), keyby = c("agegrp", "scenario")]
+        setnames(dd, c("agegrp", "scenario", "analysis", percent(prbl, prefix = paste0(i, "_"))))
 
         dd <- na.omit(dd)
 
@@ -5224,8 +5224,8 @@ for(analysis in dirs){
 
         # Year results #
 
-        dd <- cea_year[, fquantile_byid(get(i), prbl, id = analysis), keyby = c("year", "scenario", "uptake_group")]
-        setnames(dd, c("year", "scenario", "uptake_group", "analysis", percent(prbl, prefix = paste0(i, "_"))))
+        dd <- cea_year[, fquantile_byid(get(i), prbl, id = analysis), keyby = c("year", "scenario")]
+        setnames(dd, c("year", "scenario", "analysis", percent(prbl, prefix = paste0(i, "_"))))
 
         dd <- na.omit(dd)
 

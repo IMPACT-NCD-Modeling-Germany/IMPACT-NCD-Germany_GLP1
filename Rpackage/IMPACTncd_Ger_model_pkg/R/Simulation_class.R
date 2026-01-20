@@ -1417,6 +1417,18 @@ Simulation <-
           fwrite_safe(cea_agg,
                       private$output_dir(paste0("summaries", "/health_economic_results.csv.gz")))
           
+          ######################################################################################
+          #---------------------------- For calculating cea diff ------------------------------#
+          ######################################################################################
+          
+          # Getting rid of uptake_group when we calculate cea diff
+          cea_agg_no_up <- cea_agg[
+            , lapply(.SD, sum),
+            .SDcols = c(grep("cost", names(cea_agg), value = TRUE),
+                        "qalys_esp", "qalys_scl"),
+            by = setdiff(cea_strata, "uptake_group")
+          ]
+          
           # Identify scenarios that have a baseline defined
           sc_map <- data.table(
             scenario = c("sc2","sc3","sc4","sc5",
@@ -1427,9 +1439,7 @@ Simulation <-
                          rep("sc11", 4))
           )
           
-          scenarios <- sc_map$scenario[
-            sc_map$scenario %in% unique(cea_agg$scenario)
-          ]
+          scenarios <- sc_map$scenario
           
           if (length(scenarios) != 0) {
             
@@ -1438,49 +1448,33 @@ Simulation <-
             
             strata_no_scenario <- cea_strata[cea_strata != "scenario"]
             
-            cea_diff <- data.table()
+            cea_diff <- data.table(NULL)
             
             for (i in scenarios) {
               
-              base <- sc_map[scenario == i, baseline]
+              base_i <- sc_map[scenario == i, baseline] # "sc6"
               
-              # Keep only baseline + scenario
-              xx <- cea_agg[scenario %in% c(base, i)]
+              xx <- cea_agg_no_up[scenario %in% c(base_i, i)]
               
-              # Mark baseline rows
-              xx[, is_base := scenario == base]
+              # ensure correct ordering
+              xx[, scenario := factor(scenario, levels = c(base_i, i))]
               
-              # Ensure deterministic ordering: baseline first
-              setorderv(xx, c(strata_no_scenario, "is_base"))
+              setorder(xx, sex, agegrp, year, scenario)
               
-              # Columns for incremental calculation
-              incr_cols <- c(
-                grep("cost", names(xx), value = TRUE),
-                "qalys_scl",
-                "qalys_esp"
-              )
+              setkeyv(xx, c("sex", "agegrp", "year"))
               
-              # Incremental calculation: scenario − baseline
-              xx[, paste0("incr_", incr_cols) :=
+              xx[, (paste0("incr_",
+                           c(grep("cost", names(xx), value = TRUE),
+                             "qalys_scl", "qalys_esp"))) :=
                    lapply(.SD, function(v) v - shift(v)),
-                 .SDcols = incr_cols,
-                 by = strata_no_scenario]
+                 .SDcols = c(grep("cost", names(xx), value = TRUE),
+                             "qalys_scl", "qalys_esp"),
+                 by = .(sex, agegrp, year)]
               
-              # Drop helper column
-              xx[, is_base := NULL]
-              
-              # Collect results
-              cea_diff <- rbind(cea_diff, xx, fill = TRUE)
+              cea_diff <- rbind(cea_diff, xx[scenario == i])  # only keep intervention row
             }
             
-            # Add back baseline rows (averaged across mc)
-            cea_diff <- rbind(
-              cea_diff[scenario %in% sc_map$scenario],   # all scenario rows
-              cea_diff[scenario %in% sc_map$baseline,
-                       lapply(.SD, mean),
-                       .SDcols = !cea_strata,
-                       by = eval(cea_strata)]
-            )
+            cea_diff <- cea_diff[scenario %in% sc_map$scenario]
             
             cea_diff[, mc := mc_]
             
