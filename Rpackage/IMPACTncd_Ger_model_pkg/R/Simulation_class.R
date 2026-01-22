@@ -329,8 +329,8 @@ Simulation <-
       #' @return The invisible self for chaining.
       export_summaries = function(multicore = TRUE, type = c("le", "ly",
                                                              "prvl", "incd",
-                                                             "mrtl",  "dis_mrtl","cea")) { #08 Sep, Jane, removed "xps"
-                                                            #05 Jan, Jane, removed "cea", "risk_10y"
+                                                             "mrtl",  "dis_mrtl",
+                                                             "xps", "cea")) { 
 
         fl <- list.files(private$output_dir("lifecourse"), full.names = TRUE)
         # logic to avoid inappropriate dual processing of already processed mcs
@@ -770,8 +770,8 @@ Simulation <-
 
       export_summaries_hlpr = function(lc, type = c("le", "ly",
                                                   "prvl", "incd",
-                                                  "mrtl",  "dis_mrtl", "cea")) {
-                                                  #05 Jan 2026, Jane, removed "xps", "cea", "risk_10y"
+                                                  "mrtl",  "dis_mrtl", 
+                                                  "xps", "cea")) {
         if (self$design$sim_prm$logs) message("Exporting summaries...")
         # strata <- setdiff(self$design$sim_prm$cols_for_output, c("age", "pid", "wt"))
         strata <- c("mc",
@@ -788,28 +788,6 @@ Simulation <-
         ##-------------------------------------------------------------------------------------#
         ########################################################################################
         
-#        mc_id <- unique(lc$mc)
-#        if (length(mc_id) != 1L) {
-#          stop("Expected exactly one mc value in lifecourse table")
-#        }
-        
-#        pid_groups <- list(
-#          fullpop  = NULL,
-#          cea      = paste0("./inputs/uptake/", mc_id, "_uptake_cea.csv"),
-#          bia_N    = paste0("./inputs/uptake/", mc_id, "_uptake_bia_N.csv"),
-#          bia_pct  = paste0("./inputs/uptake/", mc_id, "_uptake_bia_pct.csv")
-#       )
-        
-#        for (grp_name in names(pid_groups)) {
-          
-#          if (is.null(pid_groups[[grp_name]])) {
-#            lc <- lc
-#          } else {
-#            pid_dt <- fread(pid_groups[[grp_name]])
-#            eligible_ids <- unique(pid_dt$pid)
-#            lc <- lc[pid %in% eligible_ids]
-#          }
-
 
         if("le" %in% type){
 
@@ -1070,7 +1048,7 @@ Simulation <-
 
          if (self$design$sim_prm$logs) message("Exporting exposures and changes...")
 
-          setnames(lc, c("sugar_delta", "bmi_delta"), c("sugar_delta_xps", "bmi_delta_xps"))
+          setnames(lc, c("bmi_delta", "sbp_delta", "tchol_delta"), c("bmi_delta_xps", "sbp_delta_xps", "tchol_delta_xps"))
 
           fwrite_safe(lc[, lapply(.SD, weighted.mean, wt),
                          .SDcols = patterns("_xps$"), keyby = strata],
