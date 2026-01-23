@@ -1,6 +1,6 @@
 analysis_name: GLP1
-iteration_n: 5
-iteration_n_final: 10
+iteration_n: 10
+iteration_n_final: 20
 clusternumber: 30 # explicit parallelisation
 clusternumber_export: 4 # NEW: number of clusters for export_summaries
 n_cpus: 1 # implicit parallelisation

@@ -14,7 +14,7 @@ lifecourse_dir <- "/media/php-workstation/Storage_1/IMPACT_Storage/GLP1/outputs/
 runif(1)
 
 # New runs?
-new_runs <- FALSE
+new_runs <- TRUE
 new_export <- TRUE
 
 

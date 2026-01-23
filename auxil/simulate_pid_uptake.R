@@ -9,7 +9,7 @@
 
 pid_uptake <- function(lc_path,
                        output_d = paste0(getwd(), "/inputs/uptake"),
-                       N_treat = 500,
+                       N_treat = 250,
                        pct_treat = 0.10,
                        start_year = 25,
                        end_year   = 44,
@@ -37,9 +37,7 @@ pid_uptake <- function(lc_path,
   # Main:       BMI>35 and no diabetes
   # Secondary:  30<BMI<35 and CHD/Stroke and no diabetes
   # plus:       30<Age<80
-  lc[, eligible_bi := ifelse((age<=80 & bmi_curr_xps>=35 & t2dm_prvl==0)|
-                               (age<=80 & bmi_curr_xps>=30 & bmi_curr_xps<35 & t2dm_prvl==0 & chd_prvl>0)|
-                               (age<=80 & bmi_curr_xps>=30 & bmi_curr_xps<35 & t2dm_prvl==0 & stroke_prvl>0), 1, 0)]
+  lc[, eligible_bi := ifelse((age<=80 & bmi_curr_xps>=35 & t2dm_prvl==0), 1, 0)] ## only keeping main
   
   #==================================================
   # CEA: Eligible in 2025
