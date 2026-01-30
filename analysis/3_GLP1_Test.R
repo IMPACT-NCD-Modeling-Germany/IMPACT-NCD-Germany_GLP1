@@ -1,5 +1,5 @@
 
-#### Analysis script IMPACT NCD Germany SSB Tax modeling ----
+#### Analysis script IMPACT NCD Germany GLP1 modeling ----
 
 # Load packages
 source("./global.R")
@@ -8,7 +8,7 @@ source("./global.R")
 source("./auxil/scenarios_GLP_uncertain.R")
 
 # Load affected population selection function
-# source("./auxil/simulate_pid_uptake.R", echo = TRUE)
+source("./auxil/simulate_pid_uptake.R", echo = TRUE)
 
 # Define directories
 lifecourse_dir <- "/media/php-workstation/Storage_1/IMPACT_Storage/GLP1/outputs/GLP_Test/lifecourse"
@@ -24,7 +24,7 @@ new_export <- TRUE
 if(new_runs){
   
   # Create batches for batched simulation
-  batch_size <- 10
+  batch_size <- 2
   iterations <- 8
   first_iteration <- 1
   batches <- split(seq(first_iteration, iterations + first_iteration - 1),
@@ -52,8 +52,16 @@ if(new_runs){
        run(i, multicore = TRUE, scenario_nam = "sc0", m_zero_trend = -0.03, p_zero_trend = 0) 
     
     ######################################################################################################
-    ### Build the lifecourse path for this iteration
-    source("./auxil/simulate_pid_uptake.R", echo = TRUE)
+    ### Run the pid selection function, and generate the pid files
+     pid_uptake(lc_path,
+                iterations = NULL, 
+                output_d = paste0(getwd(), "/inputs/uptake"),
+                N_treat = 250,
+                N_pop_target = 50000,
+                pct_treat = 0.10,
+                start_year = 25,
+                end_year   = 44,
+                seed = 123)
     ######################################################################################################
     
      scenario_fn <- scenario_1_fn

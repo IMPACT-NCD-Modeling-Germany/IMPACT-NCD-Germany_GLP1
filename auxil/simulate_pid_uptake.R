@@ -125,9 +125,6 @@ pid_uptake <- function(lc_path,
     target_fun = function(weights) N_pop_target,
     group_id = 2L
   )
-  # This is where 'sample_size_fun' is defined.
-  # It is defined at the moment you call run_bia_uptake().
-  # sample_size_fun = (function(n_eligible) min(N_treat, n_eligible))
   
   #--------------------------------------------------
   # BIA scenario 2: Percentage per year
@@ -136,9 +133,15 @@ pid_uptake <- function(lc_path,
     target_fun = function(weights) pct_treat * sum(weights),
     group_id = 3L
   )
-  # This is where 'sample_size_fun' is defined.
-  # It is defined at the moment you call run_bia_uptake().
-  # sample_size_fun = (function(n_eligible) floor(pct_treat * n_eligible))
+  
+  out_cea     <- file.path(output_d, paste0(mc_id, "_uptake_cea.csv"))
+  out_bia_N   <- file.path(output_d, paste0(mc_id, "_uptake_bia_N.csv"))
+  out_bia_pct <- file.path(output_d, paste0(mc_id, "_uptake_bia_pct.csv"))
+  
+  if (file.exists(out_cea) && file.exists(out_bia_N) && file.exists(out_bia_pct)) {
+    message("ℹ Uptake files already exist for mc ", mc_id, " — skipping regeneration")
+    return(invisible(NULL))
+  }
   
   #==================================================
   # Save outputs
@@ -155,31 +158,6 @@ pid_uptake <- function(lc_path,
          file.path(output_d, paste0(mc_id, "_uptake_bia_pct.csv")))
   
   message("✅ Processed iteration ", mc_id, " — saved all uptake scenarios")
-  
-  #==================================================
-  # Return all results
-  #==================================================
-  return(list(
-    cea      = persons_cea,
-    bia_N    = persons_bia_N,
-    bia_pct  = persons_bia_pct
-  ))
-  
-}
-
-# List all lifecourse files
- fl <- list.files(lifecourse_dir, pattern = "_lifecourse.csv.gz$", full.names = TRUE)
-### Test
-### fl <- list.files(paste0(getwd()), pattern = "_lifecourse\\.csv\\.gz$", full.names = TRUE) --> Works!!!
-
-# Loop through all lifecourse files and simulate uptake
- for (lc in fl) {
-  # The variable lc takes one lifecourse of fl, i.e. one file path.
-  # 'lc' is passed into the function as the 'lc_path' argument
-  pid_uptake(lc, 
-            N_treat = 250,
-             N_pop_target = 50000,
-             pct_treat = 0.10)
   
 }
 
