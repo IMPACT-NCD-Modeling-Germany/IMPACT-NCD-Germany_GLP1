@@ -10,7 +10,6 @@
 pid_uptake <- function(lc_path,
                        output_d = paste0(getwd(), "/inputs/uptake"),
                        N_treat = 250,
-                       N_pop_target = 50000,
                        pct_treat = 0.10,
                        start_year = 25,
                        end_year   = 44,
@@ -44,104 +43,80 @@ pid_uptake <- function(lc_path,
   # CEA: Eligible in 2025
   #==================================================
   # Find pids who are eligible at the year of 2025
-  # eligible_cea <- unique(lc[year == start_year & eligible_bi == 1, pid])
-  cea_wt <- lc[year == start_year & eligible_bi == 1, .(pid, wt)]
+  eligible_cea <- unique(lc[year == start_year & eligible_bi == 1, pid])
   
- # persons_cea <- data.table(
- #   pid = eligible_cea,
- #   uptake_year = start_year,
- #   uptake_group = 1L
- # )
-  
-  persons_cea <- cea_wt[, .(
-    pid,
-    uptake_year  = start_year,
-    wt_uptake    = wt,
+  persons_cea <- data.table(
+    pid = eligible_cea,
+    uptake_year = start_year,
     uptake_group = 1L
-  )]
+  )
   
   #==================================================
-  # Helper function for BIA uptake (weight-aware)
+  # Helper function for BIA uptake
   #==================================================
-  run_bia_uptake <- function(target_fun, group_id) {
+  run_bia_uptake <- function(sample_size_fun, group_id) {
+    # run_bia_uptake() is a function whose input is another function
+    # This is called a higher-order function
+    # Think of 'sample_size_fun' as a “rule”: Given the number of eligible patients this year (n_eligible), 
+    #                                         apply the rule sample_size_fun to decide how many people to sample.”
     
+    # Step 1. Initialize a person-level table to record uptake year (one row per pid, and their potential uptake year)
     persons <- unique(lc[, .(pid)])
-    persons[, `:=`(
-      uptake_year = NA_integer_,
-      wt_uptake   = NA_real_
-    )]
+    persons[, uptake_year := NA_integer_] # Everyone starts with NA as uptake year
     
+    # Step 2. Loop through all rollout years (2025-2044)
     for (yr in start_year:end_year) {
       
-      # 1. YEAR‑SPECIFIC lifecourse slice
-      lc_yr <- lc[year == yr & eligible_bi == 1, .(pid, wt)]
+      # eligible & not previously treated pids in this year: 
+      # --'eligible_pids' is a vector of person IDs who meet the eligibility criteria in year yr
+      eligible_pids <- unique(lc[year == yr & eligible_bi == 1, pid])
       
-      # 2. Eligible & untreated
-      eligible_dt <- lc_yr[pid %in% persons[is.na(uptake_year), pid]]
-      if (nrow(eligible_dt) == 0L) next
+      # remove already treated people year by year
+      eligible_pids <- eligible_pids[is.na(persons[match(eligible_pids, pid), uptake_year])]
+      # --- It ends up as: eligible_pids[c(TRUE, FALSE, TRUE, FALSE)]
+      # --- match(x, y) returns the row positions in y where each element of x appears.
+      # --- This line keeps only those *eligible_pids* whose uptake_year is still NA in the persons table.
+      # --- From the currently eligible people, drop anyone who has already taken up the medication in a previous year.
       
-      eligible_pids <- eligible_dt$pid
-      weights <- eligible_dt$wt   # one weight per pid
+      n_eligible <- length(eligible_pids)
+      if (n_eligible == 0L) next
       
-      # 3. Compute the year's target mass
-      target_weight <- target_fun(weights)
-      if (target_weight <= 0) next
+      N_to_sample <- sample_size_fun(n_eligible)
+      if (N_to_sample <= 0L) next
       
-      # 4. Weighted random ordering (prob ∝ weight)
-      ord <- order(runif(length(weights)) / weights)
+      sampled <- sample(eligible_pids, min(N_to_sample, n_eligible))
       
-      # 5. Cumulative weight
-      cum_w <- cumsum(weights[ord])
-      
-      # 6. Select all pids until target mass reached
-      sampled <- eligible_pids[ord][cum_w <= target_weight]
-      
-      # Guarantee at least one if target > 0
-      if (length(sampled) == 0L) {
-        sampled <- eligible_pids[ord][1]
-      }
-      
-      # Build a lookup pid -> wt for this year
-      sampled_wt <- eligible_dt[pid %in% sampled, .(pid, wt)]
-      
-      persons[sampled_wt, on = "pid", `:=`(
-        uptake_year = yr,
-        wt_uptake   = i.wt
-      )]
-      
+      persons[pid %in% sampled, uptake_year := yr]
     }
     
     persons[!is.na(uptake_year), ][
       , `:=`(
         uptake_group = group_id
       )
-    ]
+      ]
   }
   
   #--------------------------------------------------
   # BIA scenario 1: Fixed N per year
   #--------------------------------------------------
   persons_bia_N <- run_bia_uptake(
-    target_fun = function(weights) N_pop_target,
+    function(n_eligible) min(N_treat, n_eligible),
     group_id = 2L
   )
+  # This is where 'sample_size_fun' is defined.
+  # It is defined at the moment you call run_bia_uptake().
+  # sample_size_fun = (function(n_eligible) min(N_treat, n_eligible))
   
   #--------------------------------------------------
   # BIA scenario 2: Percentage per year
   #--------------------------------------------------
   persons_bia_pct <- run_bia_uptake(
-    target_fun = function(weights) pct_treat * sum(weights),
+    function(n_eligible) floor(pct_treat * n_eligible),
     group_id = 3L
   )
-  
-  out_cea     <- file.path(output_d, paste0(mc_id, "_uptake_cea.csv"))
-  out_bia_N   <- file.path(output_d, paste0(mc_id, "_uptake_bia_N.csv"))
-  out_bia_pct <- file.path(output_d, paste0(mc_id, "_uptake_bia_pct.csv"))
-  
-  if (file.exists(out_cea) && file.exists(out_bia_N) && file.exists(out_bia_pct)) {
-    message("ℹ Uptake files already exist for mc ", mc_id, " — skipping regeneration")
-    return(invisible(NULL))
-  }
+  # This is where 'sample_size_fun' is defined.
+  # It is defined at the moment you call run_bia_uptake().
+  # sample_size_fun = (function(n_eligible) floor(pct_treat * n_eligible))
   
   #==================================================
   # Save outputs
@@ -158,6 +133,30 @@ pid_uptake <- function(lc_path,
          file.path(output_d, paste0(mc_id, "_uptake_bia_pct.csv")))
   
   message("✅ Processed iteration ", mc_id, " — saved all uptake scenarios")
+  
+  #==================================================
+  # Return all results
+  #==================================================
+  return(list(
+    cea      = persons_cea,
+    bia_N    = persons_bia_N,
+    bia_pct  = persons_bia_pct
+  ))
+  
+}
+
+# List all lifecourse files
+fl <- list.files(lifecourse_dir, pattern = "_lifecourse.csv.gz$", full.names = TRUE)
+### Test
+### fl <- list.files(paste0(getwd()), pattern = "_lifecourse\\.csv\\.gz$", full.names = TRUE) --> Works!!!
+
+# Loop through all lifecourse files and simulate uptake
+for (lc in fl) {
+  # The variable lc takes one lifecourse of fl, i.e. one file path.
+  # 'lc' is passed into the function as the 'lc_path' argument
+  pid_uptake(lc, 
+             N_treat = 250,
+             pct_treat = 0.10)
   
 }
 
