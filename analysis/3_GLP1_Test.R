@@ -49,7 +49,7 @@ if(new_runs){
      scenario_fn <- scenario_0_fn
 
      IMPACTncd$
-       run(i, multicore = TRUE, scenario_nam = "sc0", m_zero_trend = -0.03, p_zero_trend = 0) 
+       run(i, multicore = TRUE, "sc0", m_zero_trend = -0.03, p_zero_trend = 0) 
     
     ######################################################################################################
     ### Run the pid selection function, and generate the pid files
@@ -67,89 +67,89 @@ if(new_runs){
      scenario_fn <- scenario_1_fn
     
      IMPACTncd$
-      run(i, multicore = TRUE, scenario_nam ="sc1", m_zero_trend = -0.03, p_zero_trend = 0)
+      run(i, multicore = TRUE, "sc1", m_zero_trend = -0.03, p_zero_trend = 0)
     
 
      scenario_fn <- scenario_2_fn
      
      IMPACTncd$
-       run(i, multicore = TRUE, scenario_nam ="sc2", m_zero_trend = -0.03, p_zero_trend = 0)
+       run(i, multicore = TRUE, "sc2", m_zero_trend = -0.03, p_zero_trend = 0)
     
      
      scenario_fn <- scenario_3_fn
      
      IMPACTncd$
-       run(i, multicore = TRUE, scenario_nam ="sc3", m_zero_trend = -0.03, p_zero_trend = 0)
+       run(i, multicore = TRUE, "sc3", m_zero_trend = -0.03, p_zero_trend = 0)
     
      
      scenario_fn <- scenario_4_fn
      
      IMPACTncd$
-       run(i, multicore = TRUE, scenario_nam ="sc4", m_zero_trend = -0.03, p_zero_trend = 0)
+       run(i, multicore = TRUE, "sc4", m_zero_trend = -0.03, p_zero_trend = 0)
      
      scenario_fn <- scenario_5_fn
      
      IMPACTncd$
-       run(i, multicore = TRUE, scenario_nam ="sc5", m_zero_trend = -0.03, p_zero_trend = 0)
+       run(i, multicore = TRUE, "sc5", m_zero_trend = -0.03, p_zero_trend = 0)
      
      
      scenario_fn <- scenario_6_fn
      
      IMPACTncd$
-       run(i, multicore = TRUE, scenario_nam ="sc6", m_zero_trend = -0.03, p_zero_trend = 0)
+       run(i, multicore = TRUE, "sc6", m_zero_trend = -0.03, p_zero_trend = 0)
      
      
      scenario_fn <- scenario_7_fn
      
      IMPACTncd$
-       run(i, multicore = TRUE, scenario_nam ="sc7", m_zero_trend = -0.03, p_zero_trend = 0)
+       run(i, multicore = TRUE, "sc7", m_zero_trend = -0.03, p_zero_trend = 0)
      
      
      scenario_fn <- scenario_8_fn
      
      IMPACTncd$
-       run(i, multicore = TRUE, scenario_nam = "sc8", m_zero_trend = -0.03, p_zero_trend = 0)
+       run(i, multicore = TRUE, "sc8", m_zero_trend = -0.03, p_zero_trend = 0)
      
      scenario_fn <- scenario_9_fn
      
      IMPACTncd$
-       run(i, multicore = TRUE, scenario_nam ="sc9", m_zero_trend = -0.03, p_zero_trend = 0)
+       run(i, multicore = TRUE, "sc9", m_zero_trend = -0.03, p_zero_trend = 0)
      
      
      scenario_fn <- scenario_10_fn
      
      IMPACTncd$
-       run(i, multicore = TRUE, scenario_nam ="sc10", m_zero_trend = -0.03, p_zero_trend = 0)
+       run(i, multicore = TRUE, "sc10", m_zero_trend = -0.03, p_zero_trend = 0)
      
      
      scenario_fn <- scenario_11_fn
      
      IMPACTncd$
-       run(i, multicore = TRUE, scenario_nam ="sc11", m_zero_trend = -0.03, p_zero_trend = 0)
+       run(i, multicore = TRUE, "sc11", m_zero_trend = -0.03, p_zero_trend = 0)
      
      
      scenario_fn <- scenario_12_fn
      
      IMPACTncd$
-       run(i, multicore = TRUE, scenario_nam ="sc12", m_zero_trend = -0.03, p_zero_trend = 0)
+       run(i, multicore = TRUE, "sc12", m_zero_trend = -0.03, p_zero_trend = 0)
      
      
      scenario_fn <- scenario_13_fn
      
      IMPACTncd$
-       run(i, multicore = TRUE, scenario_nam ="sc13", m_zero_trend = -0.03, p_zero_trend = 0)
+       run(i, multicore = TRUE, "sc13", m_zero_trend = -0.03, p_zero_trend = 0)
      
      
      scenario_fn <- scenario_14_fn
      
      IMPACTncd$
-       run(i, multicore = TRUE, scenario_nam ="sc14", m_zero_trend = -0.03, p_zero_trend = 0)
+       run(i, multicore = TRUE, "sc14", m_zero_trend = -0.03, p_zero_trend = 0)
      
      
      scenario_fn <- scenario_15_fn
      
      IMPACTncd$
-       run(i, multicore = TRUE, scenario_nam ="sc15", m_zero_trend = -0.03, p_zero_trend = 0)
+       run(i, multicore = TRUE, "sc15", m_zero_trend = -0.03, p_zero_trend = 0)
     }
   }
 

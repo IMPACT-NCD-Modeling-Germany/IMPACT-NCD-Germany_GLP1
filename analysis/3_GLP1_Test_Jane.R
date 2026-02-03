@@ -1,8 +1,17 @@
 
 #### Analysis script IMPACT NCD Germany GLP1 modeling ----
 
+# Load packages
+source("./global.R")
+
+# Load scenario and sensitivity analyses functions
+source("./auxil/scenarios_GLP_uncertain.R")
+
+# Load affected population selection function
+source("./auxil/simulate_pid_uptake.R", echo = TRUE)
+
 # Define directories
-lifecourse_dir <- "/outputs/GLP_Test/lifecourse"
+lifecourse_dir <- "/media/php-workstation/Storage_1/IMPACT_Storage/GLP1/outputs/GLP_Test/lifecourse"
 
 # Initiate .Random.seed for safety
 runif(1)
@@ -16,7 +25,7 @@ if(new_runs){
   
   # Create batches for batched simulation
   batch_size <- 2
-  iterations <- 8
+  iterations <- 6
   first_iteration <- 1
   batches <- split(seq(first_iteration, iterations + first_iteration - 1),
                    f = findInterval(seq(first_iteration, iterations + first_iteration - 1),
@@ -26,7 +35,7 @@ if(new_runs){
 
 analysis_name <- "GLP_Test" ### create a folder to store all the output in this folder
 
-IMPACTncd <- Simulation$new("./inputs/sim_design.yaml", analysis_name)  ### load the model environment
+IMPACTncd <- Simulation$new("./inputs/sim_design.yaml", analysis_name) 
 
 if(new_runs){
 
@@ -38,12 +47,9 @@ if(new_runs){
     scenario_fn <- scenario_0_fn
     
     IMPACTncd$
-      run(i, multicore = TRUE, scenario_nam = "sc0", m_zero_trend = -0.03, p_zero_trend = 0) 
+      run(i, multicore = TRUE, "sc0", m_zero_trend = -0.03, p_zero_trend = 0) 
     
     ######################################################################################################
-    # Load affected population selection function
-    source("./auxil/simulate_pid_uptake.R", echo = TRUE)
-    
     # Load lifecourse
     for (mc in as.integer(i)) {
       
@@ -68,18 +74,35 @@ if(new_runs){
                seed = 123
       )
     }
-    ######################################################################################################
+    
+  }
+}
+
+
+if(new_runs){
+  
+  for (i in batches){
+    
+    message("Running iteration ", i)
     
     scenario_fn <- scenario_1_fn
     
     IMPACTncd$
-      run(i, multicore = TRUE, scenario_nam ="sc1", m_zero_trend = -0.03, p_zero_trend = 0)
-    
+      run(i, multicore = TRUE, "sc1", m_zero_trend = -0.03, p_zero_trend = 0)
     
     scenario_fn <- scenario_2_fn
     
     IMPACTncd$
-      run(i, multicore = TRUE, scenario_nam ="sc2", m_zero_trend = -0.03, p_zero_trend = 0)
+      run(i, multicore = TRUE, "sc2", m_zero_trend = -0.03, p_zero_trend = 0)
     
   }
 }
+
+
+if(new_export){
+  IMPACTncd$export_summaries(multicore = TRUE) 
+} 
+
+
+
+

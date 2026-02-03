@@ -228,7 +228,7 @@ scenario_1_fn <- function(sp) {
   }, by = pid]
   
   # Overwriting the original bmi exposure column with the newly created bmi column
-  #sp$pop[, bmi_curr_xps := new_bmi]
+  sp$pop[, bmi_curr_xps := new_bmi]
   
   ########################################################################################
   ################################          SBP         ##################################
@@ -299,9 +299,8 @@ scenario_1_fn <- function(sp) {
   
   ##################### Get rid of unnecessary variables ##########################
   # Delete unnecessary variables from synthpop #
-  sp$pop[, c("rankstat_sbp", "rankstat_tchol", "ys_rollout", "uptake_rate",
-             "uptake_psyr", "uptake_one", 
-             "entry_year", "baseline_bmi", "bmi_shift", "new_bmi",
+  
+  sp$pop[, c("uptake_one", "baseline_bmi", "bmi_shift", "new_bmi",
              "baseline_sbp", "sbp_shift", "new_sbp", "baseline_tchol",
              "tchol_shift", "new_tchol") := NULL]
 
@@ -592,9 +591,7 @@ scenario_2_fn <- function(sp) {
   
   ##################### Get rid of unnecessary variables ##########################
   # Delete unnecessary variables from synthpop #
-  sp$pop[, c("rankstat_sbp", "rankstat_tchol", "ys_rollout", "uptake_rate",
-             "uptake_psyr", "uptake_one", 
-             "entry_year", "baseline_bmi", "bmi_shift", "new_bmi",
+  sp$pop[, c("uptake_one", "baseline_bmi", "bmi_shift", "new_bmi",
              "baseline_sbp", "sbp_shift", "new_sbp", "baseline_tchol",
              "tchol_shift", "new_tchol") := NULL]
   
@@ -815,9 +812,7 @@ scenario_3_fn <- function(sp) {
   
   ##################### Get rid of unnecessary variables ##########################
   # Delete unnecessary variables from synthpop #
-  sp$pop[, c("rankstat_sbp", "rankstat_tchol", "ys_rollout", "uptake_rate",
-             "uptake_psyr", "uptake_one", 
-             "entry_year", "baseline_bmi", "bmi_shift", "new_bmi",
+  sp$pop[, c("uptake_one", "baseline_bmi", "bmi_shift", "new_bmi",
              "baseline_sbp", "sbp_shift", "new_sbp", "baseline_tchol",
              "tchol_shift", "new_tchol") := NULL]
   
@@ -1106,9 +1101,7 @@ scenario_4_fn <- function(sp) {
   
   ##################### Get rid of unnecessary variables ##########################
   # Delete unnecessary variables from synthpop #
-  sp$pop[, c("rankstat_sbp", "rankstat_tchol", "ys_rollout", "uptake_rate",
-             "uptake_psyr", "uptake_one", 
-             "entry_year", "baseline_bmi", "bmi_shift", "new_bmi",
+  sp$pop[, c("uptake_one", "baseline_bmi", "bmi_shift", "new_bmi",
              "baseline_sbp", "sbp_shift", "new_sbp", "baseline_tchol",
              "tchol_shift", "new_tchol") := NULL]
   
@@ -1329,9 +1322,7 @@ scenario_5_fn <- function(sp) {
   
   ##################### Get rid of unnecessary variables ##########################
   # Delete unnecessary variables from synthpop #
-  sp$pop[, c("rankstat_sbp", "rankstat_tchol", "ys_rollout", "uptake_rate",
-             "uptake_psyr", "uptake_one", 
-             "entry_year", "baseline_bmi", "bmi_shift", "new_bmi",
+  sp$pop[, c("uptake_one", "baseline_bmi", "bmi_shift", "new_bmi",
              "baseline_sbp", "sbp_shift", "new_sbp", "baseline_tchol",
              "tchol_shift", "new_tchol") := NULL]
   
@@ -1485,7 +1476,7 @@ scenario_6_fn <- function(sp) {
   }, by = pid]
   
   # Overwriting the original bmi exposure column with the newly created bmi column
-  #sp$pop[, bmi_curr_xps := new_bmi]
+  sp$pop[, bmi_curr_xps := new_bmi]
   
   ########################################################################################
   ################################          SBP         ##################################
@@ -1564,9 +1555,7 @@ scenario_6_fn <- function(sp) {
   
   ##################### Get rid of unnecessary variables ##########################
   # Delete unnecessary variables from synthpop #
-  sp$pop[, c("rankstat_sbp", "rankstat_tchol", "ys_rollout", "uptake_rate",
-             "uptake_psyr", "uptake_one", 
-             "entry_year", "baseline_bmi", "bmi_shift", "new_bmi",
+  sp$pop[, c("uptake_one", "baseline_bmi", "bmi_shift", "new_bmi",
              "baseline_sbp", "sbp_shift", "new_sbp", "baseline_tchol",
              "tchol_shift", "new_tchol") := NULL]
   
@@ -1851,9 +1840,7 @@ scenario_7_fn <- function(sp) {
   
   ##################### Get rid of unnecessary variables ##########################
   # Delete unnecessary variables from synthpop #
-  sp$pop[, c("rankstat_sbp", "rankstat_tchol", "ys_rollout", "uptake_rate",
-             "uptake_psyr", "uptake_one", 
-             "entry_year", "baseline_bmi", "bmi_shift", "new_bmi",
+  sp$pop[, c("uptake_one", "baseline_bmi", "bmi_shift", "new_bmi",
              "baseline_sbp", "sbp_shift", "new_sbp", "baseline_tchol",
              "tchol_shift", "new_tchol") := NULL]
   
@@ -2065,9 +2052,7 @@ scenario_8_fn <- function(sp) {
   
   ##################### Get rid of unnecessary variables ##########################
   # Delete unnecessary variables from synthpop #
-  sp$pop[, c("rankstat_sbp", "rankstat_tchol", "ys_rollout", "uptake_rate",
-             "uptake_psyr", "uptake_one", 
-             "entry_year", "baseline_bmi", "bmi_shift", "new_bmi",
+  sp$pop[, c("uptake_one", "baseline_bmi", "bmi_shift", "new_bmi",
              "baseline_sbp", "sbp_shift", "new_sbp", "baseline_tchol",
              "tchol_shift", "new_tchol") := NULL]
   
@@ -2356,9 +2341,7 @@ scenario_9_fn <- function(sp) {
   
   ##################### Get rid of unnecessary variables ##########################
   # Delete unnecessary variables from synthpop #
-  sp$pop[, c("rankstat_sbp", "rankstat_tchol", "ys_rollout", "uptake_rate",
-             "uptake_psyr", "uptake_one", 
-             "entry_year", "baseline_bmi", "bmi_shift", "new_bmi",
+  sp$pop[, c("uptake_one", "baseline_bmi", "bmi_shift", "new_bmi",
              "baseline_sbp", "sbp_shift", "new_sbp", "baseline_tchol",
              "tchol_shift", "new_tchol") := NULL]
   
@@ -2570,9 +2553,7 @@ scenario_10_fn <- function(sp) {
   
   ##################### Get rid of unnecessary variables ##########################
   # Delete unnecessary variables from synthpop #
-  sp$pop[, c("rankstat_sbp", "rankstat_tchol", "ys_rollout", "uptake_rate",
-             "uptake_psyr", "uptake_one", 
-             "entry_year", "baseline_bmi", "bmi_shift", "new_bmi",
+  sp$pop[, c("uptake_one", "baseline_bmi", "bmi_shift", "new_bmi",
              "baseline_sbp", "sbp_shift", "new_sbp", "baseline_tchol",
              "tchol_shift", "new_tchol") := NULL]
   
@@ -2714,7 +2695,7 @@ scenario_11_fn <- function(sp) {
   }, by = pid]
   
   # Overwriting the original bmi exposure column with the newly created bmi column
-  #sp$pop[, bmi_curr_xps := new_bmi]
+  sp$pop[, bmi_curr_xps := new_bmi]
   
   ########################################################################################
   ################################          SBP         ##################################
@@ -2793,9 +2774,7 @@ scenario_11_fn <- function(sp) {
   
   ##################### Get rid of unnecessary variables ##########################
   # Delete unnecessary variables from synthpop #
-  sp$pop[, c("rankstat_sbp", "rankstat_tchol", "ys_rollout", "uptake_rate",
-             "uptake_psyr", "uptake_one", 
-             "entry_year", "baseline_bmi", "bmi_shift", "new_bmi",
+  sp$pop[, c("uptake_one", "baseline_bmi", "bmi_shift", "new_bmi",
              "baseline_sbp", "sbp_shift", "new_sbp", "baseline_tchol",
              "tchol_shift", "new_tchol") := NULL]
   
@@ -3081,9 +3060,7 @@ scenario_12_fn <- function(sp) {
   
   ##################### Get rid of unnecessary variables ##########################
   # Delete unnecessary variables from synthpop #
-  sp$pop[, c("rankstat_sbp", "rankstat_tchol", "ys_rollout", "uptake_rate",
-             "uptake_psyr", "uptake_one", 
-             "entry_year", "baseline_bmi", "bmi_shift", "new_bmi",
+  sp$pop[, c("uptake_one", "baseline_bmi", "bmi_shift", "new_bmi",
              "baseline_sbp", "sbp_shift", "new_sbp", "baseline_tchol",
              "tchol_shift", "new_tchol") := NULL]
   
@@ -3305,9 +3282,7 @@ scenario_13_fn <- function(sp) {
   
   ##################### Get rid of unnecessary variables ##########################
   # Delete unnecessary variables from synthpop #
-  sp$pop[, c("rankstat_sbp", "rankstat_tchol", "ys_rollout", "uptake_rate",
-             "uptake_psyr", "uptake_one", 
-             "entry_year", "baseline_bmi", "bmi_shift", "new_bmi",
+  sp$pop[, c("uptake_one", "baseline_bmi", "bmi_shift", "new_bmi",
              "baseline_sbp", "sbp_shift", "new_sbp", "baseline_tchol",
              "tchol_shift", "new_tchol") := NULL]
   
@@ -3596,9 +3571,7 @@ scenario_14_fn <- function(sp) {
   
   ##################### Get rid of unnecessary variables ##########################
   # Delete unnecessary variables from synthpop #
-  sp$pop[, c("rankstat_sbp", "rankstat_tchol", "ys_rollout", "uptake_rate",
-             "uptake_psyr", "uptake_one", 
-             "entry_year", "baseline_bmi", "bmi_shift", "new_bmi",
+  sp$pop[, c("uptake_one", "baseline_bmi", "bmi_shift", "new_bmi",
              "baseline_sbp", "sbp_shift", "new_sbp", "baseline_tchol",
              "tchol_shift", "new_tchol") := NULL]
   
@@ -3810,9 +3783,7 @@ scenario_15_fn <- function(sp) {
   
   ##################### Get rid of unnecessary variables ##########################
   # Delete unnecessary variables from synthpop #
-  sp$pop[, c("rankstat_sbp", "rankstat_tchol", "ys_rollout", "uptake_rate",
-             "uptake_psyr", "uptake_one", 
-             "entry_year", "baseline_bmi", "bmi_shift", "new_bmi",
+  sp$pop[, c("uptake_one", "baseline_bmi", "bmi_shift", "new_bmi",
              "baseline_sbp", "sbp_shift", "new_sbp", "baseline_tchol",
              "tchol_shift", "new_tchol") := NULL]
   
