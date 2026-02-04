@@ -11,7 +11,7 @@ source("./auxil/scenarios_GLP_uncertain.R")
 source("./auxil/simulate_pid_uptake.R", echo = TRUE)
 
 # Define directories
-lifecourse_dir <- "/media/php-workstation/Storage_1/IMPACT_Storage/GLP1/outputs/GLP_Test/lifecourse"
+lifecourse_dir <- "/mnt/Storage_1/IMPACT_Storage/GLP1/outputs/GLP_Test/lifecourse"
 
 # Initiate .Random.seed for safety
 runif(1)
@@ -24,8 +24,8 @@ new_export <- TRUE
 if(new_runs){
   
   # Create batches for batched simulation
-  batch_size <- 2
-  iterations <- 6
+  batch_size <- 20
+  iterations <- 60
   first_iteration <- 1
   batches <- split(seq(first_iteration, iterations + first_iteration - 1),
                    f = findInterval(seq(first_iteration, iterations + first_iteration - 1),
