@@ -69,78 +69,83 @@ Simulation <-
         data.table::setDTthreads(threads = self$design$sim_prm$clusternumber, restore_after_fork = NULL)
         fst::threads_fst(nr_of_threads = self$design$sim_prm$clusternumber, reset_after_fork = NULL)
 
-
-        # Create folders if don't exist
-        # TODO write hlp function and use lapply
-        if (!dir.exists(paste0(self$design$sim_prm$output_dir, "/", self$design$sim_prm$analysis_name))) {
-          dir.create(paste0(self$design$sim_prm$output_dir, "/", self$design$sim_prm$analysis_name), recursive = TRUE)
-          if (self$design$sim_prm$logs)
-            message(paste0("Folder ", self$design$sim_prm$output_dir, "and analysis folder ",
-                           self$design$sim_prm$analysis_name,
-                           " was created"))
-        }
-
-        pth <- private$output_dir("summaries/")
-        if (!dir.exists(pth)) {
-          dir.create(pth)
-          if (self$design$sim_prm$logs)
-            message(paste0("Folder ", pth, " was created"))
-        }
-
-        pth <- private$output_dir("tables/")
-        if (!dir.exists(pth)) {
-          dir.create(pth)
-          if (self$design$sim_prm$logs)
-            message(paste0("Folder ", pth, " was created"))
-        }
-
-        pth <- private$output_dir("plots/")
-        if (!dir.exists(pth)) {
-          dir.create(pth)
-          if (self$design$sim_prm$logs)
-            message(paste0("Folder ", pth, " was created"))
-        }
-
-        pth <- private$output_dir("lifecourse/")
-        if (!dir.exists(pth)) {
-          dir.create(pth)
-          if (self$design$sim_prm$logs)
-            message(paste0("Folder ", pth, " was created"))
-        }
-
-        if (self$design$sim_prm$export_PARF) {
-          pth <- private$output_dir("parf/")
+        # Do not create folders if IMPACT is running inside a container!
+        if(file.exists("/.dockerenv")){
+          # Create folders if don't exist
+          # TODO write hlp function and use lapply
+          if (!dir.exists(paste0(self$design$sim_prm$output_dir, "/", self$design$sim_prm$analysis_name))) {
+            dir.create(paste0(self$design$sim_prm$output_dir, "/", self$design$sim_prm$analysis_name), recursive = TRUE)
+            if (self$design$sim_prm$logs)
+              message(paste0("Folder ", self$design$sim_prm$output_dir, "and analysis folder ",
+                             self$design$sim_prm$analysis_name,
+                             " was created"))
+          }
+          
+          pth <- private$output_dir("summaries/")
           if (!dir.exists(pth)) {
             dir.create(pth)
             if (self$design$sim_prm$logs)
               message(paste0("Folder ", pth, " was created"))
           }
-        }
-
-        if (self$design$sim_prm$export_xps) {
-          pth <- private$output_dir("xps/")
+          
+          pth <- private$output_dir("tables/")
           if (!dir.exists(pth)) {
             dir.create(pth)
             if (self$design$sim_prm$logs)
               message(paste0("Folder ", pth, " was created"))
           }
-        }
-
-        if (self$design$sim_prm$logs) {
-          pth <- private$output_dir("logs/")
+          
+          pth <- private$output_dir("plots/")
           if (!dir.exists(pth)) {
             dir.create(pth)
-            message(paste0("Folder ", pth, " was created"))
+            if (self$design$sim_prm$logs)
+              message(paste0("Folder ", pth, " was created"))
           }
+          
+          pth <- private$output_dir("lifecourse/")
+          if (!dir.exists(pth)) {
+            dir.create(pth)
+            if (self$design$sim_prm$logs)
+              message(paste0("Folder ", pth, " was created"))
+          }
+          
+          if (self$design$sim_prm$export_PARF) {
+            pth <- private$output_dir("parf/")
+            if (!dir.exists(pth)) {
+              dir.create(pth)
+              if (self$design$sim_prm$logs)
+                message(paste0("Folder ", pth, " was created"))
+            }
+          }
+          
+          if (self$design$sim_prm$export_xps) {
+            pth <- private$output_dir("xps/")
+            if (!dir.exists(pth)) {
+              dir.create(pth)
+              if (self$design$sim_prm$logs)
+                message(paste0("Folder ", pth, " was created"))
+            }
+          }
+          
+          if (self$design$sim_prm$logs) {
+            pth <- private$output_dir("logs/")
+            if (!dir.exists(pth)) {
+              dir.create(pth)
+              message(paste0("Folder ", pth, " was created"))
+            }
+          }
+          
+          # NOTE code below is duplicated in Synthpop class. This is intentional
+          if (!dir.exists(self$design$sim_prm$synthpop_dir)) {
+            dir.create(self$design$sim_prm$synthpop_dir, recursive = TRUE)
+            if (self$design$sim_prm$logs)
+              message(paste0("Folder ", self$design$sim_prm$synthpop_dir,
+                             " was created"))
+          }
+        } else {
+          message("Docker is running inside a container. No are folders created!")
         }
-
-        # NOTE code below is duplicated in Synthpop class. This is intentional
-        if (!dir.exists(self$design$sim_prm$synthpop_dir)) {
-          dir.create(self$design$sim_prm$synthpop_dir, recursive = TRUE)
-          if (self$design$sim_prm$logs)
-            message(paste0("Folder ", self$design$sim_prm$synthpop_dir,
-                         " was created"))
-        }
+        
 
         # RR ----
         # Create a named list of Exposure objects for the files in ./inputs/RR
@@ -1483,7 +1488,5 @@ Simulation <-
           value
         }
       }
-
-
     )
   )

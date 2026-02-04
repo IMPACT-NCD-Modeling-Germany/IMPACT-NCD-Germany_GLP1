@@ -95,8 +95,13 @@ Design <-
             else
               TRUE)
         )
-
-
+        
+        # Switch synthpop and output directories if inside of a container
+        if(file.exists("/.dockerenv")){
+          sim_prm$output_dir <- "./outputs"
+          sim_prm$synthpop_dir <- "./inputs/synthpop"
+        }
+          
         sim_prm$sim_horizon_max <- sim_prm$sim_horizon_max - sim_prm$init_year_long
         sim_prm$init_year <- sim_prm$init_year_long - 2000L
         # place holders to be updated from self$update_fromGUI(parameters)
@@ -214,4 +219,6 @@ Design <-
      private = list(
       mc_aggr = NA
     )
+    
+    
   )
