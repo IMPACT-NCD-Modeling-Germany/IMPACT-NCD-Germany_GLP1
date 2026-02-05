@@ -80,35 +80,35 @@ Simulation <-
                              self$design$sim_prm$analysis_name,
                              " was created"))
           }
-          
+
           pth <- private$output_dir("summaries/")
           if (!dir.exists(pth)) {
             dir.create(pth)
             if (self$design$sim_prm$logs)
               message(paste0("Folder ", pth, " was created"))
           }
-          
+
           pth <- private$output_dir("tables/")
           if (!dir.exists(pth)) {
             dir.create(pth)
             if (self$design$sim_prm$logs)
               message(paste0("Folder ", pth, " was created"))
           }
-          
+
           pth <- private$output_dir("plots/")
           if (!dir.exists(pth)) {
             dir.create(pth)
             if (self$design$sim_prm$logs)
               message(paste0("Folder ", pth, " was created"))
           }
-          
+
           pth <- private$output_dir("lifecourse/")
           if (!dir.exists(pth)) {
             dir.create(pth)
             if (self$design$sim_prm$logs)
               message(paste0("Folder ", pth, " was created"))
           }
-          
+
           if (self$design$sim_prm$export_PARF) {
             pth <- private$output_dir("parf/")
             if (!dir.exists(pth)) {
@@ -117,7 +117,7 @@ Simulation <-
                 message(paste0("Folder ", pth, " was created"))
             }
           }
-          
+
           if (self$design$sim_prm$export_xps) {
             pth <- private$output_dir("xps/")
             if (!dir.exists(pth)) {
@@ -126,7 +126,7 @@ Simulation <-
                 message(paste0("Folder ", pth, " was created"))
             }
           }
-          
+
           if (self$design$sim_prm$logs) {
             pth <- private$output_dir("logs/")
             if (!dir.exists(pth)) {
@@ -134,7 +134,7 @@ Simulation <-
               message(paste0("Folder ", pth, " was created"))
             }
           }
-          
+
           # NOTE code below is duplicated in Synthpop class. This is intentional
           if (!dir.exists(self$design$sim_prm$synthpop_dir)) {
             dir.create(self$design$sim_prm$synthpop_dir, recursive = TRUE)
@@ -145,7 +145,7 @@ Simulation <-
         } else {
           message("Docker is running inside a container. No are folders created!")
         }
-        
+
 
         # RR ----
         # Create a named list of Exposure objects for the files in ./inputs/RR
@@ -335,7 +335,7 @@ Simulation <-
       export_summaries = function(multicore = TRUE, type = c("le", "ly",
                                                              "prvl", "incd",
                                                              "mrtl",  "dis_mrtl",
-                                                             "xps", "cea")) { 
+                                                             "xps", "cea")) {
 
         fl <- list.files(private$output_dir("lifecourse"), full.names = TRUE)
         # logic to avoid inappropriate dual processing of already processed mcs
@@ -348,7 +348,7 @@ Simulation <-
         if ("prvl" %in% type) file_pth <- private$output_dir("summaries/prvl_scaled_up.csv.gz") else
         if ("cea" %in% type) file_pth <- private$output_dir("summaries/health_economic_results.csv.gz") else
         if ("xps" %in% type) file_pth <- private$output_dir("summaries/xps_scaled_up.csv.gz") else
-        if ("risk_10y" %in% type) file_pth <- private$output_dir("summaries/risk_10y_scaled_up.csv.gz") 
+        if ("risk_10y" %in% type) file_pth <- private$output_dir("summaries/risk_10y_scaled_up.csv.gz")
 
         if (file.exists(file_pth)) {
           tt <- unique(fread(file_pth, select = "mc")$mc)
@@ -380,8 +380,7 @@ Simulation <-
               "R6",
               "CKutils",
               "IMPACTncdGer",
-              "data.table",
-              "MESS"
+              "data.table"
             ),
             .export = NULL,
             .noexport = NULL, # c("time_mark")
@@ -775,7 +774,7 @@ Simulation <-
 
       export_summaries_hlpr = function(lc, type = c("le", "ly",
                                                   "prvl", "incd",
-                                                  "mrtl",  "dis_mrtl", 
+                                                  "mrtl",  "dis_mrtl",
                                                   "xps", "cea")) {
         if (self$design$sim_prm$logs) message("Exporting summaries...")
         # strata <- setdiff(self$design$sim_prm$cols_for_output, c("age", "pid", "wt"))
@@ -792,7 +791,7 @@ Simulation <-
         ##---- * we will loop the summaries function over these three samples -----------------#
         ##-------------------------------------------------------------------------------------#
         ########################################################################################
-        
+
 
         if("le" %in% type){
 
@@ -919,16 +918,16 @@ Simulation <-
                       )))
 
         }
-        
-        if("risk_10y" %in% type){ 
-          
+
+        if("risk_10y" %in% type){
+
           # 10y risk: proportion of disease-free people at baseline who developed first CVD event over 10 years
-          
+
           if (self$design$sim_prm$logs) message("Exporting 10-year risk...")
-          
+
           start_year <- 15L
           end_year   <- 24L
-          
+
           # Per-pid flags
           lc[, baseline_free   := any(year == start_year & stroke_prvl == 0), by = pid]
           lc[, had_event_10y   := any(stroke_prvl > 0 & year >= start_year & year <= end_year), by = pid]
@@ -937,7 +936,7 @@ Simulation <-
           # 0 = no event during  [25, 34] and event-free at 25
           # NA = not event-free at baseline (or not observed at year 25)
           lc[, stroke_event_10y := fifelse(baseline_free, as.integer(had_event_10y), NA_integer_)]
-          
+
           # weighted events and population
           tt_risk <- lc[
             !is.na(stroke_event_10y) & year == start_year,  # restrict to disease-free individuals
@@ -947,13 +946,13 @@ Simulation <-
             ),
             by = c("mc", "scenario", "year", "agegrp", "sex") # removed "bmi_cate" here because of error
           ]
-          
+
           # Save output
           fwrite_safe(
             tt_risk,
             private$output_dir(paste0("summaries", "/stroke_10y_scaled_up.csv.gz"
           )))
-          
+
         }
 
         if("mrtl" %in% type){
@@ -1065,25 +1064,25 @@ Simulation <-
         if("cea" %in% type){                                                     # Taking lifecourse as input in this script
           #
           if (self$design$sim_prm$logs) message("Exporting health economics...")
-          
+
           ## Health Economics ##
-          
+
           # Set MC iteration #
-          
+
           mc_ <- as.integer(unique(lc$mc))
-          
+
           cea_strata <- c("scenario", "uptake_group", "sex", "agegrp", "year")
-          
+
           # Load healthcare cost data #
-          
+
           cost_indx <- read_fst("./inputs/other_parameters/healthcare_costs_indx.fst", as.data.table = TRUE)
           #cost_indx <- read_fst("healthcare_costs_indx.fst", as.data.table = TRUE)
-          
+
           ro <- cost_indx[
             mc %in% mc_,
             .("from" = min(from), "to" = max(to))
           ]
-          
+
           cost <- read_fst(
             "./inputs/other_parameters/healthcare_costs.fst",
             #"healthcare_costs.fst",
@@ -1091,17 +1090,17 @@ Simulation <-
             from = ro$from,
             to = ro$to
           )
-          
+
           # Load indirect cost data #
-          
+
           indir_cost_indx <- read_fst("./inputs/other_parameters/indirect_costs_indx.fst", as.data.table = TRUE)
           #indir_cost_indx <- read_fst("indirect_costs_indx.fst", as.data.table = TRUE)
-          
+
           ro <- indir_cost_indx[
             mc %in% mc_,
             .("from" = min(from), "to" = max(to))
           ]
-          
+
           indir_cost <- read_fst(
             "./inputs/other_parameters/indirect_costs.fst",
             #"indirect_costs.fst",
@@ -1109,9 +1108,9 @@ Simulation <-
             from = ro$from,
             to = ro$to
           )
-          
+
           # Setup lifecourse #
-          
+
           lc[, `:=`(t2dm_stat = fifelse(t2dm_prvl > 1, 1, 0),
                     chd_stat = fifelse(chd_prvl == 1, 1,
                                        fifelse(chd_prvl > 1, 2,
@@ -1122,45 +1121,45 @@ Simulation <-
                     chd_pre_mort = fifelse(age < 65 & chd_prvl > 0 & all_cause_mrtl == 2, 1, 0), # Premature mortality
                     stroke_pre_mort = fifelse(age < 65 & stroke_prvl > 0 & all_cause_mrtl == 3, 1, 0),
                     other_pre_mort = fifelse(age < 65 & all_cause_mrtl == 1, 1, 0))]
-          
+
           to_agegrp(lc, grp_width = 10, min_age = 50, max_age = 80, agegrp_colname = "age_cost")
           to_agegrp(lc, grp_width = 5, min_age = 25, max_age = 65, agegrp_colname = "age_indir_cost")
-          
+
           lc[is.na(age_cost), age_cost := fifelse(age < 50, "<50", "80+")]
           lc[is.na(age_indir_cost), age_indir_cost := fifelse(age < 25, "<25", "65+")]
-          
+
           absorb_dt(lc, cost)
           absorb_dt(lc, indir_cost)
-          
+
           # Calculate correct costs due to premature death #
-          
+
           lc[, age_pre_mort := as.numeric(stringr::str_sub(age_indir_cost, - 2, - 1)) + 1]
           lc[is.na(age_pre_mort), age_pre_mort := 0]
           lc[, cost_death := (0.5 * cost_death + (age_pre_mort - age - 1) * cost_death) + cost_death_cum][, `:=`(age_pre_mort = NULL,
                                                                                                                  cost_death_cum = NULL)]
-          
+
           # Calculate health utility #
-          
+
           if (self$design$sim_prm$logs) message("Calculating QALYs...")
-          
+
           cov <- read_fst("./inputs/other_parameters/health_util_covariance.fst")
           est <- read_fst("./inputs/other_parameters/health_util_estimates.fst", as.data.table = TRUE)
-          
+
           #cov <- read_fst("health_util_covariance.fst")
           #est <- read_fst("health_util_estimates.fst", as.data.table = TRUE)
-          
+
           cov_long <- (NULL)
-          
+
           for(i in 1:nrow(cov)){
-            
+
             tmp <- t(cov[, i])
-            
+
             colnames(tmp) <- paste0("cov", seq(1, length(tmp), 1), "_", i)
-            
+
             cov_long <- cbind(cov_long, tmp)
-            
+
           }
-          
+
           lc[, `:=`(Intercept = 1,
                     sex_num = ifelse(sex == "men", 0, 1),
                     copd = 0,
@@ -1176,20 +1175,20 @@ Simulation <-
                     t2dm_arythm = 0,
                     chd = ifelse(chd_prvl > 0, 1, 0),
                     t2dm_chd = ifelse(t2dm_prvl > 0 & chd_prvl > 0, 1, 0))]
-          
-          
+
+
           j <- 0
-          
+
           for(i in seq(1, ncol(cov_long), 17)){
-            
+
             j <- j + 1
-            
+
             cols <- seq(i, i + 16, 1)
-            
+
             row <- seq(1, length(cols), 1)
-            
+
             lc[, (colnames(cov_long)[cols]) := as.data.table(t(cov_long[cols]))]
-            
+
             lc[, (paste0("tmp", i)) := Intercept * get(paste0("cov", row[1], "_", j)) + age * get(paste0("cov", row[2], "_", j)) +
                  sex_num * get(paste0("cov", row[3], "_", j)) + bmi_curr_xps * get(paste0("cov", row[4], "_", j)) +
                  copd * get(paste0("cov", row[5], "_", j)) + cancer * get(paste0("cov", row[6], "_", j)) +
@@ -1199,22 +1198,22 @@ Simulation <-
                  t2dm_stroke * get(paste0("cov", row[13], "_", j)) + arrhythmia * get(paste0("cov", row[14], "_", j)) +
                  t2dm_arythm * get(paste0("cov", row[15], "_", j)) + chd * get(paste0("cov", row[16], "_", j)) +
                  t2dm_chd * get(paste0("cov", row[17], "_", j))]
-            
+
             lc[, (grep("cov", names(lc))) := NULL]
-            
+
           }
-          
+
           rm(j)
-          
+
           lc[, utility_se := sqrt(Intercept * tmp1 + age * tmp18 + sex_num * tmp35 +
                                     bmi_curr_xps * tmp52 + copd * tmp69 + cancer * tmp86 +
                                     asthma * tmp103 + bronchitis * tmp120 + t2dm * tmp137 +
                                     hypertension * tmp154 + t2dm_hypt * tmp171 +
                                     stroke * tmp188 + t2dm_stroke * tmp205 + arrhythmia * tmp222 +
                                     t2dm_arythm * tmp239 + chd * tmp256 + t2dm_chd * tmp273)][, (grep("tmp", names(lc))) := NULL]
-          
+
           lc[, (names(est)) := est]
-          
+
           lc[, utility :=
                Intercept +
                age * coef_age +
@@ -1225,138 +1224,138 @@ Simulation <-
                t2dm_stroke * coef_t2dm_stroke +
                chd * coef_chd +
                t2dm_chd * coef_t2dm_chd]
-          
+
           set.seed(mc_ * 1337)
-          
+
           lc[, q_util := runif(1, min = 0.001, max = 0.999), by = pid]
-          
+
           lc[, health_util := qnorm(q_util, utility, utility_se)]
-          
-          
+
+
           # Set discount value #
-          
+
           discount_rate <- self$design$sim_prm$discount_rate
           #discount_rate <- 0.03
-          
+
           lc[year <= (self$design$sim_prm$init_year_intv - 2000), dcv := 1]
           lc[year >  (self$design$sim_prm$init_year_intv - 2000), dcv := 1/(1 + discount_rate)^(year - (self$design$sim_prm$init_year_intv - 2000))]
           #lc[year <= (2025 - 2000), dcv := 1]
           #lc[year >  (2025 - 2000), dcv := 1/(1 + discount_rate)^(year - (2025 - 2000))]
           # Setup results object #
-          
+
           cea <- CJ(scenario = unique(lc$scenario),
                     uptake_group = unique(lc$uptake_group),
                     sex = unique(lc$sex),
                     agegrp = unique(lc$agegrp),
                     year = unique(lc$year))
-          
+
           # setkeyv(lc, c("pid", cea_strata))
-          
+
           # Calculate QALYs as weighted and discounted sum per year #
-          
+
           qalys_scaled <- lc[, lapply(.SD, function(x){
-            
+
             x <- sum(x * wt * dcv, na.rm = TRUE)
-            
+
             return(x)
-            
+
           }), .SDcols = "health_util", keyby = c(cea_strata)]
-          
+
           setnames(qalys_scaled, "health_util", "qalys_scl")
-          
+
           absorb_dt(cea, qalys_scaled)
-          
+
           qalys_esp <- lc[, lapply(.SD, function(x){
-            
+
             x <- sum(x * wt_esp * dcv, na.rm = TRUE)
-            
+
             return(x)
-            
+
           }), .SDcols = "health_util", keyby = c(cea_strata)]
-          
+
           setnames(qalys_esp, "health_util", "qalys_esp")
-          
+
           absorb_dt(cea, qalys_esp)
-          
-          
+
+
           # Calculate Healthcare Costs #
-          
+
           if (self$design$sim_prm$logs) message("Calculating costs...")
-          
+
           costs_scl <- lc[, lapply(.SD, function(x){
-            
+
             x <- sum(x * wt * dcv, na.rm = TRUE) ## Jane 16 Sep, add na.rm to all sum()
-            
+
             return(x)
-            
+
           }), .SDcols = c("cost", "cost_t2dm", "cost_chd", "cost_stroke"),
           keyby = c(cea_strata)]
-          
+
           setnames(costs_scl, c("cost", "cost_t2dm", "cost_chd", "cost_stroke"),
                    c("cost_scl", "cost_t2dm_scl", "cost_chd_scl", "cost_stroke_scl"))
-          
+
           absorb_dt(cea, costs_scl)
-          
-          
+
+
           costs_esp <- lc[, lapply(.SD, function(x){
-            
+
             x <- sum(x * wt_esp * dcv, na.rm = TRUE)
-            
+
             return(x)
-            
+
           }), .SDcols = c("cost", "cost_t2dm", "cost_chd", "cost_stroke"),
           keyby = c(cea_strata)]
-          
+
           setnames(costs_esp, c("cost", "cost_t2dm", "cost_chd", "cost_stroke"),
                    c("cost_esp", "cost_t2dm_esp", "cost_chd_esp", "cost_stroke_esp"))
-          
+
           absorb_dt(cea, costs_esp)
-          
-          
+
+
           # Calculate Indirect Costs #
-          
+
           indir_costs_scl <- lc[, lapply(.SD, function(x){
-            
+
             x <- sum(x * wt * dcv, na.rm = TRUE)
-            
+
             return(x)
-            
+
           }), .SDcols = c("cost_death", "cost_rtr_t2dm", "cost_rtr_stroke", "cost_scklv_t2dm",
                           "cost_scklv_stroke", "cost_slfmgt_t2dm", "cost_time_t2dm", "cost_time"),
           keyby = c(cea_strata)]
-          
+
           setnames(indir_costs_scl, c("cost_death", "cost_rtr_t2dm", "cost_rtr_stroke", "cost_scklv_t2dm",
                                       "cost_scklv_stroke", "cost_slfmgt_t2dm", "cost_time_t2dm", "cost_time"),
                    paste0(c("cost_death", "cost_rtr_t2dm", "cost_rtr_stroke", "cost_scklv_t2dm",
                             "cost_scklv_stroke", "cost_slfmgt_t2dm", "cost_time_t2dm", "cost_time"), "_scl"))
-          
+
           absorb_dt(cea, indir_costs_scl)
-          
-          
+
+
           indir_costs_esp <- lc[, lapply(.SD, function(x){
-            
+
             x <- sum(x * wt_esp * dcv, na.rm = TRUE)
-            
+
             return(x)
-            
+
           }), .SDcols = c("cost_death", "cost_rtr_t2dm", "cost_rtr_stroke", "cost_scklv_t2dm",
                           "cost_scklv_stroke", "cost_slfmgt_t2dm", "cost_time_t2dm", "cost_time"),
           keyby = c(cea_strata)]
-          
+
           setnames(indir_costs_esp, c("cost_death", "cost_rtr_t2dm", "cost_rtr_stroke", "cost_scklv_t2dm",
                                       "cost_scklv_stroke", "cost_slfmgt_t2dm", "cost_time_t2dm", "cost_time"),
                    paste0(c("cost_death", "cost_rtr_t2dm", "cost_rtr_stroke", "cost_scklv_t2dm",
                             "cost_scklv_stroke", "cost_slfmgt_t2dm", "cost_time_t2dm", "cost_time"), "_esp"))
-          
+
           absorb_dt(cea, indir_costs_esp)
           ### replace all NAs with 0
           ### in the cea data.table
           num_cols <- names(cea)[vapply(cea, is.numeric, logical(1))]
-          
+
           cea[, (num_cols) := lapply(.SD, function(x) fifelse(is.na(x), 0, x)),
               .SDcols = num_cols]
-          
-          
+
+
           cea[, `:=`(
             disease_costs_scl = cost_t2dm_scl + cost_chd_scl + cost_stroke_scl,
             disease_costs_esp = cost_t2dm_esp + cost_chd_esp + cost_stroke_esp,
@@ -1389,21 +1388,21 @@ Simulation <-
               cost_scklv_t2dm_esp + cost_scklv_stroke_esp +
               cost_slfmgt_t2dm_esp + cost_time_t2dm_esp + cost_time_esp
           )]
-          
+
           cea_agg <- cea[, lapply(.SD, sum),
                          .SDcols = c(grep("cost", names(cea), value = TRUE),
                                      "qalys_esp", "qalys_scl"),
                          keyby = c(cea_strata)]
-          
+
           cea_agg[, mc := mc_]
-          
+
           fwrite_safe(cea_agg,
                       private$output_dir(paste0("summaries", "/health_economic_results.csv.gz")))
-          
+
           ######################################################################################
           #---------------------------- For calculating cea diff ------------------------------#
           ######################################################################################
-          
+
           # Getting rid of uptake_group when we calculate cea diff
           cea_agg_no_up <- cea_agg[
             , lapply(.SD, sum),
@@ -1411,7 +1410,7 @@ Simulation <-
                         "qalys_esp", "qalys_scl"),
             by = setdiff(cea_strata, "uptake_group")
           ]
-          
+
           # Identify scenarios that have a baseline defined
           sc_map <- data.table(
             scenario = c("sc2","sc3","sc4","sc5",
@@ -1421,31 +1420,31 @@ Simulation <-
                          rep("sc6", 4),
                          rep("sc11", 4))
           )
-          
+
           scenarios <- sc_map$scenario
-          
+
           if (length(scenarios) != 0) {
-            
+
             if (self$design$sim_prm$logs)
               message("Calculating cost-effectiveness...")
-            
+
             strata_no_scenario <- cea_strata[cea_strata != "scenario"]
-            
+
             cea_diff <- data.table(NULL)
-            
+
             for (i in scenarios) {
-              
+
               base_i <- sc_map[scenario == i, baseline] # "sc6"
-              
+
               xx <- cea_agg_no_up[scenario %in% c(base_i, i)]
-              
+
               # ensure correct ordering
               xx[, scenario := factor(scenario, levels = c(base_i, i))]
-              
+
               setorder(xx, sex, agegrp, year, scenario)
-              
+
               setkeyv(xx, c("sex", "agegrp", "year"))
-              
+
               xx[, (paste0("incr_",
                            c(grep("cost", names(xx), value = TRUE),
                              "qalys_scl", "qalys_esp"))) :=
@@ -1453,26 +1452,26 @@ Simulation <-
                  .SDcols = c(grep("cost", names(xx), value = TRUE),
                              "qalys_scl", "qalys_esp"),
                  by = .(sex, agegrp, year)]
-              
+
               cea_diff <- rbind(cea_diff, xx[scenario == i])  # only keep intervention row
             }
-            
+
             cea_diff <- cea_diff[scenario %in% sc_map$scenario]
-            
+
             cea_diff[, mc := mc_]
-            
+
             fwrite_safe(
               cea_diff,
               private$output_dir(paste0("summaries", "/cea_results.csv.gz"))
             )
           }
-          
+
         }
-        
+
         if (!self$design$sim_prm$keep_lifecourse) file.remove(pth)
-        
+
         return(invisible(self))
-        
+
       },
 
       # Special deep copy for data.table. Use POP$clone(deep = TRUE) to
