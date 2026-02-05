@@ -103,6 +103,7 @@ DELETEme*
 *.tiff
 *.jpeg
 /inputs/uptake/
+*uptake*
 
 IMPACT NCD Germany GLP1.Rproj
 
