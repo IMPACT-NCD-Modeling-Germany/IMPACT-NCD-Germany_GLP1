@@ -97,7 +97,10 @@ Design <-
         )
         
         # Switch synthpop and output directories if inside of a container
-        if(file.exists("/.dockerenv")){
+        docker_check <- file.exists("/.dockerenv")
+        if(is.na(docker_check)) docker_check <- FALSE
+        
+        if(docker_check){
           sim_prm$output_dir <- "./outputs"
           sim_prm$synthpop_dir <- "./inputs/synthpop"
         }

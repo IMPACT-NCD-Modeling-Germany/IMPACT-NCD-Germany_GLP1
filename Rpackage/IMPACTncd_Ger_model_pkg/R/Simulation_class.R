@@ -70,7 +70,10 @@ Simulation <-
         fst::threads_fst(nr_of_threads = self$design$sim_prm$clusternumber, reset_after_fork = NULL)
 
         # Do not create folders if IMPACT is running inside a container!
-        if(file.exists("/.dockerenv")){
+        docker_check <- file.exists("/.dockerenv")
+        if(is.na(docker_check)) docker_check <- FALSE
+        
+        if(docker_check){
           # Create folders if don't exist
           # TODO write hlp function and use lapply
           if (!dir.exists(paste0(self$design$sim_prm$output_dir, "/", self$design$sim_prm$analysis_name))) {

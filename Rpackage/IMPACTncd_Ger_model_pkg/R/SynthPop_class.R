@@ -957,8 +957,8 @@ SynthPop <-
             #}
             #dt <- merge(dt, tbl, by = c(intersect(names(dt), names(tbl))))
 
-              dt[, sbp := qBCCG(rank_sbp, mu, sigma, nu)] 
-              dt[sbp > 1000, sbp := 1000] #Truncate sbp predictions to avoid unrealistic values.
+              dt[, sbp := my_qBCPEo(rank_sbp, mu, sigma, nu, tau, n_cpu = design_$sim_prm$n_cpu)] 
+              dt[sbp > 500, sbp := 500] #Truncate sbp predictions to avoid unrealistic values.
               dt[, (col_nam) := NULL]
               dt[, `:=`(rank_sbp = NULL)]
               # Jane: do we need the 'n_cpu' argument?
@@ -968,7 +968,7 @@ SynthPop <-
             # Generate tchol (qBCTo) ----
             if (design_$sim_prm$logs) message("Generate tchol")
             tbl <-
-              read_fst("./inputs/exposure_distributions/chol_table.fst", as.data.table = TRUE)
+              read_fst("./inputs/exposure_distributions/tc_table.fst", as.data.table = TRUE)
 
             col_nam <-
               setdiff(names(tbl), intersect(names(dt), names(tbl)))
@@ -977,8 +977,8 @@ SynthPop <-
             #} else {
             dt <- absorb_dt(dt, tbl)
             #}
-            dt[, tchol := my_qBCT(rank_tchol, mu, sigma, nu, tau, n_cpu = design_$sim_prm$n_cpu)]
-            dt[tchol > 1000, tchol := 1000] #Truncate cholesterol predictions to avoid unrealistic values.
+            dt[, tchol := qBCTo(rank_tchol, mu, sigma, nu, tau)]
+            dt[tchol > 100, tchol := 100] #Truncate cholesterol predictions to avoid unrealistic values.
             dt[, (col_nam) := NULL]
             dt[, `:=`(rank_tchol = NULL)]
 

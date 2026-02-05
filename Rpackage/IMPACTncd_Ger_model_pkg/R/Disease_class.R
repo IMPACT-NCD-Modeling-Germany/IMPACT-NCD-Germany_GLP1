@@ -2090,8 +2090,8 @@ Disease <-
           #} else {
             ff <- absorb_dt(ff, tbl)
           #}
-          ff[, sbp_curr_xps := qBCCG(rank_sbp, mu, sigma, nu)]
-          ff[sbp_curr_xps > 1000, sbp_curr_xps := 1000] #Truncate SBP to avoid unrealistic values.
+          ff[, sbp_curr_xps := my_qBCPEo(rank_sbp, mu, sigma, nu, tau, n_cpu = design_$sim_prm$n_cpu)]
+          ff[sbp_curr_xps > 500, sbp_curr_xps := 500] #Truncate SBP to avoid unrealistic values.
           
           ff[, (col_nam) := NULL]
           ff[, rank_sbp := NULL]
@@ -2109,7 +2109,7 @@ Disease <-
             ff[, year := year - lag]
 
           tbl <-
-            read_fst("./inputs/exposure_distributions/chol_table.fst", as.data.table = TRUE)
+            read_fst("./inputs/exposure_distributions/tc_table.fst", as.data.table = TRUE)
 
           col_nam <-
             setdiff(names(tbl), intersect(names(ff), names(tbl)))
@@ -2119,8 +2119,8 @@ Disease <-
             ff <- absorb_dt(ff, tbl)
           #}
 
-          ff[, tchol_curr_xps := my_qBCT(rank_tchol, mu, sigma, nu, tau, n_cpu = design_$sim_prm$n_cpu)]
-          ff[tchol_curr_xps > 1000, tchol_curr_xps := 1000] #Truncate cholesterol predictions to avoid unrealistic values.
+          ff[, tchol_curr_xps := qBCTo(rank_tchol, mu, sigma, nu, tau)]
+          ff[tchol_curr_xps > 100, tchol_curr_xps := 100] #Truncate cholesterol predictions to avoid unrealistic values.
 
           ff[, (col_nam) := NULL]
           ff[, rank_tchol := NULL]
