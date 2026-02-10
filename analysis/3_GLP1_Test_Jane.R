@@ -26,15 +26,18 @@ if(new_runs){
   
   # Create batches for batched simulation
   batch_size <- 5
-  iterations <- 10
+  iterations <- 50
   first_iteration <- 1
   batches <- split(seq(first_iteration, iterations + first_iteration - 1),
                    f = findInterval(seq(first_iteration, iterations + first_iteration - 1),
                                     vec = seq(first_iteration, iterations + first_iteration - 1, batch_size)))
 }
 
+analysis_name <- "GLP_Mort_Calibration" ### create a folder to store all the output in this folder
 
-analysis_name <- "GLP_Test" ### create a folder to store all the output in this folder
+# Define directories
+lifecourse_dir <- "./outputs/GLP_Mort_Calibration/lifecourse"
+
 
 IMPACTncd <- Simulation$new("./inputs/sim_design.yaml", analysis_name) 
 
