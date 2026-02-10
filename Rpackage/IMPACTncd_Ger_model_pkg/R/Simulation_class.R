@@ -338,7 +338,7 @@ Simulation <-
       export_summaries = function(multicore = TRUE, type = c("le", "ly",
                                                              "prvl", "incd",
                                                              "mrtl",  "dis_mrtl",
-                                                             "xps", "cea")) {
+                                                             "xps", "BC", "cea")) { 
 
         fl <- list.files(private$output_dir("lifecourse"), full.names = TRUE)
         # logic to avoid inappropriate dual processing of already processed mcs
@@ -351,7 +351,8 @@ Simulation <-
         if ("prvl" %in% type) file_pth <- private$output_dir("summaries/prvl_scaled_up.csv.gz") else
         if ("cea" %in% type) file_pth <- private$output_dir("summaries/health_economic_results.csv.gz") else
         if ("xps" %in% type) file_pth <- private$output_dir("summaries/xps_scaled_up.csv.gz") else
-        if ("risk_10y" %in% type) file_pth <- private$output_dir("summaries/risk_10y_scaled_up.csv.gz")
+        if ("BC" %in% type) file_pth <- private$output_dir("summaries/baseline_char.csv.gz") else
+        if ("risk_10y" %in% type) file_pth <- private$output_dir("summaries/risk_10y_scaled_up.csv.gz") 
 
         if (file.exists(file_pth)) {
           tt <- unique(fread(file_pth, select = "mc")$mc)
@@ -777,8 +778,8 @@ Simulation <-
 
       export_summaries_hlpr = function(lc, type = c("le", "ly",
                                                   "prvl", "incd",
-                                                  "mrtl",  "dis_mrtl",
-                                                  "xps", "cea")) {
+                                                  "mrtl",  "dis_mrtl", 
+                                                  "xps", "BC", "cea")) {
         if (self$design$sim_prm$logs) message("Exporting summaries...")
         # strata <- setdiff(self$design$sim_prm$cols_for_output, c("age", "pid", "wt"))
         strata <- c("mc",
@@ -1062,6 +1063,97 @@ Simulation <-
                       private$output_dir(paste0("summaries", "/xps_scaled_up.csv.gz"
                       )))
 
+        }
+        
+        if("BC" %in% type){
+          
+          if (self$design$sim_prm$logs) message("Exporting baseline characteristics...")
+          
+          lc[, age_cat := cut(age,
+                              breaks = c(-Inf, 49, 69, 90),
+                              labels = c("30-49", "50-69", "70-90"))]
+          
+          lc[, bmi_cat := cut(bmi_curr_xps,
+                              breaks = c(-Inf, 30, 35, 40, Inf),
+                              labels = c("<30", "30-35", "35-40", ">40"))]
+          
+          
+          lc$bmi_cat <- factor(lc$bmi_cat, ordered = TRUE, 
+                               levels = c("<30", "30-35", "35-40", ">40"))
+          
+          
+          ## ----- Overall ---------------------------------------------
+          fwrite_safe(lc[scenario == "sc0" & year == 25, .(
+            popsize      = sum(wt),
+            mean_age     = weighted.mean(age, wt, na.rm = TRUE),
+            mean_bmi     = weighted.mean(bmi_curr_xps, wt, na.rm = TRUE),
+            mean_sbp     = weighted.mean(sbp_curr_xps, wt, na.rm = TRUE),
+            mean_chol    = weighted.mean(tchol_curr_xps, wt, na.rm = TRUE),
+            pct_male     = 100 * sum((sex == "men") * wt, na.rm = TRUE) / sum(wt),
+            pct_t2dm     = 100 * sum((t2dm_prvl > 0) * wt, na.rm = TRUE) / sum(wt),
+            pct_chd      = 100 * sum((chd_prvl > 0) * wt, na.rm = TRUE) / sum(wt),
+            pct_stroke   = 100 * sum((stroke_prvl > 0) * wt, na.rm = TRUE) / sum(wt),
+            pct_obesity  = 100 * sum((obesity_prvl > 0) * wt, na.rm = TRUE) / sum(wt)
+          ), by = mc],
+                      private$output_dir(paste0("summaries", "/baseline_char_overall.csv.gz")
+                      ))
+          
+          
+          ## ---- Age-category summaries ------------------------------------------------
+          fwrite_safe(lc[scenario == "sc0" & year == 25, .(
+            numerator   = sum(wt),
+            denominator = sum(lc[scenario == "sc0" & year == 25, wt]),
+            pct         = 100 * sum(wt) / sum(lc[scenario == "sc0" & year == 25, wt])
+          ), by = c("mc", "age_cat")],
+            private$output_dir(paste0("summaries", "/baseline_char_age.csv.gz")
+            ))
+          
+          
+          ## ---- BMI-category summaries ------------------------------------------------
+          fwrite_safe(lc[scenario == "sc0" & year == 25, .(
+            numerator   = sum(wt),
+            denominator = sum(lc[scenario == "sc0" & year == 25, wt]),
+            pct         = 100 * sum(wt) / sum(lc[scenario == "sc0" & year == 25, wt])
+          ), by = c("mc", "bmi_cat")],
+            private$output_dir(paste0("summaries", "/baseline_char_bmi.csv.gz")
+            ))
+          
+          ## ----- Overall ---------------------------------------------
+          fwrite_safe(lc[scenario == "sc1" & year == 25 & uptake_group == 1, .(
+            popsize      = sum(wt),
+            mean_age     = weighted.mean(age, wt, na.rm = TRUE),
+            mean_bmi     = weighted.mean(bmi_curr_xps, wt, na.rm = TRUE),
+            mean_sbp     = weighted.mean(sbp_curr_xps, wt, na.rm = TRUE),
+            mean_chol    = weighted.mean(tchol_curr_xps, wt, na.rm = TRUE),
+            pct_male     = 100 * sum((sex == "men") * wt, na.rm = TRUE) / sum(wt),
+            pct_t2dm     = 100 * sum((t2dm_prvl > 0) * wt, na.rm = TRUE) / sum(wt),
+            pct_chd      = 100 * sum((chd_prvl > 0) * wt, na.rm = TRUE) / sum(wt),
+            pct_stroke   = 100 * sum((stroke_prvl > 0) * wt, na.rm = TRUE) / sum(wt),
+            pct_obesity  = 100 * sum((obesity_prvl > 0) * wt, na.rm = TRUE) / sum(wt)
+          ), by = mc],
+          private$output_dir(paste0("summaries", "/baseline_char_overall_elig.csv.gz")
+          ))
+          
+          
+          ## ---- Age-category summaries ------------------------------------------------
+          fwrite_safe(lc[scenario == "sc1" & year == 25 & uptake_group == 1, .(
+            numerator   = sum(wt),
+            denominator = sum(lc[scenario == "sc1" & year == 25 & uptake_group == 1, wt]),
+            pct         = 100 * sum(wt) / sum(lc[scenario == "sc1" & year == 25 & uptake_group == 1, wt])
+          ), by = c("mc", "age_cat")],
+          private$output_dir(paste0("summaries", "/baseline_char_age_elig.csv.gz")
+          ))
+          
+          
+          ## ---- BMI-category summaries ------------------------------------------------
+          fwrite_safe(lc[scenario == "sc1" & year == 25 & uptake_group == 1, .(
+            numerator   = sum(wt),
+            denominator = sum(lc[scenario == "sc1" & year == 25 & uptake_group == 1, wt]),
+            pct         = 100 * sum(wt) / sum(lc[scenario == "sc1" & year == 25 & uptake_group == 1, wt])
+          ), by = c("mc", "bmi_cat")],
+          private$output_dir(paste0("summaries", "/baseline_char_bmi_elig.csv.gz")
+          ))
+          
         }
 
         if("cea" %in% type){                                                     # Taking lifecourse as input in this script

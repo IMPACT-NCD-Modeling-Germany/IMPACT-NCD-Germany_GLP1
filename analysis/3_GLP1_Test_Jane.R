@@ -11,7 +11,8 @@ source("./auxil/scenarios_GLP_uncertain.R")
 source("./auxil/simulate_pid_uptake.R", echo = TRUE)
 
 # Define directories
-lifecourse_dir <- "./outputs/lifecourse"
+# lifecourse_dir <- "./outputs/lifecourse"
+lifecourse_dir <- "/media/php-workstation/Storage_1/IMPACT_Storage/GLP1/outputs/GLP_Test/lifecourse"
 
 # Initiate .Random.seed for safety
 runif(1)
@@ -90,10 +91,29 @@ if(new_runs){
     IMPACTncd$
       run(i, multicore = TRUE, "sc1", m_zero_trend = -0.03, p_zero_trend = 0)
     
+    
     scenario_fn <- scenario_2_fn
     
     IMPACTncd$
       run(i, multicore = TRUE, "sc2", m_zero_trend = -0.03, p_zero_trend = 0)
+    
+    
+    scenario_fn <- scenario_3_fn
+    
+    IMPACTncd$
+      run(i, multicore = TRUE, "sc3", m_zero_trend = -0.03, p_zero_trend = 0)
+    
+    
+    scenario_fn <- scenario_4_fn
+    
+    IMPACTncd$
+      run(i, multicore = TRUE, "sc4", m_zero_trend = -0.03, p_zero_trend = 0)
+    
+    
+    scenario_fn <- scenario_5_fn
+    
+    IMPACTncd$
+      run(i, multicore = TRUE, "sc5", m_zero_trend = -0.03, p_zero_trend = 0)
     
   }
 }
@@ -103,6 +123,17 @@ if(new_export){
   IMPACTncd$export_summaries(multicore = TRUE) 
 } 
 
+# Selective Exports
+export_type = "cea"
+if(new_export){
+  IMPACTncd$export_summaries(multicore = TRUE, type = export_type)
+}
+
+# Selective Exports
+export_type = "BC"
+if(new_export){
+  IMPACTncd$export_summaries(multicore = TRUE, type = export_type)
+}
 
 
 
