@@ -8,7 +8,7 @@ logs: yes
 export_xps: yes
 keep_lifecourse: yes
 export_PARF: no
-'n': 200
+'n': 2000
 n_synthpop_aggregation: 2 # number of synthpops to aggregate together
 # n_primers: 10 # better be some multiple of n_synthpop_aggregation
 init_year_long: 2013 # 2008 to 2020 but be careful with max lags
@@ -106,8 +106,8 @@ kismet: yes
 validation: no # or yes. Note, no yes/no
 max_prvl_for_outputs: 2 # duration 1 is incidence and 2 is prevalence
 iteration_n_max: 1000
-output_dir: ./outputs
-synthpop_dir: ./inputs/synthpop
+output_dir: ./outputs_local
+synthpop_dir: ./inputs/synthpop_local
 scenarios: ''
 cols_for_output:
 - pid # NEED TO be 1st (perhaps not anymore)

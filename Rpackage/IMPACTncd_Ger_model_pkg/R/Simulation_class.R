@@ -337,7 +337,7 @@ Simulation <-
       #' @return The invisible self for chaining.
       export_summaries = function(multicore = TRUE, type = c("le", "ly",
                                                              "prvl", "incd",
-                                                             "mrtl",  "dis_mrtl",
+                                                             "mrtl",  "dis_mrtl", "risk_10y",
                                                              "xps", "BC", "cea")) { 
 
         fl <- list.files(private$output_dir("lifecourse"), full.names = TRUE)
@@ -352,7 +352,7 @@ Simulation <-
         if ("cea" %in% type) file_pth <- private$output_dir("summaries/health_economic_results.csv.gz") else
         if ("xps" %in% type) file_pth <- private$output_dir("summaries/xps_scaled_up.csv.gz") else
         if ("BC" %in% type) file_pth <- private$output_dir("summaries/baseline_char.csv.gz") else
-        if ("risk_10y" %in% type) file_pth <- private$output_dir("summaries/risk_10y_scaled_up.csv.gz") 
+        if ("risk_10y" %in% type) file_pth <- private$output_dir("summaries/stroke_10y_scaled_up.csv.gz") 
 
         if (file.exists(file_pth)) {
           tt <- unique(fread(file_pth, select = "mc")$mc)
@@ -778,7 +778,7 @@ Simulation <-
 
       export_summaries_hlpr = function(lc, type = c("le", "ly",
                                                   "prvl", "incd",
-                                                  "mrtl",  "dis_mrtl", 
+                                                  "mrtl",  "dis_mrtl", "risk_10y", 
                                                   "xps", "BC", "cea")) {
         if (self$design$sim_prm$logs) message("Exporting summaries...")
         # strata <- setdiff(self$design$sim_prm$cols_for_output, c("age", "pid", "wt"))
@@ -923,41 +923,130 @@ Simulation <-
 
         }
 
-        if("risk_10y" %in% type){
-
-          # 10y risk: proportion of disease-free people at baseline who developed first CVD event over 10 years
-
+        if ("risk_10y" %in% type) {
+          
           if (self$design$sim_prm$logs) message("Exporting 10-year risk...")
-
-          start_year <- 15L
-          end_year   <- 24L
-
-          # Per-pid flags
-          lc[, baseline_free   := any(year == start_year & stroke_prvl == 0), by = pid]
-          lc[, had_event_10y   := any(stroke_prvl > 0 & year >= start_year & year <= end_year), by = pid]
-          # Final binary variable:
-          # 1 = had event during [25, 34] and event-free at 25
-          # 0 = no event during  [25, 34] and event-free at 25
-          # NA = not event-free at baseline (or not observed at year 25)
-          lc[, stroke_event_10y := fifelse(baseline_free, as.integer(had_event_10y), NA_integer_)]
-
-          # weighted events and population
-          tt_risk <- lc[
-            !is.na(stroke_event_10y) & year == start_year,  # restrict to disease-free individuals
-            .(                                              # at start_year only
-              popsize   = sum(wt),                          # weighted baseline disease-free population
-              events10y = sum(stroke_event_10y * wt)        # weighted number of 10-year events
+          
+          # restrict to base scenario
+          lc <- lc[scenario == "sc0"]
+          
+          start_year <- 13L
+          end_year   <- 22L
+          
+          # ------------------------------------------
+          # ---- 1. Identify baseline individuals ----
+          # ------------------------------------------
+          # must be observed at baseline
+          lc[, has_baseline := any(year == start_year), by = pid]
+          
+          # must be event-free at baseline
+          lc[, baseline_free := any(year == start_year & stroke_prvl == 0), by = pid]
+          
+          # age restriction: age <= 80 at baseline
+          lc[, baseline_age_ok := any(year == start_year & age <= 80), by = pid]
+          
+          # Combined flag: people eligible for 10-year risk estimation
+          lc[, eligible_10y := has_baseline & baseline_free & baseline_age_ok]
+          
+          # ----------------------------------------------------
+          # ---- 2. Identify stroke events during follow-up ----
+          # ----------------------------------------------------
+          # stroke_prvl >0 OR death from stroke (all_cause_mrtl == 2)
+          lc[, had_stroke_10y :=
+               any(
+                 (stroke_prvl > 0 | all_cause_mrtl == 2) &
+                   year >= start_year & year <= end_year
+               ),
+             by = pid]
+          
+          # --------------------------------------------
+          # ---- 3. Final outcome variable -------------
+          # --------------------------------------------
+          #  1 = stroke event during period
+          #  0 = no stroke during period (even if died from other causes)
+          # NA = not eligible at baseline
+          lc[, stroke_event_10y :=
+               fifelse(!eligible_10y, NA_integer_,
+                       fifelse(had_stroke_10y, 1L, 0L)
+               )]
+          
+          # -----------------------------------------------------------
+          # ---- 4. Select only baseline rows for summarising risk ----
+          # -----------------------------------------------------------
+          lc_baseline <- lc[year == start_year & eligible_10y == TRUE]
+          
+          # -----------------------------------------------------------
+          # ---- 5. Create baseline-only risk factor groups (temporary)
+          # -----------------------------------------------------------
+          # Age group
+          lc_baseline[, age_group := fcase(
+            age >= 30 & age <= 49, "30-49",
+            age >= 50 & age <= 69, "50-69",
+            age >= 70 & age <= 90, "70-90",
+            default = NA_character_
+          )]
+          
+          lc_baseline[, age_group := factor(
+            age_group,
+            levels = c("30-49", "50-69", "70-90")
+          )]
+          
+          # BMI group
+          lc_baseline[, bmi_group := fcase(
+            bmi_curr_xps <  30, "BMI < 30",
+            bmi_curr_xps >= 30, "BMI ≥ 30",
+            default = NA_character_
+          )]
+          lc_baseline[, bmi_group := factor(
+            bmi_group,
+            levels = c("BMI < 30", "BMI ≥ 30")
+          )]
+          
+          # SBP group
+          lc_baseline[, sbp_group := fcase(
+            sbp_curr_xps <  130, "SBP < 130",
+            sbp_curr_xps >= 130, "SBP ≥ 130",
+            default = NA_character_
+          )]
+          lc_baseline[, sbp_group := factor(
+            sbp_group,
+            levels = c("SBP < 130", "SBP ≥ 130")
+          )]
+          
+          # Total cholesterol group
+          lc_baseline[, tchol_group := fcase(
+            tchol_curr_xps <  6, "TC < 6",
+            tchol_curr_xps >= 6, "TC ≥ 6",
+            default = NA_character_
+          )]
+          lc_baseline[, tchol_group := factor(
+            tchol_group,
+            levels = c("TC < 6", "TC ≥ 6")
+          )]
+          
+          # --------------------------------------------
+          # ---- 6. Compute weighted 10-year risk ------
+          # --------------------------------------------
+          tt_risk <- lc_baseline[
+            !is.na(stroke_event_10y),
+            .(
+              popsize   = sum(wt),
+              events10y = sum(stroke_event_10y * wt),
+              risk10y   = sum(stroke_event_10y * wt) / sum(wt)
             ),
-            by = c("mc", "scenario", "year", "agegrp", "sex") # removed "bmi_cate" here because of error
+            # stratification variables you want
+            by = c("mc", "age_group", "sex", "bmi_group", "sbp_group", "tchol_group")
           ]
-
-          # Save output
+          
+          # ---- 6. Export ----
           fwrite_safe(
             tt_risk,
-            private$output_dir(paste0("summaries", "/stroke_10y_scaled_up.csv.gz"
-          )))
-
+            private$output_dir(
+              paste0("summaries/stroke_10y_scaled_up.csv.gz")
+            )
+          )
         }
+        
 
         if("mrtl" %in% type){
 
@@ -1119,7 +1208,7 @@ Simulation <-
             ))
           
           ## ----- Overall ---------------------------------------------
-          fwrite_safe(lc[scenario == "sc1" & year == 25 & uptake_group == 1, .(
+          fwrite_safe(lc[scenario == "sc0" & year == 25 & uptake_group == 1, .(
             popsize      = sum(wt),
             mean_age     = weighted.mean(age, wt, na.rm = TRUE),
             mean_bmi     = weighted.mean(bmi_curr_xps, wt, na.rm = TRUE),
@@ -1136,20 +1225,20 @@ Simulation <-
           
           
           ## ---- Age-category summaries ------------------------------------------------
-          fwrite_safe(lc[scenario == "sc1" & year == 25 & uptake_group == 1, .(
+          fwrite_safe(lc[scenario == "sc0" & year == 25 & uptake_group == 1, .(
             numerator   = sum(wt),
-            denominator = sum(lc[scenario == "sc1" & year == 25 & uptake_group == 1, wt]),
-            pct         = 100 * sum(wt) / sum(lc[scenario == "sc1" & year == 25 & uptake_group == 1, wt])
+            denominator = sum(lc[scenario == "sc0" & year == 25 & uptake_group == 1, wt]),
+            pct         = 100 * sum(wt) / sum(lc[scenario == "sc0" & year == 25 & uptake_group == 1, wt])
           ), by = c("mc", "age_cat")],
           private$output_dir(paste0("summaries", "/baseline_char_age_elig.csv.gz")
           ))
           
           
           ## ---- BMI-category summaries ------------------------------------------------
-          fwrite_safe(lc[scenario == "sc1" & year == 25 & uptake_group == 1, .(
+          fwrite_safe(lc[scenario == "sc0" & year == 25 & uptake_group == 1, .(
             numerator   = sum(wt),
-            denominator = sum(lc[scenario == "sc1" & year == 25 & uptake_group == 1, wt]),
-            pct         = 100 * sum(wt) / sum(lc[scenario == "sc1" & year == 25 & uptake_group == 1, wt])
+            denominator = sum(lc[scenario == "sc0" & year == 25 & uptake_group == 1, wt]),
+            pct         = 100 * sum(wt) / sum(lc[scenario == "sc0" & year == 25 & uptake_group == 1, wt])
           ), by = c("mc", "bmi_cat")],
           private$output_dir(paste0("summaries", "/baseline_char_bmi_elig.csv.gz")
           ))

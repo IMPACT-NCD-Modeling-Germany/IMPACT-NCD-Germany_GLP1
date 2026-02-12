@@ -81,8 +81,136 @@ for(analysis in dirs){
     }
 
   ####################################################################################################################
-  #------------------------------------------   Jane, Test, 09.Jan.2026   -------------------------------------------#
+  #-----------------------------------   Jane, Adding 'BC' & '10y risk'   -------------------------------------------#
   ####################################################################################################################
+  
+  if("stroke_10y_scaled_up.csv.gz" %in% list.files(in_path)){
+    
+    ## Prevalence by age and sex ## ----
+    
+    tt <- fread(paste0(in_path, "stroke_10y_scaled_up.csv.gz"))
+    
+    outstrata <- c("mc", "age_group", "sex", "bmi_group", "sbp_group", "tchol_group")
+    
+    d_long <- melt(tt,
+                   id.vars = outstrata,
+                   measure.vars = c("popsize", "events10y", "risk10y"),
+                   variable.name = "metric",
+                   value.name = "value"
+    )
+    
+    d_quant <- d_long[,
+                      fquantile_byid(value, prbl, id = metric),
+                      keyby = setdiff(outstrata, "mc")
+    ]
+    
+    setnames(d_quant, c(setdiff(outstrata, "mc"), "metric", percent(prbl, prefix = "10y_risk_")))
+    
+    fwrite(d_quant, paste0(out_path_tables, "stroke_10y_risk.csv"), sep = ";")
+    
+  }
+  
+  if("baseline_char_overall.csv.gz" %in% list.files(in_path)){
+    
+    tt <- fread(paste0(in_path, "baseline_char_overall.csv.gz"))
+    
+    d_long <- melt(
+      tt,
+      id.vars = "mc",
+      variable.name = "metric",
+      value.name = "value"
+    )
+    
+    d_quant <- d_long[,
+                      fquantile_byid(value, prbl, id = metric),
+                      keyby = "metric"
+    ]
+    
+    setnames(d_quant, c(setdiff(outstrata, "mc"), "metric", percent(prbl, prefix = "BC_pct_")))
+    
+    fwrite(d_quant, paste0(out_path_tables, "BC_overall.csv"), sep = ";")
+    
+  }
+  
+  if("baseline_char_overall_elig.csv.gz" %in% list.files(in_path)){
+    
+    tt <- fread(paste0(in_path, "baseline_char_overall_elig.csv.gz"))
+    
+    d_long <- melt(
+      tt,
+      id.vars = "mc",
+      variable.name = "metric",
+      value.name = "value"
+    )
+    
+    d_quant <- d_long[,
+                      fquantile_byid(value, prbl, id = metric),
+                      keyby = "metric"
+    ]
+    
+    setnames(d_quant, c(setdiff(outstrata, "mc"), "metric", percent(prbl, prefix = "BC_pct_")))
+    
+    fwrite(d_quant, paste0(out_path_tables, "BC_overall_elig.csv"), sep = ";")
+    
+  }
+  
+  if("baseline_char_bmi.csv.gz" %in% list.files(in_path)){
+    
+    tt <- fread(paste0(in_path, "baseline_char_bmi.csv.gz")
+    )
+    
+    outstrata <- c("mc", "bmi_cat")
+    
+    d_long <- melt(
+      tt,
+      id.vars = outstrata,
+      measure.vars = c("numerator", "denominator", "pct"),
+      variable.name = "metric",
+      value.name = "value"
+    )
+    
+    d_quant <- d_long[
+      ,
+      fquantile_byid(value, prbl, id = metric),
+      keyby = setdiff(outstrata, "mc")
+    ]
+    
+    setnames(d_quant, c(setdiff(outstrata, "mc"), "metric", percent(prbl, prefix = "bmi_pct_")))
+    
+    fwrite(d_quant, paste0(out_path_tables, "BC_bmi.csv"), sep = ";")
+    
+  }
+  
+  if("baseline_char_bmi_elig.csv.gz" %in% list.files(in_path)){
+    
+    
+    tt <- fread(paste0(in_path, "baseline_char_bmi_elig.csv.gz")
+    )
+    
+    outstrata <- c("mc", "bmi_cat")
+    
+    
+    d_long <- melt(
+      tt,
+      id.vars = outstrata,
+      measure.vars = c("numerator", "denominator", "pct"),
+      variable.name = "metric",
+      value.name = "value"
+    )
+    
+    d_quant <- d_long[
+      ,
+      fquantile_byid(value, prbl, id = metric),
+      keyby = setdiff(outstrata, "mc")
+    ]
+    
+    setnames(d_quant, c(setdiff(outstrata, "mc"), "metric", percent(prbl, prefix = "bmi_pct_")))
+    
+    fwrite(d_quant, paste0(out_path_tables, "BC_bmi_elig.csv"), sep = ";")
+    
+  }
+  
+  #######################################################################################################
 
     if("prvl_scaled_up.csv.gz" %in% list.files(in_path)){
 
