@@ -14,7 +14,7 @@ if(Sys.info()["sysname"] == "Windows"){
   dirs <- list.dirs("G:/Meine Ablage/PhD/Publications/2021_Diet_simulation_modeling_Germany/Model/IMPACT-NCD-Germany/outputs",
                     recursive = FALSE, full.names = FALSE)
 } else {
-  dirs <- list.dirs("/media/php-workstation/Storage_1/IMPACT_Storage/GLP1/outputs/",
+  dirs <- list.dirs("./outputs_local/",
                     recursive = FALSE, full.names = FALSE)
 }
 dirs <- dirs[!(dirs %in% c("Test", "manuscript", "appendix"))]
@@ -43,13 +43,13 @@ for(analysis in dirs){
     if(!Sys.info()[1] == "Windows"){
 
       # Input path for IMPACT results
-      in_path <- paste0("/media/php-workstation/Storage_1/IMPACT_Storage/GLP1/outputs/", analysis, "/summaries/")
+      in_path <- paste0("./outputs_local/", analysis, "/summaries/")
 
       # Output path for tables
-      out_path_tables <- paste0("/media/php-workstation/Storage_1/IMPACT_Storage/GLP1/outputs/", analysis, "/tables/")
+      out_path_tables <- paste0("./outputs_local/", analysis, "/tables/")
 
       # Output path for plots
-      out_path_plots <- paste0("/media/php-workstation/Storage_1/IMPACT_Storage/GLP1/outputs/", analysis, "/plots/")
+      out_path_plots <- paste0("./outputs_local/", analysis, "/plots/")
 
     } else {
 
@@ -107,106 +107,6 @@ for(analysis in dirs){
     setnames(d_quant, c(setdiff(outstrata, "mc"), "metric", percent(prbl, prefix = "10y_risk_")))
     
     fwrite(d_quant, paste0(out_path_tables, "stroke_10y_risk.csv"), sep = ";")
-    
-  }
-  
-  if("baseline_char_overall.csv.gz" %in% list.files(in_path)){
-    
-    tt <- fread(paste0(in_path, "baseline_char_overall.csv.gz"))
-    
-    d_long <- melt(
-      tt,
-      id.vars = "mc",
-      variable.name = "metric",
-      value.name = "value"
-    )
-    
-    d_quant <- d_long[,
-                      fquantile_byid(value, prbl, id = metric),
-                      keyby = "metric"
-    ]
-    
-    setnames(d_quant, c(setdiff(outstrata, "mc"), "metric", percent(prbl, prefix = "BC_pct_")))
-    
-    fwrite(d_quant, paste0(out_path_tables, "BC_overall.csv"), sep = ";")
-    
-  }
-  
-  if("baseline_char_overall_elig.csv.gz" %in% list.files(in_path)){
-    
-    tt <- fread(paste0(in_path, "baseline_char_overall_elig.csv.gz"))
-    
-    d_long <- melt(
-      tt,
-      id.vars = "mc",
-      variable.name = "metric",
-      value.name = "value"
-    )
-    
-    d_quant <- d_long[,
-                      fquantile_byid(value, prbl, id = metric),
-                      keyby = "metric"
-    ]
-    
-    setnames(d_quant, c(setdiff(outstrata, "mc"), "metric", percent(prbl, prefix = "BC_pct_")))
-    
-    fwrite(d_quant, paste0(out_path_tables, "BC_overall_elig.csv"), sep = ";")
-    
-  }
-  
-  if("baseline_char_bmi.csv.gz" %in% list.files(in_path)){
-    
-    tt <- fread(paste0(in_path, "baseline_char_bmi.csv.gz")
-    )
-    
-    outstrata <- c("mc", "bmi_cat")
-    
-    d_long <- melt(
-      tt,
-      id.vars = outstrata,
-      measure.vars = c("numerator", "denominator", "pct"),
-      variable.name = "metric",
-      value.name = "value"
-    )
-    
-    d_quant <- d_long[
-      ,
-      fquantile_byid(value, prbl, id = metric),
-      keyby = setdiff(outstrata, "mc")
-    ]
-    
-    setnames(d_quant, c(setdiff(outstrata, "mc"), "metric", percent(prbl, prefix = "bmi_pct_")))
-    
-    fwrite(d_quant, paste0(out_path_tables, "BC_bmi.csv"), sep = ";")
-    
-  }
-  
-  if("baseline_char_bmi_elig.csv.gz" %in% list.files(in_path)){
-    
-    
-    tt <- fread(paste0(in_path, "baseline_char_bmi_elig.csv.gz")
-    )
-    
-    outstrata <- c("mc", "bmi_cat")
-    
-    
-    d_long <- melt(
-      tt,
-      id.vars = outstrata,
-      measure.vars = c("numerator", "denominator", "pct"),
-      variable.name = "metric",
-      value.name = "value"
-    )
-    
-    d_quant <- d_long[
-      ,
-      fquantile_byid(value, prbl, id = metric),
-      keyby = setdiff(outstrata, "mc")
-    ]
-    
-    setnames(d_quant, c(setdiff(outstrata, "mc"), "metric", percent(prbl, prefix = "bmi_pct_")))
-    
-    fwrite(d_quant, paste0(out_path_tables, "BC_bmi_elig.csv"), sep = ";")
     
   }
   

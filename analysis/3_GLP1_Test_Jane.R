@@ -12,34 +12,33 @@ source("./auxil/simulate_pid_uptake.R", echo = TRUE)
 
 # Define directories
 # lifecourse_dir <- "./outputs/lifecourse"
-lifecourse_dir <- "/media/php-workstation/Storage_1/IMPACT_Storage/GLP1/outputs/GLP_Test/lifecourse"
 
 # Initiate .Random.seed for safety
 runif(1)
 
 # New runs?
-new_runs <- TRUE
+new_runs <- FALSE
 new_export <- TRUE
 
 
 if(new_runs){
   
   # Create batches for batched simulation
-  batch_size <- 5
-  iterations <- 50
+  batch_size <- 2
+  iterations <- 10
   first_iteration <- 1
   batches <- split(seq(first_iteration, iterations + first_iteration - 1),
                    f = findInterval(seq(first_iteration, iterations + first_iteration - 1),
                                     vec = seq(first_iteration, iterations + first_iteration - 1, batch_size)))
 }
 
-analysis_name <- "GLP_Mort_Calibration" ### create a folder to store all the output in this folder
+analysis_name <- "GLP_local_test" ### create a folder to store all the output in this folder
 
 # Define directories
-lifecourse_dir <- "./outputs/GLP_Mort_Calibration/lifecourse"
+lifecourse_dir <- "./outputs/GLP_local_test/lifecourse"
 
 
-IMPACTncd <- Simulation$new("./inputs/sim_design.yaml", analysis_name) 
+IMPACTncd <- Simulation$new("./inputs/sim_design_local.yaml", analysis_name) 
 
 if(new_runs){
 
@@ -138,5 +137,8 @@ if(new_export){
   IMPACTncd$export_summaries(multicore = TRUE, type = export_type)
 }
 
-
-
+# Selective Exports
+export_type = "risk_10y"
+if(new_export){
+  IMPACTncd$export_summaries(multicore = TRUE, type = export_type)
+}
