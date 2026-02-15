@@ -104,6 +104,7 @@ DELETEme*
 *.jpeg
 /inputs/uptake/
 *uptake*
+/validation_internal/mortality_forecast/
 
 IMPACT NCD Germany GLP1.Rproj
 
