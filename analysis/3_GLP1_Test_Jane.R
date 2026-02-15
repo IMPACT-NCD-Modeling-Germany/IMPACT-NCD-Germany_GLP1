@@ -11,7 +11,12 @@ source("./auxil/scenarios_GLP_uncertain.R")
 source("./auxil/simulate_pid_uptake.R", echo = TRUE)
 
 # Define directories
+<<<<<<< Updated upstream
 # lifecourse_dir <- "./outputs/lifecourse"
+=======
+lifecourse_dir <- "./outputs/lifecourse"
+# lifecourse_dir <- "/media/php-workstation/Storage_1/IMPACT_Storage/GLP1/outputs/GLP_Test/lifecourse"
+>>>>>>> Stashed changes
 
 # Initiate .Random.seed for safety
 runif(1)
@@ -24,19 +29,32 @@ new_export <- TRUE
 if(new_runs){
   
   # Create batches for batched simulation
+<<<<<<< Updated upstream
   batch_size <- 2
   iterations <- 10
   first_iteration <- 1
+=======
+  batch_size <- 20
+  iterations <- 22
+  first_iteration <- 79
+>>>>>>> Stashed changes
   batches <- split(seq(first_iteration, iterations + first_iteration - 1),
                    f = findInterval(seq(first_iteration, iterations + first_iteration - 1),
                                     vec = seq(first_iteration, iterations + first_iteration - 1, batch_size)))
 }
 
+<<<<<<< Updated upstream
 analysis_name <- "GLP_local_test" ### create a folder to store all the output in this folder
 
 # Define directories
 lifecourse_dir <- "./outputs/GLP_local_test/lifecourse"
 
+=======
+analysis_name <- "GLP_Dggoe" ### create a folder to store all the output in this folder
+
+# Define directories
+lifecourse_dir <- "./outputs/GLP_Dggoe/lifecourse"
+>>>>>>> Stashed changes
 
 IMPACTncd <- Simulation$new("./inputs/sim_design_local.yaml", analysis_name) 
 
