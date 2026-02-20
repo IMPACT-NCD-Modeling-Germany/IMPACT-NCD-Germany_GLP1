@@ -11,7 +11,7 @@ source("./auxil/scenarios_GLP_uncertain.R")
 source("./auxil/simulate_pid_uptake.R", echo = TRUE)
 
 # Define directories
-lifecourse_dir <- "./outputs/lifecourse"
+# lifecourse_dir <- "./outputs/lifecourse"
 # lifecourse_dir <- "/media/php-workstation/Storage_1/IMPACT_Storage/GLP1/outputs/GLP_Test/lifecourse"
 
 # Initiate .Random.seed for safety
@@ -38,7 +38,8 @@ analysis_name <- "GLP_Dggoe" ### create a folder to store all the output in this
 # Define directories
 lifecourse_dir <- "./outputs/GLP_Dggoe/lifecourse"
 
-IMPACTncd <- Simulation$new("./inputs/sim_design_local.yaml", analysis_name) 
+# IMPACTncd <- Simulation$new("./inputs/sim_design_local.yaml", analysis_name) 
+IMPACTncd <- Simulation$new("./inputs/sim_design.yaml", analysis_name)
 
 if(new_runs){
 
