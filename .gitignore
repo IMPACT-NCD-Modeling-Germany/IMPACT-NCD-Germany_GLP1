@@ -96,7 +96,9 @@ rsconnect/
 
 # IMPACTncd specific
 /outputs/
+/outputs_local/
 /secure_data/
+/inputs/synthpop/
 /inputs/synthpop/
 DELETEme*
 *.png

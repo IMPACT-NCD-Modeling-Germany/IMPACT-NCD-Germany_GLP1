@@ -26,10 +26,10 @@
 # https://github.com/Rdatatable/data.table/issues/1967
 
 cat("Initialising IMPACTncd_Ger model...\n\n")
-if (interactive() && !nzchar(system.file(package = "CKutils"))) {
-  if (!nzchar(system.file(package = "remotes"))) install.packages("remotes")
-  remotes::install_github("ChristK/CKutils", force = TRUE, upgrade = "never")
-}
+# if (interactive() && !nzchar(system.file(package = "CKutils"))) {
+#   if (!nzchar(system.file(package = "remotes"))) install.packages("remotes")
+#   remotes::install_github("ChristK/CKutils", force = TRUE, upgrade = "never")
+# }
 
 library(CKutils)
 options(rgl.useNULL = TRUE)  # suppress error by demography in rstudio server
