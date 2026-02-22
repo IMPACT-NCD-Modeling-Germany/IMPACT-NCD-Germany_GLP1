@@ -1,3 +1,4 @@
+# BMI calibration in parallel with futures
 library(future.apply)
 plan(multisession, workers = 16)
 
