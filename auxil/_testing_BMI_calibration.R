@@ -1,5 +1,4 @@
-
-### TEST BMI CALIBRATION ON SP ###
+# BMI calibration in serial
 
 ## Load SynthPops for calibration
 sps <- grep(".fst", list.files("./inputs/synthpop/"), value = TRUE)
