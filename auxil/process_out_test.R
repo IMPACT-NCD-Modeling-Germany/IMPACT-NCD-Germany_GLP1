@@ -30,14 +30,20 @@ theme_update(axis.text.x = element_text(size = 9),
 
 prbl = c(0.5, 0.025, 0.975, 0.1, 0.9) # Quantiles for uncertainty of results
 
+#sc_map <- data.table(
+#  scenario = c("sc2","sc3","sc4","sc5",
+#               "sc7","sc8","sc9","sc10",
+#               "sc12","sc13","sc14","sc15"),
+#  baseline = c(rep("sc1", 4),
+#               rep("sc6", 4),
+#               rep("sc11", 4))
+#)
+
 sc_map <- data.table(
-  scenario = c("sc2","sc3","sc4","sc5",
-               "sc7","sc8","sc9","sc10",
-               "sc12","sc13","sc14","sc15"),
-  baseline = c(rep("sc1", 4),
-               rep("sc6", 4),
-               rep("sc11", 4))
+  scenario = c("sc2","sc3","sc4","sc5"),
+  baseline = c(rep("sc1", 4))
 )
+
 
 for(analysis in dirs){
 
@@ -4967,6 +4973,134 @@ for(analysis in dirs){
     fwrite(d_out, paste0(out_path_tables, "deaths_prev_post_by_scenario.csv"), sep = ";")
   }
 
+  if("le_scaled_up.csv.gz" %in% list.files(in_path)){
+    
+    ## Life expectancy by sex ## ----
+    
+    tt <- fread(paste0(in_path, "le_scaled_up.csv.gz")
+    )[, `:=` (year = year + 2000, popsize = NULL)]
+    
+    outstrata <- c("mc", "sex", "year", "uptake_group")
+    
+    sc_n <- unique(tt$scenario)
+    
+    ttt <- dcast(tt, mc + year + sex + uptake_group ~ scenario, value.var = "LE")
+    
+    # Loop through scenario–baseline pairs
+    for(k in seq_len(nrow(sc_map))) {
+      
+      sc <- sc_map$scenario[k]
+      bl <- sc_map$baseline[k]
+      
+      # Create diff column: sc - baseline
+      ttt[, paste0(sc, "_diff") := get(sc) - get(bl)]
+    }
+    
+    d <- melt(ttt, id.vars = outstrata)
+    d <- d[, fquantile_byid(value, prbl, id = as.character(variable)), keyby = eval(setdiff(outstrata, "mc"))]
+    setnames(d, c(setdiff(outstrata, "mc"), "scenario", percent(prbl, prefix = "LE_diff_")))
+    
+    fwrite(d[!(scenario %in% grep("_diff", unique(d$scenario), value = TRUE))],
+           paste0(out_path_tables, "life_expectancy_by_year_sex.csv"), sep = ";")
+    
+    fwrite(d[(scenario %in% grep("_diff", unique(d$scenario), value = TRUE))],
+           paste0(out_path_tables, "life_expectancy_diff_by_year_sex.csv"), sep = ";")
+    
+    ggplot(d[!(scenario %in% grep("_diff", unique(d$scenario), value = TRUE))],
+           aes(x = year, y = `LE_diff_50.0%`,
+               ymin = `LE_diff_2.5%`,
+               ymax = `LE_diff_97.5%`,
+               col = scenario, fill = scenario)) +
+      facet_wrap(~ sex, scales = "free") +
+      geom_ribbon(alpha = 0.5/5, colour = NA) +
+      geom_line() +
+      scale_x_continuous(name = "Year") +
+      scale_y_continuous(name = "Life expectancy (years)") +
+      ggtitle("Life expectancy by scenario over time") +
+      theme(legend.title = element_blank())
+    
+    ggsave(paste0(out_path_plots, "life_expectancy_by_year_sex.", plot_format),
+           height = 9, width = 16)
+    
+    ggplot(d[(scenario %in% grep("_diff", unique(d$scenario), value = TRUE))],
+           aes(x = year, y = `LE_diff_50.0%`,
+               ymin = `LE_diff_2.5%`,
+               ymax = `LE_diff_97.5%`,
+               col = scenario, fill = scenario)) +
+      facet_wrap(~ sex, scales = "free") +
+      geom_ribbon(alpha = 0.5/5, colour = NA) +
+      geom_line() +
+      scale_x_continuous(name = "Year") +
+      scale_y_continuous(name = "Difference in life expectancy (years)") +
+      ggtitle("Difference in life expectancy by scenario over time") +
+      theme(legend.title = element_blank())
+    
+    ggsave(paste0(out_path_plots, "life_expectancy_diff_by_year_sex.", plot_format),
+           height = 9, width = 16)
+    
+    
+    ## Life expectancy total ## ----
+    
+    tt <- fread(paste0(in_path, "le_scaled_up.csv.gz")
+    )[, `:=` (year = year + 2000, popsize = NULL)]
+    
+    outstrata <- c("mc", "year", "uptake_group")
+    
+    ttt <- dcast(tt, mc + year + uptake_group ~ scenario, value.var = "LE", fun.aggregate = mean) # Mean between men and women!
+    
+    # Loop through scenario–baseline pairs
+    
+    for(k in seq_len(nrow(sc_map))) {
+      
+      sc <- sc_map$scenario[k]
+      bl <- sc_map$baseline[k]
+      
+      ttt[, paste0(sc, "_diff") := get(sc) - get(bl)]
+    }
+    # -------------------------------------
+    
+    d <- melt(ttt, id.vars = outstrata)
+    d <- d[, fquantile_byid(value, prbl, id = as.character(variable)), keyby = eval(setdiff(outstrata, "mc"))]
+    setnames(d, c(setdiff(outstrata, "mc"), "scenario", percent(prbl, prefix = "LE_diff_")))
+    
+    fwrite(d[!(scenario %in% grep("_diff", unique(d$scenario), value = TRUE))],
+           paste0(out_path_tables, "life_expectancy_by_year.csv"), sep = ";")
+    
+    fwrite(d[(scenario %in% grep("_diff", unique(d$scenario), value = TRUE))],
+           paste0(out_path_tables, "life_expectancy_diff_by_year.csv"), sep = ";")
+    
+    ggplot(d[!(scenario %in% grep("_diff", unique(d$scenario), value = TRUE))],
+           aes(x = year, y = `LE_diff_50.0%`,
+               ymin = `LE_diff_2.5%`,
+               ymax = `LE_diff_97.5%`,
+               col = scenario, fill = scenario)) +
+      geom_ribbon(alpha = 0.5/5, colour = NA) +
+      geom_line() +
+      scale_x_continuous(name = "Year") +
+      scale_y_continuous(name = "Life expectancy (years)") +
+      ggtitle("Life expectancy by scenario over time") +
+      theme(legend.title = element_blank())
+    
+    ggsave(paste0(out_path_plots, "life_expectancy_by_year.", plot_format),
+           height = 9, width = 16)
+    
+    ggplot(d[(scenario %in% grep("_diff", unique(d$scenario), value = TRUE))],
+           aes(x = year, y = `LE_diff_50.0%`,
+               ymin = `LE_diff_2.5%`,
+               ymax = `LE_diff_97.5%`,
+               col = scenario, fill = scenario)) +
+      geom_ribbon(alpha = 0.5/5, colour = NA) +
+      geom_line() +
+      scale_x_continuous(name = "Year") +
+      scale_y_continuous(name = "Difference in life expectancy (years)") +
+      ggtitle("Difference in life expectancy by scenario over time") +
+      theme(legend.title = element_blank())
+    
+    ggsave(paste0(out_path_plots, "life_expectancy_diff_by_year.", plot_format),
+           height = 9, width = 16)
+    
+  }
+  
   if("ly_scaled_up.csv.gz" %in% list.files(in_path)){
 
     ## Life years lived by sex ## ----

@@ -36,7 +36,7 @@ if(new_runs){
 analysis_name <- "GLP_Dggoe" ### create a folder to store all the output in this folder
 
 # Define directories
-lifecourse_dir <- "./outputs/GLP_Dggoe/lifecourse"
+lifecourse_dir <- "/mnt/Storage_1/IMPACT_Storage/GLP1/outputs/GLP_Dggoe/lifecourse" 
 
 # IMPACTncd <- Simulation$new("./inputs/sim_design_local.yaml", analysis_name) 
 IMPACTncd <- Simulation$new("./inputs/sim_design.yaml", analysis_name)

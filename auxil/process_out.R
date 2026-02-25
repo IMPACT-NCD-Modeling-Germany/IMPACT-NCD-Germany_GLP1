@@ -4294,19 +4294,20 @@ for(analysis in dirs){
         tt <- fread(paste0(in_path, "le_scaled_up.csv.gz")
         )[, `:=` (year = year + 2000, popsize = NULL)]
         
-        outstrata <- c("mc", "sex", "year")
+        outstrata <- c("mc", "sex", "year", "uptake_group")
         
         sc_n <- unique(tt$scenario)
         
-        ttt <- dcast(tt, mc + year + sex ~ scenario, value.var = "LE")
+        ttt <- dcast(tt, mc + year + sex + uptake_group ~ scenario, value.var = "LE")
 
-        for(sc in sc_n){
+        # Loop through scenario–baseline pairs
+        for(k in seq_len(nrow(sc_map))) {
           
-          if(sc != "sc0"){
-            
-            ttt[, (paste0(sc, "_diff")) := get(sc) - sc0]
+          sc <- sc_map$scenario[k]
+          bl <- sc_map$baseline[k]
           
-          }
+          # Create diff column: sc - baseline
+          ttt[, paste0(sc, "_diff") := get(sc) - get(bl)]
         }
         
         d <- melt(ttt, id.vars = outstrata)
@@ -4357,18 +4358,20 @@ for(analysis in dirs){
         tt <- fread(paste0(in_path, "le_scaled_up.csv.gz")
         )[, `:=` (year = year + 2000, popsize = NULL)]
         
-        outstrata <- c("mc", "year")
+        outstrata <- c("mc", "year", "uptake_group")
         
-        ttt <- dcast(tt, mc + year ~ scenario, value.var = "LE", fun.aggregate = mean) # Mean between men and women!
+        ttt <- dcast(tt, mc + year + uptake_group ~ scenario, value.var = "LE", fun.aggregate = mean) # Mean between men and women!
         
-        for(sc in sc_n){
+        # Loop through scenario–baseline pairs
+        
+        for(k in seq_len(nrow(sc_map))) {
           
-          if(sc != "sc0"){
-            
-            ttt[, (paste0(sc, "_diff")) := get(sc) - sc0]
-            
-          }
+          sc <- sc_map$scenario[k]
+          bl <- sc_map$baseline[k]
+          
+          ttt[, paste0(sc, "_diff") := get(sc) - get(bl)]
         }
+        # -------------------------------------
         
         d <- melt(ttt, id.vars = outstrata)
         d <- d[, fquantile_byid(value, prbl, id = as.character(variable)), keyby = eval(setdiff(outstrata, "mc"))]

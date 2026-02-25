@@ -1596,14 +1596,20 @@ Simulation <-
           ]
 
           # Identify scenarios that have a baseline defined
+          #sc_map <- data.table(
+          #  scenario = c("sc2","sc3","sc4","sc5",
+          #               "sc7","sc8","sc9","sc10",
+          #               "sc12","sc13","sc14","sc15"),
+          #  baseline = c(rep("sc1", 4),
+          #               rep("sc6", 4),
+          #               rep("sc11", 4))
+          #)
+          
           sc_map <- data.table(
-            scenario = c("sc2","sc3","sc4","sc5",
-                         "sc7","sc8","sc9","sc10",
-                         "sc12","sc13","sc14","sc15"),
-            baseline = c(rep("sc1", 4),
-                         rep("sc6", 4),
-                         rep("sc11", 4))
+            scenario = c("sc2","sc3","sc4","sc5"),
+            baseline = c(rep("sc1", 4))
           )
+          
 
           scenarios <- sc_map$scenario
 
