@@ -13,16 +13,15 @@ prbl = c(0.5, 0.025, 0.975, 0.1, 0.9) # Quantiles for uncertainty of results
 theme_set(new = theme_hc())
 theme_update(axis.text.x = element_text(size = 9), plot.title = element_text(hjust = 0.5))
 
-external_path <- "G:/Meine Ablage/PhD/Publications/2021_Diet_simulation_modeling_Germany/Preparation/data/disease_data/"
+external_path <- "./validation_internal/external_sources/"
 
-if(!file.exists(paste0("./validation_internal/external_sources/"))){
-  dir.create(paste0("./validation_internal/external_sources/"))
-}
+# if(!file.exists(paste0("./validation_internal/external_sources/"))){
+#   dir.create(paste0("./validation_internal/external_sources/"))
+# }
 
-analysis <- "with_direct_SSB_effects"
+# analysis <- "with_direct_SSB_effects"
 
-tt <- fread(paste0("G:/Meine Ablage/PhD/Publications/2021_Diet_simulation_modeling_Germany/Model/IMPACT-NCD-Germany/outputs/",
-                   analysis, "/summaries/", "prvl_scaled_up.csv.gz")
+tt <- fread(paste0("/mnt/Storage_1/IMPACT_Storage/GLP1/outputs/GLP_Dggoe/summaries/prvl_scaled_up.csv.gz")
 )[, `:=` (year = year + 2000)]
 
 outstrata <- c("mc", "year", "sex", "agegrp", "scenario")
@@ -36,8 +35,7 @@ d <- d[, fquantile_byid(value, prbl, id = as.character(variable)), keyby = eval(
 setnames(d, c(setdiff(outstrata, "mc"), "disease", percent(prbl, prefix = "prvl_rate_")))
 
 
-tt <- fread(paste0("G:/Meine Ablage/PhD/Publications/2021_Diet_simulation_modeling_Germany/Model/IMPACT-NCD-Germany/outputs/",
-                   analysis, "/summaries/", "incd_scaled_up.csv.gz")
+tt <- fread(paste0("/mnt/Storage_1/IMPACT_Storage/GLP1/outputs/GLP_Dggoe/summaries/incd_scaled_up.csv.gz")
 )[, `:=` (year = year + 2000)]
 
 outstrata <- c("mc", "year", "sex", "agegrp", "scenario")
@@ -60,7 +58,7 @@ impact_chd_prev <- d[
   c("year", "agegrp", "sex", "prvl_rate_50.0%", "prvl_rate_2.5%", "prvl_rate_97.5%")
 ][, `:=`(study = "IMPACT", comment = "12-month no recurrence")]
 
-ext_chd_prev <- fread(paste0(external_path, "chd/ger_chd_data_combined.csv"))[
+ext_chd_prev <- fread(paste0(external_path, "ger_chd_data_combined.csv"))[
   study %in% c("GEDA", "KV"),
   c("year", "agegroup", "sex", "prevalence", "comment", "study")
 ]
@@ -196,18 +194,18 @@ imp3 <- ggplot(prev_dat[study == "IMPACT" & year %in% c(2013:2018)]) +
 
 plot_grid(ext1, imp1, align = "h", ncol = 1)
 
-ggsave("./validation_internal/external_sources/validation_ext_chd_prev_2014.tiff",
+ggsave("./validation_internal/external_valid_plots/validation_ext_chd_prev_2014.tiff",
        height = 9, width = 16, dpi = 300)
 
 
 plot_grid(ext2, imp2, align = "h", ncol = 1)
 
-ggsave("./validation_internal/external_sources/validation_ext_chd_prev_2019.tiff",
+ggsave("./validation_internal/external_valid_plots/validation_ext_chd_prev_2019.tiff",
        height = 9, width = 16, dpi = 300)
 
 plot_grid(ext3, imp3, align = "h", ncol = 1)
 
-ggsave("./validation_internal/external_sources/validation_ext_chd_prev_2013_2019.tiff",
+ggsave("./validation_internal/external_valid_plots/validation_ext_chd_prev_2013_2019.tiff",
        height = 9, width = 16, dpi = 300)
 
 
@@ -219,8 +217,8 @@ impact_stroke_prev <- d[
   scenario == "sc0" & disease == "stroke_prvl" & year <= 2020,
   c("year", "agegrp", "sex", "prvl_rate_50.0%", "prvl_rate_2.5%", "prvl_rate_97.5%")
 ][, `:=`(study = "IMPACT", comment = "12-month no recurrence")]
-
-ext_stroke_prev <- fread(paste0(external_path, "stroke/ger_stroke_data_combined.csv"))[
+                  
+ext_stroke_prev <- fread(paste0(external_path, "ger_stroke_data_combined.csv"))[
   study %in% c("GEDA", "AOK"),
   c("year", "agegroup", "sex", "prevalence", "comment", "study")
 ]
@@ -373,22 +371,22 @@ imp3 <- ggplot(prev_dat[study == "IMPACT" & year == 2013]) +
 
 plot_grid(ext1, imp1, align = "h", ncol = 1)
 
-ggsave("./validation_internal/external_sources/validation_ext_stroke_prev_2014.tiff",
+ggsave("./validation_internal/external_valid_plots/validation_ext_stroke_prev_2014.tiff",
        height = 9, width = 16, dpi = 300)
 
 plot_grid(ext2, imp2, align = "h", ncol = 1)
 
-ggsave("./validation_internal/external_sources/validation_ext_stroke_prev_2019.tiff",
+ggsave("./validation_internal/external_valid_plots/validation_ext_stroke_prev_2019.tiff",
        height = 9, width = 16, dpi = 300)
 
 plot_grid(ext3, imp3, align = "h", ncol = 1)
 
-ggsave("./validation_internal/external_sources/validation_ext_stroke_prev_2010.tiff",
+ggsave("./validation_internal/external_valid_plots/validation_ext_stroke_prev_2010.tiff",
        height = 9, width = 16, dpi = 300)
 
 plot_grid(ext4, imp3, align = "h", ncol = 1)
 
-ggsave("./validation_internal/external_sources/validation_ext_stroke_prev_2011.tiff",
+ggsave("./validation_internal/external_valid_plots/validation_ext_stroke_prev_2011.tiff",
        height = 9, width = 16, dpi = 300)
 
 
@@ -399,7 +397,7 @@ impact_stroke_incd <- e[
   c("year", "agegrp", "sex", "prvl_rate_50.0%", "prvl_rate_2.5%", "prvl_rate_97.5%")
 ][, `:=`(study = "IMPACT", comment = "12-month no recurrence")]
 
-ext_stroke_incd <- fread(paste0(external_path, "stroke/ger_stroke_data_combined.csv"))[
+ext_stroke_incd <- fread(paste0(external_path, "ger_stroke_data_combined.csv"))[
   study %in% c("GEDA", "AOK"),
   c("year", "agegroup", "sex", "incidence", "comment", "study")
 ]
@@ -477,12 +475,12 @@ imp1 <- ggplot(incd_dat[study == "IMPACT" & year == 2013]) +
 
 plot_grid(ext1, imp1, align = "h", ncol = 1)
 
-ggsave("./validation_internal/external_sources/validation_ext_stroke_incd_2010.tiff",
+ggsave("./validation_internal/external_valid_plots/validation_ext_stroke_incd_2010.tiff",
        height = 9, width = 16, dpi = 300)
 
 plot_grid(ext2, imp1, align = "h", ncol = 1)
 
-ggsave("./validation_internal/external_sources/validation_ext_stroke_incd_2011.tiff",
+ggsave("./validation_internal/external_valid_plots/validation_ext_stroke_incd_2011.tiff",
        height = 9, width = 16, dpi = 300)
 
 
@@ -495,7 +493,7 @@ impact_t2dm_prev <- d[
   c("year", "agegrp", "sex", "prvl_rate_50.0%", "prvl_rate_2.5%", "prvl_rate_97.5%")
 ][, `:=`(study = "IMPACT", comment = "12-month no recurrence")]
 
-ext_t2dm_prev <- fread(paste0(external_path, "diabetes/ger_diabetes_data_combined.csv"))[
+ext_t2dm_prev <- fread(paste0(external_path, "ger_diabetes_data_combined.csv"))[
   study %in% c("GEDA", "Diab-Surv") & comment == "12-month",
   c("year", "agegroup", "sex", "prevalence", "comment", "study")
 ]
@@ -629,17 +627,17 @@ imp3 <- ggplot(prev_dat[study == "IMPACT" & year == 2013]) +
 
 plot_grid(ext1, imp1, align = "h", ncol = 1)
 
-ggsave("./validation_internal/external_sources/validation_ext_t2dm_prev_2014.tiff",
+ggsave("./validation_internal/external_valid_plots/validation_ext_t2dm_prev_2014.tiff",
        height = 9, width = 16, dpi = 300)
 
 plot_grid(ext2, imp2, align = "h", ncol = 1)
 
-ggsave("./validation_internal/external_sources/validation_ext_t2dm_prev_2019.tiff",
+ggsave("./validation_internal/external_valid_plots/validation_ext_t2dm_prev_2019.tiff",
        height = 9, width = 16, dpi = 300)
 
 plot_grid(ext3, imp3, align = "h", ncol = 1)
 
-ggsave("./validation_internal/external_sources/validation_ext_t2dm_prev_2013.tiff",
+ggsave("./validation_internal/external_valid_plots/validation_ext_t2dm_prev_2013.tiff",
        height = 9, width = 16, dpi = 300)
 
 
@@ -650,7 +648,7 @@ impact_t2dm_incd <- e[
   c("year", "agegrp", "sex", "prvl_rate_50.0%", "prvl_rate_2.5%", "prvl_rate_97.5%")
 ][, `:=`(study = "IMPACT", comment = "12-month no recurrence")]
 
-ext_t2dm_incd <- fread(paste0(external_path, "diabetes/ger_diabetes_data_combined.csv"))[
+ext_t2dm_incd <- fread(paste0(external_path, "ger_diabetes_data_combined.csv"))[
   study %in% c("GEDA", "Diab-Surv") & comment == "12-month",
   c("year", "agegroup", "sex", "incidence", "comment", "study")
 ]
@@ -710,7 +708,7 @@ imp1 <- ggplot(incd_dat[study == "IMPACT" & year == 2013]) +
 
 plot_grid(ext1, imp1, align = "h", ncol = 1)
 
-ggsave("./validation_internal/external_sources/validation_ext_t2dm_incd_2011.tiff",
+ggsave("./validation_internal/external_valid_plots/validation_ext_t2dm_incd_2011.tiff",
        height = 9, width = 12, dpi = 300)
 
 

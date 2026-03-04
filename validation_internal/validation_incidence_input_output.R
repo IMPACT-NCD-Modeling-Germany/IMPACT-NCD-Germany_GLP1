@@ -15,8 +15,7 @@ theme_update(axis.text.x = element_text(size = 9), plot.title = element_text(hju
 analysis <- "with_direct_SSB_effects"
 
 ## Incidence ## ----
-
-tt <- fread(paste0("./outputs/", analysis, "/summaries/incd_scaled_up.csv.gz")
+tt <- fread(paste0("/mnt/Storage_1/IMPACT_Storage/GLP1/outputs/GLP_Dggoe/summaries/incd_scaled_up.csv.gz")
 )[, `:=` (year = year + 2000)]
 
 outstrata <- c("mc", "year", "agegrp", "sex", "scenario")
@@ -38,9 +37,8 @@ d[, disease := gsub("_prvl", "", variable)]
 #                                        "out_prevalence_rates", "out_case_fatality_rates",
 #                                        "out_duration_years"))
 
-e <- fst::read_fst("G:/Meine Ablage/PhD/Publications/2021_Diet_simulation_modeling_Germany/Preparation/R/output/disease_epidemiology/disease_epi_l.fst", as.data.table = TRUE)
+e <- fst::read_fst("./validation_internal/external_sources/disease_epi_l.fst", as.data.table = TRUE)
 e <- e[, c("age", "sex", "mc", "value_chd_incidence_rates", "value_stroke_incidence_rates", "value_diabetes_incidence_rates")]
-
 
 
 to_agegrp(e, max_age = 100, to_factor = FALSE)
@@ -91,15 +89,14 @@ for(i in unique(de$disease)){
         axis.title.y = element_text(angle = 90))
 
 cowplot::ggsave2(paste0("validation_i_o_incidence_", i, "_", analysis, ".png"), width = 16, height = 9, units = "cm", 
-                 scale = 2, dpi = 300, path = "./validation_internal/input_output/")
+                 scale = 2, dpi = 300, path = "./validation_internal/input_output_plots/")
 
 }
 
 
 
 ## Prevalence ## ----
-
-tt <- fread(paste0("./outputs/", analysis, "/summaries/prvl_scaled_up.csv.gz")
+tt <- fread(paste0("/mnt/Storage_1/IMPACT_Storage/GLP1/outputs/GLP_Dggoe/summaries/prvl_scaled_up.csv.gz")
 )[, `:=` (year = year + 2000)]
 
 outstrata <- c("mc", "year", "agegrp", "sex", "scenario")
@@ -121,7 +118,7 @@ d[, disease := gsub("_prvl", "", variable)]
 #                                        "out_prevalence_rates", "out_case_fatality_rates",
 #                                        "out_duration_years"))
 
-e <- fst::read_fst("G:/Meine Ablage/PhD/Publications/2021_Diet_simulation_modeling_Germany/Preparation/R/output/disease_epidemiology/disease_epi_l.fst", as.data.table = TRUE)
+e <- fst::read_fst("./validation_internal/external_sources/disease_epi_l.fst", as.data.table = TRUE)
 e <- e[, c("age", "sex", "mc", "value_chd_prevalence_rates", "value_stroke_prevalence_rates", "value_diabetes_prevalence_rates")]
 
 
@@ -171,6 +168,6 @@ for(i in unique(d$disease)){
           axis.title.y = element_text(angle = 90))
   
   cowplot::ggsave2(paste0("validation_i_o_prevalence_", i, "_", analysis, ".png"), width = 16, height = 9, units = "cm", 
-                   scale = 2, dpi = 300, path = "./validation_internal/input_output/")
+                   scale = 2, dpi = 300, path = "./validation_internal/input_output_plots/")
   
 }

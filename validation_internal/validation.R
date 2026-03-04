@@ -50,10 +50,10 @@ theme_update(axis.text.x = element_text(size = 9), plot.title = element_text(hju
 ## Disease-specific Mortality ## ----
 
 # WARNING: For some reason some iteration have trailing comma!
-file_lines <- readLines("./outputs/with_direct_SSB_effects/summaries/dis_mrtl_scaled_up.csv.gz")
-writeLines(gsub(",+$", "", file_lines), "./outputs/with_direct_SSB_effects/summaries/dis_mrtl_scaled_up.csv.gz")
+file_lines <- readLines("/mnt/Storage_1/IMPACT_Storage/GLP1/outputs/GLP_Dggoe/summaries/dis_mrtl_scaled_up.csv.gz")
+writeLines(gsub(",+$", "", file_lines), "/mnt/Storage_1/IMPACT_Storage/GLP1/outputs/GLP_Dggoe/summaries/dis_mrtl_scaled_up.csv.gz")
 
-tt <- fread("./outputs/with_direct_SSB_effects/summaries/dis_mrtl_scaled_up.csv.gz", fill = TRUE,
+tt <- fread("/mnt/Storage_1/IMPACT_Storage/GLP1/outputs/GLP_Dggoe/summaries/dis_mrtl_scaled_up.csv.gz", fill = TRUE,
 )[, `:=` (year = year + 2000)]
 
 tt[, agegrp := fifelse(agegrp == "90-94", "90+", agegrp)]
@@ -91,7 +91,7 @@ max_age <- 90
 hor <- 30
 agegroups <- agegrp_name(min_age = min_age, max_age = agg_age, grp_width = age_width) # Define agegroups
 
-setwd("G:/Meine Ablage/PhD/Publications/2021_Diet_simulation_modeling_Germany/Preparation/Updated Mortality Forecast/R/")
+setwd("./validation_internal/mortality_forecast/")
 
 ##########################
 #### Read in datasets ####
@@ -207,6 +207,7 @@ data_fdm_new_all <- data_fdm[disease != "all_cause_mrtl"]
 
 # Save FDM mortality rate as baseline for calibration
 write_fst(data_fdm_new_all, "G:/Meine Ablage/PhD/Publications/2021_Diet_simulation_modeling_Germany/Model/IMPACT-NCD-Germany/inputs/mortality/mort_prcjt.fst")
+# Jane, Feb 2026, did not write this file into inputs folder, will wait until the validation checks out
 
 data_fdm_new_all <- data_fdm_new_all[, lapply(.SD, sum), .SDcols = "mx_total_mean", by = .(year, agegrp, sex)]
 data_fdm_new_all[, disease := "all_cause_mrtl_recalc"]
@@ -228,7 +229,7 @@ data_orig <- data_orig[agegrp != "90+"]
 
 ### Plots for  validation ###
 
-setwd("G:/Meine Ablage/PhD/Publications/2021_Diet_simulation_modeling_Germany/Model/IMPACT-NCD-Germany")
+setwd("/home/php-workstation/Schreibtisch/Repositories/IMPACT-NCD-Germany_GLP1")
 
 ## Non-modelled mortality (without deaths from diabetes included in non-modelled) ##
 
@@ -262,7 +263,7 @@ ggplot(data_orig[sex == "men" & disease == "other"],
 
 # ggsave("./outputs/validation_internal/mortality/validation_nonmodelled_mortality_men.tiff",
 #        height = 9, width = 16)
-ggsave("./validation_internal/mortality/validation_nonmodelled_mortality_men.jpeg",
+ggsave("./validation_internal/mortality_plots/validation_nonmodelled_mortality_men.jpeg",
        height = 9, width = 16)
 
 # Women #
@@ -286,7 +287,7 @@ ggplot(data_orig[sex == "women" & disease == "other"],
 
 # ggsave("./outputs/validation_internal/mortality/validation_nonmodelled_mortality_women.tiff",
 #        height = 9, width = 16)
-ggsave("./validation_internal/mortality/validation_nonmodelled_mortality_women.jpeg",
+ggsave("./validation_internal/mortality_plots/validation_nonmodelled_mortality_women.jpeg",
        height = 9, width = 16)
 
 ## Non-modelled mortality (with deaths from diabetes included in non-modelled) ##
@@ -311,7 +312,7 @@ ggplot(data_orig[sex == "men" & disease == "other_w_diab"],
 
 # ggsave("./outputs/validation_internal/mortality/validation_nonmodelled_w_diab_mortality_men.tiff",
 #        height = 9, width = 16)
-ggsave("./validation_internal/mortality/validation_nonmodelled_w_diab_mortality_men.jpeg",
+ggsave("./validation_internal/mortality_plots/validation_nonmodelled_w_diab_mortality_men.jpeg",
        height = 9, width = 16)
 
 # Women #
@@ -335,7 +336,7 @@ ggplot(data_orig[sex == "women" & disease == "other_w_diab"],
 
 # ggsave("./outputs/validation_internal/mortality/validation_nonmodelled_w_diab_mortality_women.tiff",
 #        height = 9, width = 16)
-ggsave("./validation_internal/mortality/validation_nonmodelled_w_diab_mortality_women.jpeg",
+ggsave("./validation_internal/mortality_plots/validation_nonmodelled_w_diab_mortality_women.jpeg",
        height = 9, width = 16)
 
 # ## All-cause mortality ##
@@ -404,7 +405,7 @@ ggplot(data_orig[sex == "men" & disease == "chd"],
 
 # ggsave("./outputs/validation_internal/mortality/validation_chd_mortality_men.tiff",
 #        height = 9, width = 16)
-ggsave("./validation_internal/mortality/validation_chd_mortality_men.jpeg",
+ggsave("./validation_internal/mortality_plots/validation_chd_mortality_men.jpeg",
        height = 9, width = 16)
 
 # Women #
@@ -427,7 +428,7 @@ ggplot(data_orig[sex == "women" & disease == "chd"],
 
 # ggsave("./outputs/validation_internal/mortality/validation_chd_mortality_women.tiff",
 #        height = 9, width = 16)
-ggsave("./validation_internal/mortality/validation_chd_mortality_women.jpeg",
+ggsave("./validation_internal/mortality_plots/validation_chd_mortality_women.jpeg",
        height = 9, width = 16)
 
 
@@ -453,7 +454,7 @@ ggplot(data_orig[sex == "men" & disease == "stroke"],
 
 # ggsave("./outputs/validation_internal/mortality/validation_stroke_mortality_men.tiff",
 #        height = 9, width = 16)
-ggsave("./validation_internal/mortality/validation_stroke_mortality_men.jpeg",
+ggsave("./validation_internal/mortality_plots/validation_stroke_mortality_men.jpeg",
        height = 9, width = 16)
 
 # Women #
@@ -476,7 +477,7 @@ ggplot(data_orig[sex == "women" & disease == "stroke"],
 
 # ggsave("./outputs/validation_internal/mortality/validation_stroke_mortality_women.tiff",
 #        height = 9, width = 16)
-ggsave("./validation_internal/mortality/validation_stroke_mortality_women.jpeg",
+ggsave("./validation_internal/mortality_plots/validation_stroke_mortality_women.jpeg",
        height = 9, width = 16)
 
 
@@ -488,7 +489,12 @@ impact <- impact_disease
 impact[, mx_total_median_IMPACT := `mrtl_rate_50.0%`]
 impact[, mx_total_mean_IMPACT := mrtl_rate_Mean]
 
+keep_cols <- c("year","agegrp","sex","disease","mx_total_median_IMPACT","mx_total_mean_IMPACT")
+
+dt_subset <- dt[, ..keep_cols]
+
 data_fdm[, disease := ifelse(disease == "other", "nonmodelled", disease)]
+colnames(data_fdm)
 
 dt <- merge(impact, data_fdm, all.y = TRUE)
 
@@ -511,7 +517,7 @@ for(i in unique(dt$disease)){
 
   # ggsave(paste0("./outputs/validation_internal/mortality/validation_", i, "_mortality_ratio_women_mean.tiff"),
   #        height = 9, width = 16)
-  ggsave(paste0("./validation_internal/mortality/validation_", i, "_mortality_ratio_women_mean.jpeg"),
+  ggsave(paste0("./validation_internal/mortality_plots/validation_", i, "_mortality_ratio_women_mean.jpeg"),
          height = 9, width = 16)
   
   ggplot(dt[sex == "men" & disease == i],
@@ -523,7 +529,7 @@ for(i in unique(dt$disease)){
   
   # ggsave(paste0("./outputs/validation_internal/mortality/validation_", i, "_mortality_ratio_men_mean.tiff"),
   #        height = 9, width = 16)
-  ggsave(paste0("./validation_internal/mortality/validation_", i, "_mortality_ratio_men_mean.jpeg"),
+  ggsave(paste0("./validation_internal/mortality_plots/validation_", i, "_mortality_ratio_men_mean.jpeg"),
          height = 9, width = 16)
   
   
