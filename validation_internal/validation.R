@@ -12,7 +12,8 @@ library(yardstick)
 
 options(scipen = 999)
 
-setwd("G:/Meine Ablage/PhD/Publications/2021_Diet_simulation_modeling_Germany/Model/IMPACT-NCD-Germany")
+#setwd("G:/Meine Ablage/PhD/Publications/2021_Diet_simulation_modeling_Germany/Model/IMPACT-NCD-Germany")
+#setwd("./validation_internal/mortality_forecast/")
 
 prbl = c(0.5, 0.025, 0.975, 0.1, 0.9)
 theme_set(new = theme_hc())
@@ -50,10 +51,10 @@ theme_update(axis.text.x = element_text(size = 9), plot.title = element_text(hju
 ## Disease-specific Mortality ## ----
 
 # WARNING: For some reason some iteration have trailing comma!
-file_lines <- readLines("/mnt/Storage_1/IMPACT_Storage/GLP1/outputs/GLP_Dggoe/summaries/dis_mrtl_scaled_up.csv.gz")
-writeLines(gsub(",+$", "", file_lines), "/mnt/Storage_1/IMPACT_Storage/GLP1/outputs/GLP_Dggoe/summaries/dis_mrtl_scaled_up.csv.gz")
+file_lines <- readLines("/mnt/Storage_1/IMPACT_Storage/GLP1/outputs/Mortality_calibration/summaries/dis_mrtl_scaled_up.csv.gz")
+writeLines(gsub(",+$", "", file_lines), "/mnt/Storage_1/IMPACT_Storage/GLP1/outputs/Mortality_calibration/summaries/dis_mrtl_scaled_up.csv.gz")
 
-tt <- fread("/mnt/Storage_1/IMPACT_Storage/GLP1/outputs/GLP_Dggoe/summaries/dis_mrtl_scaled_up.csv.gz", fill = TRUE,
+tt <- fread("/mnt/Storage_1/IMPACT_Storage/GLP1/outputs/Mortality_calibration/summaries/dis_mrtl_scaled_up.csv.gz", fill = TRUE,
 )[, `:=` (year = year + 2000)]
 
 tt[, agegrp := fifelse(agegrp == "90-94", "90+", agegrp)]
@@ -91,19 +92,18 @@ max_age <- 90
 hor <- 30
 agegroups <- agegrp_name(min_age = min_age, max_age = agg_age, grp_width = age_width) # Define agegroups
 
-setwd("./validation_internal/mortality_forecast/")
 
 ##########################
 #### Read in datasets ####
 ##########################
 
-dt_pop <- as.data.table(fread("./data/germany/pop.csv")) # Population estimates 1987-2011 adjusted for census irregularities
-dt_pop_proj <- fread("./data/germany/ger_pop_proj_agg.csv") # Official population projections 2019-2050
+dt_pop <- as.data.table(fread("./validation_internal/mortality_forecast/data/germany/pop.csv")) # Population estimates 1987-2011 adjusted for census irregularities
+dt_pop_proj <- fread("./validation_internal/mortality_forecast/data/germany/ger_pop_proj_agg.csv") # Official population projections 2019-2050
 
 #dt_mort_rate_ci_res <- fread("./output/mort_rate_ci.csv")
 #setnames(dt_mort_rate_ci_res, c("disease", "upper", "lower"), c("cause", "deaths_hi", "deaths_low"))
 
-dt_mrtl <- as.data.table(read_fst("./output/mortality_projections.fst")) # Mortality projections 2019-2035 and smoothed rates 1998-2018
+dt_mrtl <- as.data.table(read_fst("./validation_internal/mortality_forecast/output/mortality_projections.fst")) # Mortality projections 2019-2035 and smoothed rates 1998-2018
 setnames(dt_mrtl, c("mx_total_1", "mx_total_99"), c("mx_total_low", "mx_total_hi")) # See projection function
 
 
@@ -163,7 +163,7 @@ setnames(dt_mrtl_agg, c("mx_total"), c("mx_total_mean"))
 
 data_fdm <- dt_mrtl_agg
 
-data_orig <- fread("./data/germany/ger_all_deaths_grouped.csv") # Load observed raw death counts
+data_orig <- fread("./validation_internal/mortality_forecast/data/germany/ger_all_deaths_grouped.csv") # Load observed raw death counts
 
 #data_orig[, `:=`(deaths_low = 0, deaths_hi = 0)]
 setnames(data_orig, "agegroup", "agegrp")
@@ -206,7 +206,7 @@ data_fdm[, `:=`(reg = NULL, disease = fifelse(cause == "all", "all_cause_mrtl", 
 data_fdm_new_all <- data_fdm[disease != "all_cause_mrtl"]
 
 # Save FDM mortality rate as baseline for calibration
-write_fst(data_fdm_new_all, "G:/Meine Ablage/PhD/Publications/2021_Diet_simulation_modeling_Germany/Model/IMPACT-NCD-Germany/inputs/mortality/mort_prcjt.fst")
+write_fst(data_fdm_new_all, "./inputs/mortality/mort_prcjt.fst")
 # Jane, Feb 2026, did not write this file into inputs folder, will wait until the validation checks out
 
 data_fdm_new_all <- data_fdm_new_all[, lapply(.SD, sum), .SDcols = "mx_total_mean", by = .(year, agegrp, sex)]
@@ -228,9 +228,6 @@ data_orig <- data_orig[agegrp != "90+"]
 
 
 ### Plots for  validation ###
-
-setwd("/home/php-workstation/Schreibtisch/Repositories/IMPACT-NCD-Germany_GLP1")
-
 ## Non-modelled mortality (without deaths from diabetes included in non-modelled) ##
 
 cols <- viridisLite::viridis(2, begin = 0.1, end = 0.7)
@@ -491,12 +488,12 @@ impact[, mx_total_mean_IMPACT := mrtl_rate_Mean]
 
 keep_cols <- c("year","agegrp","sex","disease","mx_total_median_IMPACT","mx_total_mean_IMPACT")
 
-dt_subset <- dt[, ..keep_cols]
+impact <- impact[, ..keep_cols]
 
 data_fdm[, disease := ifelse(disease == "other", "nonmodelled", disease)]
 colnames(data_fdm)
 
-dt <- merge(impact, data_fdm, all.y = TRUE)
+dt <- merge(impact, data_fdm, by = c("year","agegrp","sex","disease"), all.y = TRUE)
 
 dt[, mx_mean_ratio := mx_total_mean_IMPACT/mx_total_mean]
 dt[, mx_median_ratio := mx_total_median_IMPACT/mx_total_mean]

@@ -1,0 +1,159 @@
+study;agegroup;sex;year;prevalence;incidence;comment
+Diab-Surv;0 to 17;female;2011;0.2;0.05;12-month
+Diab-Surv;18 to 39;female;2011;0.9;0.2;12-month
+Diab-Surv;40 to 44;female;2011;2.3;0.4;12-month
+Diab-Surv;45 to 49;female;2011;3.5;0.6;12-month
+Diab-Surv;50 to 54;female;2011;5.9;0.9;12-month
+Diab-Surv;55 to 59;female;2011;10.2;1.4;12-month
+Diab-Surv;60 to 64;female;2011;15.4;1.8;12-month
+Diab-Surv;65 to 69;female;2011;19.3;2.1;12-month
+Diab-Surv;70 to 74;female;2011;24.2;2.5;12-month
+Diab-Surv;75 to 79;female;2011;30.4;3;12-month
+Diab-Surv;80 to 84;female;2011;31.9;3;12-month
+Diab-Surv;85 plus;female;2011;31;2.9;12-month
+Diab-Surv;0 to 17;male;2011;0.2;0.05;12-month
+Diab-Surv;18 to 39;male;2011;0.9;0.2;12-month
+Diab-Surv;40 to 44;male;2011;3.2;0.6;12-month
+Diab-Surv;45 to 49;male;2011;5.5;0.9;12-month
+Diab-Surv;50 to 54;male;2011;9.3;1.4;12-month
+Diab-Surv;55 to 59;male;2011;15;2;12-month
+Diab-Surv;60 to 64;male;2011;21.9;2.6;12-month
+Diab-Surv;65 to 69;male;2011;26.6;2.9;12-month
+Diab-Surv;70 to 74;male;2011;30.3;3;12-month
+Diab-Surv;75 to 79;male;2011;34.7;3.3;12-month
+Diab-Surv;80 to 84;male;2011;34.5;3.3;12-month
+Diab-Surv;85 plus;male;2011;31.2;3.1;12-month
+GEDA;18 to 29;female;2009;1.1;NA;12-month
+GEDA;30 to 44;female;2009;1.7;NA;12-month
+GEDA;45 to 64;female;2009;6.8;NA;12-month
+GEDA;65 plus;female;2009;17.4;NA;12-month
+GEDA;18 to 29;male;2009;0.7;NA;12-month
+GEDA;30 to 44;male;2009;1.8;NA;12-month
+GEDA;45 to 64;male;2009;7.9;NA;12-month
+GEDA;65 plus;male;2009;18.7;NA;12-month
+GEDA;18 to 29;female;2009;2.1;NA;lifetime
+GEDA;30 to 44;female;2009;4.2;NA;lifetime
+GEDA;45 to 64;female;2009;7.7;NA;lifetime
+GEDA;65 plus;female;2009;20.1;NA;lifetime
+GEDA;18 to 29;male;2009;1;NA;lifetime
+GEDA;30 to 44;male;2009;2.5;NA;lifetime
+GEDA;45 to 64;male;2009;9.1;NA;lifetime
+GEDA;65 plus;male;2009;20.7;NA;lifetime
+GEDA;18 to 29;female;2010;1.1;NA;12-month
+GEDA;30 to 44;female;2010;1.7;NA;12-month
+GEDA;45 to 64;female;2010;6.7;NA;12-month
+GEDA;65 plus;female;2010;16.1;NA;12-month
+GEDA;18 to 29;male;2010;0.7;NA;12-month
+GEDA;30 to 44;male;2010;1.5;NA;12-month
+GEDA;45 to 64;male;2010;9;NA;12-month
+GEDA;65 plus;male;2010;19.3;NA;12-month
+GEDA;18 to 29;female;2010;1.8;NA;lifetime
+GEDA;30 to 44;female;2010;4.3;NA;lifetime
+GEDA;45 to 64;female;2010;7.9;NA;lifetime
+GEDA;65 plus;female;2010;18.1;NA;lifetime
+GEDA;18 to 29;male;2010;0.8;NA;lifetime
+GEDA;30 to 44;male;2010;2.3;NA;lifetime
+GEDA;45 to 64;male;2010;9.8;NA;lifetime
+GEDA;65 plus;male;2010;20.7;NA;lifetime
+GEDA;18 to 29;female;2012;1;NA;12-month
+GEDA;30 to 44;female;2012;1.5;NA;12-month
+GEDA;45 to 64;female;2012;6.5;NA;12-month
+GEDA;65 plus;female;2012;17.4;NA;12-month
+GEDA;18 to 29;male;2012;0.9;NA;12-month
+GEDA;30 to 44;male;2012;1.6;NA;12-month
+GEDA;45 to 64;male;2012;9.4;NA;12-month
+GEDA;65 plus;male;2012;18.6;NA;12-month
+GEDA;18 to 29;female;2012;1.4;NA;lifetime
+GEDA;30 to 44;female;2012;4.5;NA;lifetime
+GEDA;45 to 64;female;2012;7.8;NA;lifetime
+GEDA;65 plus;female;2012;18.7;NA;lifetime
+GEDA;18 to 29;male;2012;1;NA;lifetime
+GEDA;30 to 44;male;2012;1.8;NA;lifetime
+GEDA;45 to 64;male;2012;10.2;NA;lifetime
+GEDA;65 plus;male;2012;20.3;NA;lifetime
+GEDA;18 to 29;female;2014;1.1;NA;12-month
+GEDA;30 to 44;female;2014;1.4;NA;12-month
+GEDA;45 to 64;female;2014;5.2;NA;12-month
+GEDA;65 plus;female;2014;17.6;NA;12-month
+GEDA;18 to 29;male;2014;0.5;NA;12-month
+GEDA;30 to 44;male;2014;2;NA;12-month
+GEDA;45 to 64;male;2014;9.3;NA;12-month
+GEDA;65 plus;male;2014;21.1;NA;12-month
+GEDA;18 to 29;female;2019;0.8;NA;12-month
+GEDA;30 to 44;female;2019;3.2;NA;12-month
+GEDA;45 to 64;female;2019;7.1;NA;12-month
+GEDA;65 to 79;female;2019;17;NA;12-month
+GEDA;80 plus;female;2019;17.9;NA;12-month
+GEDA;18 to 29;male;2019;0.6;NA;12-month
+GEDA;30 to 44;male;2019;2.7;NA;12-month
+GEDA;45 to 64;male;2019;11.1;NA;12-month
+GEDA;65 to 79;male;2019;20;NA;12-month
+GEDA;80 plus;male;2019;22.3;NA;12-month
+KV;15 lower;female;2009;0.04;NA;12-month
+KV;15 to 19;female;2009;0.15;NA;12-month
+KV;20 to 24;female;2009;0.23;NA;12-month
+KV;25 to 29;female;2009;0.38;NA;12-month
+KV;30 to 34;female;2009;0.64;NA;12-month
+KV;35 to 39;female;2009;1.09;NA;12-month
+KV;40 to 44;female;2009;1.69;NA;12-month
+KV;45 to 49;female;2009;2.9;NA;12-month
+KV;50 to 54;female;2009;5.21;NA;12-month
+KV;55 to 59;female;2009;9.21;NA;12-month
+KV;60 to 64;female;2009;13.45;NA;12-month
+KV;65 to 69;female;2009;16.67;NA;12-month
+KV;70 to 74;female;2009;22.11;NA;12-month
+KV;75 to 79;female;2009;26.24;NA;12-month
+KV;80 to 84;female;2009;26.83;NA;12-month
+KV;85 to 89;female;2009;26.67;NA;12-month
+KV;90 plus;female;2009;23.01;NA;12-month
+KV;15 lower;male;2009;0.04;NA;12-month
+KV;15 to 19;male;2009;0.12;NA;12-month
+KV;20 to 24;male;2009;0.19;NA;12-month
+KV;25 to 29;male;2009;0.32;NA;12-month
+KV;30 to 34;male;2009;0.64;NA;12-month
+KV;35 to 39;male;2009;1.45;NA;12-month
+KV;40 to 44;male;2009;2.75;NA;12-month
+KV;45 to 49;male;2009;5.14;NA;12-month
+KV;50 to 54;male;2009;9.12;NA;12-month
+KV;55 to 59;male;2009;14.48;NA;12-month
+KV;60 to 64;male;2009;20.13;NA;12-month
+KV;65 to 69;male;2009;23.27;NA;12-month
+KV;70 to 74;male;2009;26.95;NA;12-month
+KV;75 to 79;male;2009;29.09;NA;12-month
+KV;80 to 84;male;2009;27.51;NA;12-month
+KV;85 to 89;male;2009;25.41;NA;12-month
+KV;90 plus;male;2009;20.6;NA;12-month
+KV;15 lower;female;2015;0;NA;12-month
+KV;15 to 19;female;2015;0.04;NA;12-month
+KV;20 to 24;female;2015;0.2;NA;12-month
+KV;25 to 29;female;2015;0.3;NA;12-month
+KV;30 to 34;female;2015;0.5;NA;12-month
+KV;35 to 39;female;2015;0.85;NA;12-month
+KV;40 to 44;female;2015;1.45;NA;12-month
+KV;45 to 49;female;2015;2.36;NA;12-month
+KV;50 to 54;female;2015;3.44;NA;12-month
+KV;55 to 59;female;2015;5.49;NA;12-month
+KV;60 to 64;female;2015;9.21;NA;12-month
+KV;65 to 69;female;2015;14.43;NA;12-month
+KV;70 to 74;female;2015;19.85;NA;12-month
+KV;75 to 79;female;2015;23.13;NA;12-month
+KV;80 to 84;female;2015;27.98;NA;12-month
+KV;85 to 89;female;2015;31.55;NA;12-month
+KV;90 plus;female;2015;29.91;NA;12-month
+KV;15 lower;male;2015;0.04;NA;12-month
+KV;15 to 19;male;2015;0.15;NA;12-month
+KV;20 to 24;male;2015;0.22;NA;12-month
+KV;25 to 29;male;2015;0.36;NA;12-month
+KV;30 to 34;male;2015;0.73;NA;12-month
+KV;35 to 39;male;2015;1.64;NA;12-month
+KV;40 to 44;male;2015;3.41;NA;12-month
+KV;45 to 49;male;2015;5.82;NA;12-month
+KV;50 to 54;male;2015;9.51;NA;12-month
+KV;55 to 59;male;2015;14.79;NA;12-month
+KV;60 to 64;male;2015;21.32;NA;12-month
+KV;65 to 69;male;2015;27.76;NA;12-month
+KV;70 to 74;male;2015;30.38;NA;12-month
+KV;75 to 79;male;2015;32.92;NA;12-month
+KV;80 to 84;male;2015;34.42;NA;12-month
+KV;85 to 89;male;2015;31.32;NA;12-month
+KV;90 plus;male;2015;25.23;NA;12-month

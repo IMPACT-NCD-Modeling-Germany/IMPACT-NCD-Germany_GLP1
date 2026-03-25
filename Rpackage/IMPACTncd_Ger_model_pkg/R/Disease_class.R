@@ -1341,8 +1341,15 @@ Disease <-
                 sp$pop[, clbintrc := 1] # Calibration intercept parameter
 
                 # Modifications based on ratios after initial calibration:
-                sp$pop[sex == "women" & age >= 40 & year >= 13, clbintrc := 1.15] # next values: 1.002, 1.003
-                sp$pop[sex == "men" & age >= 40 & year >= 13, clbintrc := 1.18] # next values: 1.002, 1.003
+                sp$pop[sex == "men" & age >= 60 & age < 75 & year >= 19, clbintrc := 0.9] # previous value: 0.9
+                sp$pop[sex == "men" & age >= 85 & year >= 13, clbintrc := 1.3] # previous value: 1.1
+                sp$pop[sex == "men" & age >= 85 & year >= 13, clbtrend := 0.99] # previous value: 1
+                
+                sp$pop[sex == "women" & age >= 60 & age < 75 & year >= 19, clbintrc := 0.72] # previous value: 0.78
+                sp$pop[sex == "women" & age >= 75 & age < 80 & year >= 19, clbintrc := 0.78] # previous value: 0.80
+                sp$pop[sex == "women" & age >= 80 & year >= 13, clbtrend := 0.98] # previous value: 0.99
+                sp$pop[sex == "women" & age >= 80 & age < 85 & year >= 13, clbintrc := 1.08] # previous value: 1.01
+                sp$pop[sex == "women" & age >= 85 & year >= 13, clbintrc := 1.2] # previous value: 1.01
                 
               } else if(self$name == "stroke"){
                 
@@ -1355,8 +1362,15 @@ Disease <-
                 sp$pop[, clbtrend := 1]
                 sp$pop[, clbintrc := 1]
                 
-                sp$pop[sex == "women" & age >= 40 & year >= 13, clbintrc := 1.23]
-                sp$pop[sex == "men" & age >= 40 & year >= 13, clbintrc := 1.23] 
+                # Modifications based on ratios after initial calibration:
+                sp$pop[sex == "men" & age >= 60 & age < 75 & year >= 19, clbintrc := 0.95] # previous value: 0.95
+                sp$pop[sex == "men" & age >= 75 & year >= 13, clbintrc := 0.98] # previous value: 0.98
+                sp$pop[sex == "men" & age >= 75 & year >= 13, clbtrend := 0.999] # previous value: 0.99
+                
+                sp$pop[sex == "women" & age >= 60 & age < 75 & year >= 17, clbintrc := 0.83] # previous value: 0.83
+                sp$pop[sex == "women" & age >= 75 & age < 80 & year >= 17, clbintrc := 0.85] # previous value: 0.85
+                sp$pop[sex == "women" & age >= 80 & year >= 19, clbintrc := 0.99] # previous value: 0.99
+                sp$pop[sex == "women" & age >= 80 & year >= 13, clbtrend := 0.99] # previous value: 0.995
                 
               } else if(self$name == "nonmodelled"){
                 
@@ -1369,9 +1383,12 @@ Disease <-
                 sp$pop[, clbtrend := 1]
                 sp$pop[, clbintrc := 1]
 
-                sp$pop[sex == "men" & between(age, 70, 80), clbintrc := 0.98]
-                sp$pop[sex == "men" & age > 80, clbintrc := 0.96]
-                sp$pop[age >= 85, clbtrend := 0.9999]
+                # Modifications based on ratios after initial calibration:
+                sp$pop[sex == "men" & age >= 60 & age < 80 & year >= 19, clbintrc := 0.96] # previous value: 0.96
+                sp$pop[sex == "men" & age >= 80 & year >= 19, clbintrc := 0.98] # previous value: 0.98
+                sp$pop[sex == "men" & age >= 80 & year >= 13, clbtrend := 0.997] # previous value: 0.995
+                
+                sp$pop[sex == "women" & age >= 65 & year >= 13, clbtrend := 0.996] # previous value: 0.99
                 
               } else {
                 
