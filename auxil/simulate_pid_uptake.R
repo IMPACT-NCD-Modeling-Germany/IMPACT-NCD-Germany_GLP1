@@ -8,9 +8,10 @@
 ################################################################################################
 
 pid_uptake <- function(lc_path,
-                       output_d = paste0(getwd(), "/inputs/uptake"),
+                       #output_d = paste0(getwd(), "/inputs/uptake"),
+                       output_d = paste0("/mnt/Storage_1/IMPACT_Storage/GLP1/inputs/uptake"),
                        N_treat = 250,
-                       N_pop_target = 50000,
+                       N_pop_target = 100000,
                        pct_treat = 0.10,
                        start_year = 25,
                        end_year   = 44,

@@ -129,7 +129,7 @@ scenario_1_fn <- function(sp) {
   # For Cost Effectiveness Analysis: Find pids who are eligible at the year of 2025
   # eligible_cea <- unique(lc[year == 25 & eligible_bi == 1, pid])
   #---------------------------------------------------------------------------------------------------------#
-  persons_cea <- fread(paste0("./inputs/uptake/", sp$mc_aggr, "_uptake_cea.csv"))
+  persons_cea <- fread(paste0("/mnt/Storage_1/IMPACT_Storage/GLP1/inputs/uptake/", sp$mc_aggr, "_uptake_cea.csv"))
   ### fread() is highly optimized: it’s faster than read_csv(), and it returns a data.table automatically.
   persons_cea[, wt_uptake := NULL]
   ###########################################################################################################
@@ -353,9 +353,9 @@ scenario_2_fn <- function(sp) {
   tbl <- read_fst("./inputs/other_parameters/tchol_2y_samples_semag.fst", as.data.table = TRUE)
   tchol_2y <- as.numeric(tbl[mc == sp$mc_aggr, "tchol_2y"])
   ###########################################################################################################
-  
+  #TODO: replace all pid update paths with: fread(paste0("/mnt/Storage_1/IMPACT_Storage/GLP1/inputs/uptake/", sp$mc_aggr, "_uptake_cea.csv"))
   # Load the pids of uptake patients for each iteration
-  persons_cea <- fread(paste0("./inputs/uptake/", sp$mc_aggr, "_uptake_cea.csv"))
+  persons_cea <- fread(paste0("/mnt/Storage_1/IMPACT_Storage/GLP1/inputs/uptake/", sp$mc_aggr, "_uptake_cea.csv"))
   ### fread() is highly optimized: it’s faster than read_csv(), and it returns a data.table automatically.
   persons_cea[, wt_uptake := NULL]
   
@@ -647,7 +647,7 @@ scenario_3_fn <- function(sp) {
   ###########################################################################################################
   
   # Load the pids of uptake patients for each iteration
-  persons_cea <- fread(paste0("./inputs/uptake/", sp$mc_aggr, "_uptake_cea.csv"))
+  persons_cea <- fread(paste0("/mnt/Storage_1/IMPACT_Storage/GLP1/inputs/uptake/", sp$mc_aggr, "_uptake_cea.csv"))
   ### fread() is highly optimized: it’s faster than read_csv(), and it returns a data.table automatically.
   persons_cea[, wt_uptake := NULL]
   
@@ -865,7 +865,7 @@ scenario_4_fn <- function(sp) {
   ###########################################################################################################
   
   # Load the pids of uptake patients for each iteration
-  persons_cea <- fread(paste0("./inputs/uptake/", sp$mc_aggr, "_uptake_cea.csv"))
+  persons_cea <- fread(paste0("/mnt/Storage_1/IMPACT_Storage/GLP1/inputs/uptake/", sp$mc_aggr, "_uptake_cea.csv"))
   ### fread() is highly optimized: it’s faster than read_csv(), and it returns a data.table automatically.
   persons_cea[, wt_uptake := NULL]
   
@@ -1157,7 +1157,7 @@ scenario_5_fn <- function(sp) {
   ###########################################################################################################
   
   # Load the pids of uptake patients for each iteration
-  persons_cea <- fread(paste0("./inputs/uptake/", sp$mc_aggr, "_uptake_cea.csv"))
+  persons_cea <- fread(paste0("/mnt/Storage_1/IMPACT_Storage/GLP1/inputs/uptake/", sp$mc_aggr, "_uptake_cea.csv"))
   ### fread() is highly optimized: it’s faster than read_csv(), and it returns a data.table automatically.
   persons_cea[, wt_uptake := NULL]
   
@@ -1379,7 +1379,7 @@ scenario_6_fn <- function(sp) {
   ###########################################################################################################
   
   # Load the pids of uptake patients for each iteration
-  persons_bia_N <- fread(paste0("./inputs/uptake/", sp$mc_aggr, "_uptake_bia_N.csv"))
+  persons_bia_N <- fread(paste0("/mnt/Storage_1/IMPACT_Storage/GLP1/inputs/uptake/", sp$mc_aggr, "_uptake_bia_N.csv"))
   ### fread() is highly optimized: it’s faster than read_csv(), and it returns a data.table automatically.
   persons_bia_N[, wt_uptake := NULL]
   
@@ -1606,7 +1606,7 @@ scenario_7_fn <- function(sp) {
   ###########################################################################################################
   
   # Load the pids of uptake patients for each iteration
-  persons_bia_N <- fread(paste0("./inputs/uptake/", sp$mc_aggr, "_uptake_bia_N.csv"))
+  persons_bia_N <- fread(paste0("/mnt/Storage_1/IMPACT_Storage/GLP1/inputs/uptake/", sp$mc_aggr, "_uptake_bia_N.csv"))
   ### fread() is highly optimized: it’s faster than read_csv(), and it returns a data.table automatically.
   persons_bia_N[, wt_uptake := NULL]
   
@@ -1887,7 +1887,7 @@ scenario_8_fn <- function(sp) {
   ###########################################################################################################
   
   # Load the pids of uptake patients for each iteration
-  persons_bia_N <- fread(paste0("./inputs/uptake/", sp$mc_aggr, "_uptake_bia_N.csv"))
+  persons_bia_N <- fread(paste0("/mnt/Storage_1/IMPACT_Storage/GLP1/inputs/uptake/", sp$mc_aggr, "_uptake_bia_N.csv"))
   ### fread() is highly optimized: it’s faster than read_csv(), and it returns a data.table automatically.
   persons_bia_N[, wt_uptake := NULL]
   
@@ -2105,7 +2105,7 @@ scenario_9_fn <- function(sp) {
   ###########################################################################################################
   
   # Load the pids of uptake patients for each iteration
-  persons_bia_N <- fread(paste0("./inputs/uptake/", sp$mc_aggr, "_uptake_bia_N.csv"))
+  persons_bia_N <- fread(paste0("/mnt/Storage_1/IMPACT_Storage/GLP1/inputs/uptake/", sp$mc_aggr, "_uptake_bia_N.csv"))
   ### fread() is highly optimized: it’s faster than read_csv(), and it returns a data.table automatically.
   persons_bia_N[, wt_uptake := NULL]
   
@@ -2388,7 +2388,7 @@ scenario_10_fn <- function(sp) {
   ###########################################################################################################
   
   # Load the pids of uptake patients for each iteration
-  persons_bia_N <- fread(paste0("./inputs/uptake/", sp$mc_aggr, "_uptake_bia_N.csv"))
+  persons_bia_N <- fread(paste0("/mnt/Storage_1/IMPACT_Storage/GLP1/inputs/uptake/", sp$mc_aggr, "_uptake_bia_N.csv"))
   ### fread() is highly optimized: it’s faster than read_csv(), and it returns a data.table automatically.
   persons_bia_N[, wt_uptake := NULL]
   
@@ -2598,7 +2598,7 @@ scenario_11_fn <- function(sp) {
   ###########################################################################################################
   
   # Load the pids of uptake patients for each iteration
-  persons_bia_pct <- fread(paste0("./inputs/uptake/", sp$mc_aggr, "_uptake_bia_pct.csv"))
+  persons_bia_pct <- fread(paste0("/mnt/Storage_1/IMPACT_Storage/GLP1/inputs/uptake/", sp$mc_aggr, "_uptake_bia_pct.csv"))
   ### fread() is highly optimized: it’s faster than read_csv(), and it returns a data.table automatically.
   persons_bia_pct[, wt_uptake := NULL]
   
@@ -2825,7 +2825,7 @@ scenario_12_fn <- function(sp) {
   ###########################################################################################################
   
   # Load the pids of uptake patients for each iteration
-  persons_bia_pct <- fread(paste0("./inputs/uptake/", sp$mc_aggr, "_uptake_bia_pct.csv"))
+  persons_bia_pct <- fread(paste0("/mnt/Storage_1/IMPACT_Storage/GLP1/inputs/uptake/", sp$mc_aggr, "_uptake_bia_pct.csv"))
   ### fread() is highly optimized: it’s faster than read_csv(), and it returns a data.table automatically.
   persons_bia_pct[, wt_uptake := NULL]
   
@@ -3117,7 +3117,7 @@ scenario_13_fn <- function(sp) {
   ###########################################################################################################
   
   # Load the pids of uptake patients for each iteration
-  persons_bia_pct <- fread(paste0("./inputs/uptake/", sp$mc_aggr, "_uptake_bia_pct.csv"))
+  persons_bia_pct <- fread(paste0("/mnt/Storage_1/IMPACT_Storage/GLP1/inputs/uptake/", sp$mc_aggr, "_uptake_bia_pct.csv"))
   ### fread() is highly optimized: it’s faster than read_csv(), and it returns a data.table automatically.
   persons_bia_pct[, wt_uptake := NULL]
   
@@ -3335,7 +3335,7 @@ scenario_14_fn <- function(sp) {
   ###########################################################################################################
   
   # Load the pids of uptake patients for each iteration
-  persons_bia_pct <- fread(paste0("./inputs/uptake/", sp$mc_aggr, "_uptake_bia_pct.csv"))
+  persons_bia_pct <- fread(paste0("/mnt/Storage_1/IMPACT_Storage/GLP1/inputs/uptake/", sp$mc_aggr, "_uptake_bia_pct.csv"))
   ### fread() is highly optimized: it’s faster than read_csv(), and it returns a data.table automatically.
   persons_bia_pct[, wt_uptake := NULL]
   
@@ -3618,7 +3618,7 @@ scenario_15_fn <- function(sp) {
   ###########################################################################################################
   
   # Load the pids of uptake patients for each iteration
-  persons_bia_pct <- fread(paste0("./inputs/uptake/", sp$mc_aggr, "_uptake_bia_pct.csv"))
+  persons_bia_pct <- fread(paste0("/mnt/Storage_1/IMPACT_Storage/GLP1/inputs/uptake/", sp$mc_aggr, "_uptake_bia_pct.csv"))
   ### fread() is highly optimized: it’s faster than read_csv(), and it returns a data.table automatically.
   persons_bia_pct[, wt_uptake := NULL]
   
