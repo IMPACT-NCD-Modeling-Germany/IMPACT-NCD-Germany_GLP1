@@ -1,0 +1,213 @@
+study;agegroup;sex;year;prevalence;incidence;comment
+GEDA;18 to 29;female;2009;0.5;NA;lifetime
+GEDA;30 to 44;female;2009;0.7;NA;lifetime
+GEDA;45 to 64;female;2009;3.5;NA;lifetime
+GEDA;65 plus;female;2009;19.1;NA;lifetime
+GEDA;18 to 29;male;2009;0.5;NA;lifetime
+GEDA;30 to 44;male;2009;1.4;NA;lifetime
+GEDA;45 to 64;male;2009;8.6;NA;lifetime
+GEDA;65 plus;male;2009;28.2;NA;lifetime
+GEDA;18 to 29;female;2010;0.7;NA;lifetime
+GEDA;30 to 44;female;2010;0.9;NA;lifetime
+GEDA;45 to 64;female;2010;4.3;NA;lifetime
+GEDA;65 plus;female;2010;18.4;NA;lifetime
+GEDA;18 to 29;male;2010;0.5;NA;lifetime
+GEDA;30 to 44;male;2010;2.2;NA;lifetime
+GEDA;45 to 64;male;2010;9.6;NA;lifetime
+GEDA;65 plus;male;2010;28.2;NA;lifetime
+GEDA;18 to 29;female;2012;0.5;NA;lifetime
+GEDA;30 to 44;female;2012;0.9;NA;lifetime
+GEDA;45 to 64;female;2012;4.4;NA;lifetime
+GEDA;65 plus;female;2012;18.3;NA;lifetime
+GEDA;18 to 29;male;2012;0.9;NA;lifetime
+GEDA;30 to 44;male;2012;1.9;NA;lifetime
+GEDA;45 to 64;male;2012;8.7;NA;lifetime
+GEDA;65 plus;male;2012;27.8;NA;lifetime
+KV;0 to 24;female;2009;0;NA;diagnosis
+KV;25 to 34;female;2009;0;NA;diagnosis
+KV;35 to 44;female;2009;0.15;NA;diagnosis
+KV;45 to 54;female;2009;1.1;NA;diagnosis
+KV;55 to 64;female;2009;4;NA;diagnosis
+KV;65 to 74;female;2009;11.5;NA;diagnosis
+KV;75 to 84;female;2009;23.4;NA;diagnosis
+KV;85 plus;female;2009;31;NA;diagnosis
+KV;0 to 24;female;2010;0;NA;diagnosis
+KV;25 to 34;female;2010;0;NA;diagnosis
+KV;35 to 44;female;2010;0.2;NA;diagnosis
+KV;45 to 54;female;2010;1.2;NA;diagnosis
+KV;55 to 64;female;2010;4.1;NA;diagnosis
+KV;65 to 74;female;2010;11.4;NA;diagnosis
+KV;75 to 84;female;2010;22.9;NA;diagnosis
+KV;85 plus;female;2010;30.5;NA;diagnosis
+KV;0 to 24;female;2011;0;NA;diagnosis
+KV;25 to 34;female;2011;0;NA;diagnosis
+KV;35 to 44;female;2011;0.2;NA;diagnosis
+KV;45 to 54;female;2011;1.1;NA;diagnosis
+KV;55 to 64;female;2011;4.1;NA;diagnosis
+KV;65 to 74;female;2011;11.2;NA;diagnosis
+KV;75 to 84;female;2011;22.8;NA;diagnosis
+KV;85 plus;female;2011;30.9;NA;diagnosis
+KV;0 to 24;female;2012;0;NA;diagnosis
+KV;25 to 34;female;2012;0;NA;diagnosis
+KV;35 to 44;female;2012;0.2;NA;diagnosis
+KV;45 to 54;female;2012;1.1;NA;diagnosis
+KV;55 to 64;female;2012;4.1;NA;diagnosis
+KV;65 to 74;female;2012;11;NA;diagnosis
+KV;75 to 84;female;2012;22.1;NA;diagnosis
+KV;85 plus;female;2012;30.8;NA;diagnosis
+KV;0 to 24;female;2013;0;NA;diagnosis
+KV;25 to 34;female;2013;0;NA;diagnosis
+KV;35 to 44;female;2013;0.2;NA;diagnosis
+KV;45 to 54;female;2013;1.1;NA;diagnosis
+KV;55 to 64;female;2013;4.05;NA;diagnosis
+KV;65 to 74;female;2013;10.8;NA;diagnosis
+KV;75 to 84;female;2013;21.4;NA;diagnosis
+KV;85 plus;female;2013;30.2;NA;diagnosis
+KV;0 to 24;female;2014;0;NA;diagnosis
+KV;25 to 34;female;2014;0;NA;diagnosis
+KV;35 to 44;female;2014;0.2;NA;diagnosis
+KV;45 to 54;female;2014;1.1;NA;diagnosis
+KV;55 to 64;female;2014;4;NA;diagnosis
+KV;65 to 74;female;2014;10.5;NA;diagnosis
+KV;75 to 84;female;2014;21;NA;diagnosis
+KV;85 plus;female;2014;30.1;NA;diagnosis
+KV;0 to 24;female;2015;0;NA;diagnosis
+KV;25 to 34;female;2015;0;NA;diagnosis
+KV;35 to 44;female;2015;0.2;NA;diagnosis
+KV;45 to 54;female;2015;1.1;NA;diagnosis
+KV;55 to 64;female;2015;3.95;NA;diagnosis
+KV;65 to 74;female;2015;10.1;NA;diagnosis
+KV;75 to 84;female;2015;20.6;NA;diagnosis
+KV;85 plus;female;2015;30;NA;diagnosis
+KV;0 to 24;female;2016;0;NA;diagnosis
+KV;25 to 34;female;2016;0;NA;diagnosis
+KV;35 to 44;female;2016;0.15;NA;diagnosis
+KV;45 to 54;female;2016;1.1;NA;diagnosis
+KV;55 to 64;female;2016;3.9;NA;diagnosis
+KV;65 to 74;female;2016;9.8;NA;diagnosis
+KV;75 to 84;female;2016;20.1;NA;diagnosis
+KV;85 plus;female;2016;29.7;NA;diagnosis
+KV;0 to 24;female;2017;0;NA;diagnosis
+KV;25 to 34;female;2017;0;NA;diagnosis
+KV;35 to 44;female;2017;0.15;NA;diagnosis
+KV;45 to 54;female;2017;1.1;NA;diagnosis
+KV;55 to 64;female;2017;3.8;NA;diagnosis
+KV;65 to 74;female;2017;9.6;NA;diagnosis
+KV;75 to 84;female;2017;19.7;NA;diagnosis
+KV;85 plus;female;2017;29.1;NA;diagnosis
+KV;0 to 24;female;2018;0;NA;diagnosis
+KV;25 to 34;female;2018;0;NA;diagnosis
+KV;35 to 44;female;2018;0.15;NA;diagnosis
+KV;45 to 54;female;2018;1.1;NA;diagnosis
+KV;55 to 64;female;2018;3.7;NA;diagnosis
+KV;65 to 74;female;2018;9.3;NA;diagnosis
+KV;75 to 84;female;2018;18.1;NA;diagnosis
+KV;85 plus;female;2018;28.2;NA;diagnosis
+KV;0 to 24;male;2009;0;NA;diagnosis
+KV;25 to 34;male;2009;0;NA;diagnosis
+KV;35 to 44;male;2009;1.6;NA;diagnosis
+KV;45 to 54;male;2009;3.1;NA;diagnosis
+KV;55 to 64;male;2009;10.1;NA;diagnosis
+KV;65 to 74;male;2009;21.9;NA;diagnosis
+KV;75 to 84;male;2009;35;NA;diagnosis
+KV;85 plus;male;2009;40.9;NA;diagnosis
+KV;0 to 24;male;2010;0;NA;diagnosis
+KV;25 to 34;male;2010;0;NA;diagnosis
+KV;35 to 44;male;2010;1.7;NA;diagnosis
+KV;45 to 54;male;2010;3.15;NA;diagnosis
+KV;55 to 64;male;2010;10.2;NA;diagnosis
+KV;65 to 74;male;2010;22;NA;diagnosis
+KV;75 to 84;male;2010;34.8;NA;diagnosis
+KV;85 plus;male;2010;40.95;NA;diagnosis
+KV;0 to 24;male;2011;0;NA;diagnosis
+KV;25 to 34;male;2011;0;NA;diagnosis
+KV;35 to 44;male;2011;1.65;NA;diagnosis
+KV;45 to 54;male;2011;3.2;NA;diagnosis
+KV;55 to 64;male;2011;10.4;NA;diagnosis
+KV;65 to 74;male;2011;22.3;NA;diagnosis
+KV;75 to 84;male;2011;35;NA;diagnosis
+KV;85 plus;male;2011;41.9;NA;diagnosis
+KV;0 to 24;male;2012;0;NA;diagnosis
+KV;25 to 34;male;2012;0;NA;diagnosis
+KV;35 to 44;male;2012;1.6;NA;diagnosis
+KV;45 to 54;male;2012;3.25;NA;diagnosis
+KV;55 to 64;male;2012;10.5;NA;diagnosis
+KV;65 to 74;male;2012;22.3;NA;diagnosis
+KV;75 to 84;male;2012;34.9;NA;diagnosis
+KV;85 plus;male;2012;42.1;NA;diagnosis
+KV;0 to 24;male;2013;0;NA;diagnosis
+KV;25 to 34;male;2013;0;NA;diagnosis
+KV;35 to 44;male;2013;1.7;NA;diagnosis
+KV;45 to 54;male;2013;3.3;NA;diagnosis
+KV;55 to 64;male;2013;10.6;NA;diagnosis
+KV;65 to 74;male;2013;22.2;NA;diagnosis
+KV;75 to 84;male;2013;34.7;NA;diagnosis
+KV;85 plus;male;2013;42.3;NA;diagnosis
+KV;0 to 24;male;2014;0;NA;diagnosis
+KV;25 to 34;male;2014;0;NA;diagnosis
+KV;35 to 44;male;2014;1.7;NA;diagnosis
+KV;45 to 54;male;2014;3.35;NA;diagnosis
+KV;55 to 64;male;2014;10.65;NA;diagnosis
+KV;65 to 74;male;2014;22.1;NA;diagnosis
+KV;75 to 84;male;2014;34.6;NA;diagnosis
+KV;85 plus;male;2014;42.9;NA;diagnosis
+KV;0 to 24;male;2015;0;NA;diagnosis
+KV;25 to 34;male;2015;0;NA;diagnosis
+KV;35 to 44;male;2015;1.6;NA;diagnosis
+KV;45 to 54;male;2015;3.4;NA;diagnosis
+KV;55 to 64;male;2015;10.55;NA;diagnosis
+KV;65 to 74;male;2015;21.8;NA;diagnosis
+KV;75 to 84;male;2015;34.5;NA;diagnosis
+KV;85 plus;male;2015;43.6;NA;diagnosis
+KV;0 to 24;male;2016;0;NA;diagnosis
+KV;25 to 34;male;2016;0;NA;diagnosis
+KV;35 to 44;male;2016;1.55;NA;diagnosis
+KV;45 to 54;male;2016;3.45;NA;diagnosis
+KV;55 to 64;male;2016;10.5;NA;diagnosis
+KV;65 to 74;male;2016;21.5;NA;diagnosis
+KV;75 to 84;male;2016;34.4;NA;diagnosis
+KV;85 plus;male;2016;43.6;NA;diagnosis
+KV;0 to 24;male;2017;0;NA;diagnosis
+KV;25 to 34;male;2017;0;NA;diagnosis
+KV;35 to 44;male;2017;1.55;NA;diagnosis
+KV;45 to 54;male;2017;3.5;NA;diagnosis
+KV;55 to 64;male;2017;10.4;NA;diagnosis
+KV;65 to 74;male;2017;21.4;NA;diagnosis
+KV;75 to 84;male;2017;34.3;NA;diagnosis
+KV;85 plus;male;2017;43.6;NA;diagnosis
+KV;0 to 24;male;2018;0;NA;diagnosis
+KV;25 to 34;male;2018;0;NA;diagnosis
+KV;35 to 44;male;2018;1.5;NA;diagnosis
+KV;45 to 54;male;2018;3.45;NA;diagnosis
+KV;55 to 64;male;2018;10.2;NA;diagnosis
+KV;65 to 74;male;2018;21.1;NA;diagnosis
+KV;75 to 84;male;2018;34;NA;diagnosis
+KV;85 plus;male;2018;42.8;NA;diagnosis
+DEGS1;40 to 49;female;2010;1.6;NA;lifetime
+DEGS1;50 to 59;female;2010;1.8;NA;lifetime
+DEGS1;60 to 69;female;2010;9.1;NA;lifetime
+DEGS1;70 to 79;female;2010;13.8;NA;lifetime
+DEGS1;40 to 49;male;2010;2.2;NA;lifetime
+DEGS1;50 to 59;male;2010;6.4;NA;lifetime
+DEGS1;60 to 69;male;2010;15.2;NA;lifetime
+DEGS1;70 to 79;male;2010;27.3;NA;lifetime
+GEDA;18 to 29;female;2019;0.8;NA;12-month
+GEDA;30 to 44;female;2019;0.8;NA;12-month
+GEDA;45 to 64;female;2019;3.6;NA;12-month
+GEDA;65 to 79;female;2019;9.2;NA;12-month
+GEDA;80 plus;female;2019;18.9;NA;12-month
+GEDA;18 to 29;male;2019;0.4;NA;12-month
+GEDA;30 to 44;male;2019;0.4;NA;12-month
+GEDA;45 to 64;male;2019;6.4;NA;12-month
+GEDA;65 to 79;male;2019;16.5;NA;12-month
+GEDA;80 plus;male;2019;21.9;NA;12-month
+GEDA;18 to 44;female;2014;0.2;NA;12-month
+GEDA;45 to 54;female;2014;0.9;NA;12-month
+GEDA;55 to 64;female;2014;3.4;NA;12-month
+GEDA;65 to 74;female;2014;7.1;NA;12-month
+GEDA;75 plus;female;2014;16;NA;12-month
+GEDA;18 to 44;male;2014;0.4;NA;12-month
+GEDA;45 to 54;male;2014;3.4;NA;12-month
+GEDA;55 to 64;male;2014;7.7;NA;12-month
+GEDA;65 to 74;male;2014;13;NA;12-month
+GEDA;75 plus;male;2014;24.1;NA;12-month

@@ -12,10 +12,10 @@ prbl = c(0.5, 0.025, 0.975, 0.1, 0.9)
 theme_set(new = theme_hc())
 theme_update(axis.text.x = element_text(size = 9), plot.title = element_text(hjust = 0.5))
 
-analysis <- "with_direct_SSB_effects"
+analysis <- "GLP1_Final_Test"
 
 ## Incidence ## ----
-tt <- fread(paste0("/mnt/Storage_1/IMPACT_Storage/GLP1/outputs/GLP_Dggoe/summaries/incd_scaled_up.csv.gz")
+tt <- fread(paste0("/mnt/Storage_1/IMPACT_Storage/GLP1/outputs/GLP_Final_Analysis_Test/summaries/incd_scaled_up.csv.gz")
 )[, `:=` (year = year + 2000)]
 
 outstrata <- c("mc", "year", "agegrp", "sex", "scenario")
@@ -96,7 +96,7 @@ cowplot::ggsave2(paste0("validation_i_o_incidence_", i, "_", analysis, ".png"), 
 
 
 ## Prevalence ## ----
-tt <- fread(paste0("/mnt/Storage_1/IMPACT_Storage/GLP1/outputs/GLP_Dggoe/summaries/prvl_scaled_up.csv.gz")
+tt <- fread(paste0("/mnt/Storage_1/IMPACT_Storage/GLP1/outputs/GLP_Final_Analysis_Test/summaries/prvl_scaled_up.csv.gz")
 )[, `:=` (year = year + 2000)]
 
 outstrata <- c("mc", "year", "agegrp", "sex", "scenario")
