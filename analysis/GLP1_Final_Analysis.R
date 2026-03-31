@@ -16,11 +16,7 @@ runif(1)
 
 # New runs?
 new_runs <- TRUE
-<<<<<<< Updated upstream
-new_export <- TRUE
-=======
 new_export <- FALSE
->>>>>>> Stashed changes
 
 
 if(new_runs){
@@ -213,11 +209,7 @@ if(new_export){
 #-------------------------------------------------------------------------------------------------#
 ###################################################################################################
 
-<<<<<<< Updated upstream
-analysis_name <- "GLP_final_biaP" 
-=======
 analysis_name <- "GLP_final_bia_perc" 
->>>>>>> Stashed changes
 ### create a folder to store all the output of this analysis
 
 IMPACTncd_biaP <- Simulation$new("./inputs/sim_design.yaml", analysis_name)
