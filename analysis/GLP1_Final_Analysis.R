@@ -150,7 +150,7 @@ if(new_export){
 #-------------------------------------------------------------------------------------------------#
 ###################################################################################################
 
-analysis_name <- "GLP_final_biaN" 
+analysis_name <- "GLP_final_bia_num" 
 ### create a folder to store all the output of this analysis
 
 IMPACTncd_biaN <- Simulation$new("./inputs/sim_design.yaml", analysis_name)

@@ -299,7 +299,7 @@ Simulation <-
             ),
             .export = NULL,
             .noexport = NULL, # c("time_mark")
-            .options.multicore = list(preschedule = TRUE)
+            .options.multicore = list(preschedule = FALSE)
           ) %dopar% {
 
             private$run_sim(mc_ = mc_iter, scenario_nam,
