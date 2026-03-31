@@ -16,7 +16,7 @@ runif(1)
 
 # New runs?
 new_runs <- TRUE
-new_export <- FALSE
+new_export <- TRUE
 
 
 if(new_runs){
@@ -99,36 +99,37 @@ analysis_name <- "GLP_final_cea"
 ### create a folder to store all the output of this analysis
 
 IMPACTncd_cea <- Simulation$new("./inputs/sim_design.yaml", analysis_name)
-
+    
 if(new_runs){
   
   for (i in batches){
     
     message("Running iteration ", i)
     
+    scenario_fn <- scenario_0_fn
+    
+    IMPACTncd_cea$
+      run(i, multicore = TRUE, "sc0", m_zero_trend = -0.03, p_zero_trend = 0) 
+    
     scenario_fn <- scenario_1_fn
     
     IMPACTncd_cea$
       run(i, multicore = TRUE, "sc1", m_zero_trend = -0.03, p_zero_trend = 0)
-    
     
     scenario_fn <- scenario_2_fn
     
     IMPACTncd_cea$
       run(i, multicore = TRUE, "sc2", m_zero_trend = -0.03, p_zero_trend = 0)
     
-    
     scenario_fn <- scenario_3_fn
     
     IMPACTncd_cea$
       run(i, multicore = TRUE, "sc3", m_zero_trend = -0.03, p_zero_trend = 0)
     
-    
     scenario_fn <- scenario_4_fn
     
     IMPACTncd_cea$
       run(i, multicore = TRUE, "sc4", m_zero_trend = -0.03, p_zero_trend = 0)
-    
     
     scenario_fn <- scenario_5_fn
     
@@ -140,7 +141,7 @@ if(new_runs){
 
 
 if(new_export){
-  IMPACTncd_cea$export_summaries(multicore = TRUE) 
+  IMPACTncd_cea$export_summaries(multicore = TRUE, type = c("prvl", "incd","cea")) 
 } 
 
 ###################################################################################################
@@ -159,6 +160,11 @@ if(new_runs){
   for (i in batches){
     
     message("Running iteration ", i)
+    
+    scenario_fn <- scenario_0_fn
+    
+    IMPACTncd_biaN$
+      run(i, multicore = TRUE, "sc0", m_zero_trend = -0.03, p_zero_trend = 0) 
     
     scenario_fn <- scenario_6_fn
     
@@ -203,7 +209,7 @@ if(new_export){
 #-------------------------------------------------------------------------------------------------#
 ###################################################################################################
 
-analysis_name <- "GLP_final_bia%" 
+analysis_name <- "GLP_final_biaP" 
 ### create a folder to store all the output of this analysis
 
 IMPACTncd_biaP <- Simulation$new("./inputs/sim_design.yaml", analysis_name)

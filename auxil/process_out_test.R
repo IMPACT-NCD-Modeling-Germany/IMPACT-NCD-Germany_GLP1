@@ -44,6 +44,7 @@ sc_map <- data.table(
   baseline = c(rep("sc1", 4))
 )
 
+analysis <- "GLP_final_cea"
 
 for(analysis in dirs){
 
