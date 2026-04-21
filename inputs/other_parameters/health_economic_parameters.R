@@ -9,7 +9,7 @@ library(CKutils)
 
 # Set global vars
 mc_s <- 3000 # Number of MC samples
-
+# mc_s <- 30 # Number of MC samples
 
 
 #### Healthcare costs ----
