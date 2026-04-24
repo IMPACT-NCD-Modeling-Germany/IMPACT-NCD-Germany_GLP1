@@ -5,26 +5,27 @@
 source("./global.R")
 
 # Load scenario and sensitivity analyses functions
-source("./auxil/scenarios_GLP_uncertain.R")
+# source("./auxil/scenarios_GLP_uncertain.R") # Done: split up into different files
 
 # Load eligible and uptake population function
 source("./auxil/simulate_pid_uptake.R", echo = TRUE)
 
 
 # Initiate .Random.seed for safety
-runif(1)
+runif(10)
+set.seed(12345)
 
 # New runs?
-new_runs <- TRUE
-new_export <- FALSE
+new_runs <- FALSE
+new_export <- TRUE
 
 
 if(new_runs){
   
   # Create batches for batched simulation
   batch_size <- 5
-  iterations <- 15
-  first_iteration <- 1
+  iterations <- 250
+  first_iteration <- 251
   batches <- split(seq(first_iteration, iterations + first_iteration - 1),
                    f = findInterval(seq(first_iteration, iterations + first_iteration - 1),
                                     vec = seq(first_iteration, iterations + first_iteration - 1, batch_size)))
@@ -43,6 +44,9 @@ analysis_name <- "GLP_final_sc0"
 lifecourse_dir <- paste0("/mnt/Storage_1/IMPACT_Storage/GLP1/outputs/", analysis_name, "/lifecourse")
 
 IMPACTncd_sc0 <- Simulation$new("./inputs/sim_design.yaml", analysis_name)
+
+# TODO load scenario script here   
+source("./auxil/scenarios_GLP_uncertain_sc0.R") 
 
 if(new_runs){
   
@@ -73,7 +77,7 @@ if(new_runs){
         lc_path,
         output_d = paste0("/mnt/Storage_1/IMPACT_Storage/GLP1/inputs/uptake"),
         N_treat = 250,
-        N_pop_target = 100000,
+        N_pop_target = 50000,
         pct_treat = 0.10,
         start_year = 25,
         end_year   = 44,
@@ -86,7 +90,10 @@ if(new_runs){
 
 #TODO find out which suammaries are needed!
 if(new_export){
-  IMPACTncd_sc0$export_summaries(multicore = TRUE, type = c("prvl", "incd"))
+  IMPACTncd_sc0$export_summaries(multicore = TRUE, type = c("ly",
+                                                            "prvl", "incd",
+                                                            "mrtl",  "dis_mrtl", 
+                                                            "stroke_risk_10y", "chd_risk_10y"))
 } 
 
 ###################################################################################################
@@ -99,7 +106,10 @@ analysis_name <- "GLP_final_cea"
 ### create a folder to store all the output of this analysis
 
 IMPACTncd_cea <- Simulation$new("./inputs/sim_design.yaml", analysis_name)
-    
+
+# TODO load scenario script here    
+source("./auxil/scenarios_GLP_uncertain_cea.R") 
+
 if(new_runs){
   
   for (i in batches){
@@ -131,17 +141,19 @@ if(new_runs){
     IMPACTncd_cea$
       run(i, multicore = TRUE, "sc4", m_zero_trend = -0.03, p_zero_trend = 0)
     
-    scenario_fn <- scenario_5_fn
-    
-    IMPACTncd_cea$
-      run(i, multicore = TRUE, "sc5", m_zero_trend = -0.03, p_zero_trend = 0)
-    
   }
 }
 
 
 if(new_export){
-  IMPACTncd_cea$export_summaries(multicore = TRUE, type = c("prvl", "incd","cea")) 
+  IMPACTncd_cea$export_summaries(multicore = TRUE, type = c("ly",
+                                                            "prvl", "incd",
+                                                            "mrtl",  "dis_mrtl", 
+                                                            "xps", "cea")) 
+} 
+
+if(new_export){
+  IMPACTncd_cea$export_summaries(multicore = TRUE, type = c("cea")) 
 } 
 
 ###################################################################################################
@@ -155,6 +167,9 @@ analysis_name <- "GLP_final_bia_num"
 
 IMPACTncd_biaN <- Simulation$new("./inputs/sim_design.yaml", analysis_name)
 
+# TODO load scenario script here    
+source("./auxil/scenarios_GLP_uncertain_biaN.R") 
+
 if(new_runs){
   
   for (i in batches){
@@ -166,34 +181,28 @@ if(new_runs){
     IMPACTncd_biaN$
       run(i, multicore = TRUE, "sc0", m_zero_trend = -0.03, p_zero_trend = 0) 
     
-    scenario_fn <- scenario_6_fn
+    scenario_fn <- scenario_1_fn
     
     IMPACTncd_biaN$
-      run(i, multicore = TRUE, "sc6", m_zero_trend = -0.03, p_zero_trend = 0)
+      run(i, multicore = TRUE, "sc1", m_zero_trend = -0.03, p_zero_trend = 0)
     
     
-    scenario_fn <- scenario_7_fn
-    
-    IMPACTncd_biaN$
-      run(i, multicore = TRUE, "sc7", m_zero_trend = -0.03, p_zero_trend = 0)
-    
-    
-    scenario_fn <- scenario_8_fn
+    scenario_fn <- scenario_2_fn
     
     IMPACTncd_biaN$
-      run(i, multicore = TRUE, "sc8", m_zero_trend = -0.03, p_zero_trend = 0)
+      run(i, multicore = TRUE, "sc2", m_zero_trend = -0.03, p_zero_trend = 0)
     
     
-    scenario_fn <- scenario_9_fn
-    
-    IMPACTncd_biaN$
-      run(i, multicore = TRUE, "sc9", m_zero_trend = -0.03, p_zero_trend = 0)
-    
-    
-    scenario_fn <- scenario_10_fn
+    scenario_fn <- scenario_3_fn
     
     IMPACTncd_biaN$
-      run(i, multicore = TRUE, "sc10", m_zero_trend = -0.03, p_zero_trend = 0)
+      run(i, multicore = TRUE, "sc3", m_zero_trend = -0.03, p_zero_trend = 0)
+    
+    
+    scenario_fn <- scenario_4_fn
+    
+    IMPACTncd_biaN$
+      run(i, multicore = TRUE, "sc4", m_zero_trend = -0.03, p_zero_trend = 0)
     
   }
 }
@@ -214,40 +223,43 @@ analysis_name <- "GLP_final_bia_perc"
 
 IMPACTncd_biaP <- Simulation$new("./inputs/sim_design.yaml", analysis_name)
 
+# TODO load scenario script here  
+source("./auxil/scenarios_GLP_uncertain_biaP.R") 
+
 if(new_runs){
   
   for (i in batches){
     
     message("Running iteration ", i)
     
-    scenario_fn <- scenario_11_fn
+    scenario_fn <- scenario_0_fn
     
     IMPACTncd_biaP$
-      run(i, multicore = TRUE, "sc11", m_zero_trend = -0.03, p_zero_trend = 0)
+      run(i, multicore = TRUE, "sc0", m_zero_trend = -0.03, p_zero_trend = 0)
     
     
-    scenario_fn <- scenario_12_fn
-    
-    IMPACTncd_biaP$
-      run(i, multicore = TRUE, "sc12", m_zero_trend = -0.03, p_zero_trend = 0)
-    
-    
-    scenario_fn <- scenario_13_fn
+    scenario_fn <- scenario_1_fn
     
     IMPACTncd_biaP$
-      run(i, multicore = TRUE, "sc13", m_zero_trend = -0.03, p_zero_trend = 0)
+      run(i, multicore = TRUE, "sc1", m_zero_trend = -0.03, p_zero_trend = 0)
     
     
-    scenario_fn <- scenario_14_fn
-    
-    IMPACTncd_biaP$
-      run(i, multicore = TRUE, "sc14", m_zero_trend = -0.03, p_zero_trend = 0)
-    
-    
-    scenario_fn <- scenario_15_fn
+    scenario_fn <- scenario_2_fn
     
     IMPACTncd_biaP$
-      run(i, multicore = TRUE, "sc15", m_zero_trend = -0.03, p_zero_trend = 0)
+      run(i, multicore = TRUE, "sc2", m_zero_trend = -0.03, p_zero_trend = 0)
+    
+    
+    scenario_fn <- scenario_3_fn
+    
+    IMPACTncd_biaP$
+      run(i, multicore = TRUE, "sc3", m_zero_trend = -0.03, p_zero_trend = 0)
+    
+    
+    scenario_fn <- scenario_4_fn
+    
+    IMPACTncd_biaP$
+      run(i, multicore = TRUE, "sc4", m_zero_trend = -0.03, p_zero_trend = 0)
     
   }
 }
@@ -257,16 +269,9 @@ if(new_export){
   IMPACTncd_biaP$export_summaries(multicore = TRUE) 
 } 
 
-<<<<<<< Updated upstream
-=======
 # Selective Exports
-export_type = "cea"
+# export_type = "cea"
 if(new_export){
   IMPACTncd_biaP$export_summaries(multicore = TRUE, type = export_type)
 }
-
-
->>>>>>> Stashed changes
-
-
 

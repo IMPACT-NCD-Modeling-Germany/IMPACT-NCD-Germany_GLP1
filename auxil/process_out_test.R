@@ -40,13 +40,13 @@ prbl = c(0.5, 0.025, 0.975, 0.1, 0.9) # Quantiles for uncertainty of results
 #)
 
 sc_map <- data.table(
-  scenario = c("sc2","sc3","sc4","sc5"),
-  baseline = c(rep("sc1", 4))
+  scenario = c("sc1","sc2","sc3","sc4"),
+  baseline = c(rep("sc0", 4))
 )
 
-analysis <- "GLP_final_cea"
+analyses <- c("GLP_final_sc0", "GLP_final_cea", "GLP_final_bia_num", "GLP_final_bia_perc")
 
-for(analysis in dirs){
+for(analysis in analyses){
 
     if(!Sys.info()[1] == "Windows"){
 
@@ -89,7 +89,7 @@ for(analysis in dirs){
     }
 
   ####################################################################################################################
-  #-----------------------------------   Jane, Adding 'BC' & '10y risk'   -------------------------------------------#
+  #---------------------------------   Jane, Adding 10y risk' of stroke and CHD -------------------------------------#
   ####################################################################################################################
   
   if("stroke_10y_scaled_up.csv.gz" %in% list.files(in_path)){
@@ -97,7 +97,7 @@ for(analysis in dirs){
     ## Prevalence by age and sex ## ----
     
     tt <- fread(paste0(in_path, "stroke_10y_scaled_up.csv.gz"))
-    
+
     outstrata <- c("mc", "age_group", "sex", "bmi_group", "sbp_group", "tchol_group")
     
     d_long <- melt(tt,
@@ -115,6 +115,32 @@ for(analysis in dirs){
     setnames(d_quant, c(setdiff(outstrata, "mc"), "metric", percent(prbl, prefix = "10y_risk_")))
     
     fwrite(d_quant, paste0(out_path_tables, "stroke_10y_risk.csv"), sep = ";")
+    
+  }
+  
+  if("chd_10y_scaled_up.csv.gz" %in% list.files(in_path)){
+    
+    ## Prevalence by age and sex ## ----
+    
+    tt <- fread(paste0(in_path, "chd_10y_scaled_up.csv.gz"))
+    
+    outstrata <- c("mc", "age_group", "sex", "bmi_group", "sbp_group", "tchol_group")
+    
+    d_long <- melt(tt,
+                   id.vars = outstrata,
+                   measure.vars = c("popsize", "events10y", "risk10y"),
+                   variable.name = "metric",
+                   value.name = "value"
+    )
+    
+    d_quant <- d_long[,
+                      fquantile_byid(value, prbl, id = metric),
+                      keyby = setdiff(outstrata, "mc")
+    ]
+    
+    setnames(d_quant, c(setdiff(outstrata, "mc"), "metric", percent(prbl, prefix = "10y_risk_")))
+    
+    fwrite(d_quant, paste0(out_path_tables, "chd_10y_risk.csv"), sep = ";")
     
   }
   

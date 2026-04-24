@@ -337,7 +337,8 @@ Simulation <-
       #' @return The invisible self for chaining.
       export_summaries = function(multicore = TRUE, type = c("le", "ly",
                                                              "prvl", "incd",
-                                                             "mrtl",  "dis_mrtl", "risk_10y",
+                                                             "mrtl",  "dis_mrtl", 
+                                                             "stroke_risk_10y", "chd_risk_10y", 
                                                              "xps", "cea")) { 
 
         fl <- list.files(private$output_dir("lifecourse"), full.names = TRUE)
@@ -351,7 +352,8 @@ Simulation <-
         if ("prvl" %in% type) file_pth <- private$output_dir("summaries/prvl_scaled_up.csv.gz") else
         if ("cea" %in% type) file_pth <- private$output_dir("summaries/health_economic_results.csv.gz") else
         if ("xps" %in% type) file_pth <- private$output_dir("summaries/xps_scaled_up.csv.gz") else
-        if ("risk_10y" %in% type) file_pth <- private$output_dir("summaries/stroke_10y_scaled_up.csv.gz") 
+        if ("stroke_risk_10y" %in% type) file_pth <- private$output_dir("summaries/stroke_10y_scaled_up.csv.gz") else
+          if ("chd_risk_10y" %in% type) file_pth <- private$output_dir("summaries/chd_10y_scaled_up.csv.gz") 
 
         if (file.exists(file_pth)) {
           tt <- unique(fread(file_pth, select = "mc")$mc)
@@ -777,7 +779,8 @@ Simulation <-
 
       export_summaries_hlpr = function(lc, type = c("le", "ly",
                                                   "prvl", "incd",
-                                                  "mrtl",  "dis_mrtl", "risk_10y", 
+                                                  "mrtl",  "dis_mrtl", 
+                                                  "stroke_risk_10y", "chd_risk_10y", 
                                                   "xps", "cea")) {   ## Removing "BC"
         if (self$design$sim_prm$logs) message("Exporting summaries...")
         # strata <- setdiff(self$design$sim_prm$cols_for_output, c("age", "pid", "wt"))
@@ -922,12 +925,12 @@ Simulation <-
 
         }
 
-        if ("risk_10y" %in% type) {
+        if ("stroke_risk_10y" %in% type) {
           
-          if (self$design$sim_prm$logs) message("Exporting 10-year risk...")
+          if (self$design$sim_prm$logs) message("Exporting 10-year risk of stroke...")
           
           # restrict to base scenario
-          lc <- lc[scenario == "sc0"]
+          # lc <- lc[scenario == "sc0"] -> This is no longer needed given we now have lifecourse with only sc0
           
           start_year <- 13L
           end_year   <- 22L
@@ -950,10 +953,10 @@ Simulation <-
           # ----------------------------------------------------
           # ---- 2. Identify stroke events during follow-up ----
           # ----------------------------------------------------
-          # stroke_prvl >0 OR death from stroke (all_cause_mrtl == 2)
+          # stroke_prvl >0 OR death from stroke (all_cause_mrtl == 3)
           lc[, had_stroke_10y :=
                any(
-                 (stroke_prvl > 0 | all_cause_mrtl == 2) &
+                 (stroke_prvl > 0 | all_cause_mrtl == 3) &
                    year >= start_year & year <= end_year
                ),
              by = pid]
@@ -1042,6 +1045,130 @@ Simulation <-
             tt_risk,
             private$output_dir(
               paste0("summaries/stroke_10y_scaled_up.csv.gz")
+            )
+          )
+        }
+        
+        if ("chd_risk_10y" %in% type) {
+          
+          if (self$design$sim_prm$logs) message("Exporting 10-year risk of chd...")
+          
+          # restrict to base scenario
+          # lc <- lc[scenario == "sc0"] -> This is no longer needed given we now have lifecourse with only sc0
+          
+          start_year <- 13L
+          end_year   <- 22L
+          
+          # ------------------------------------------
+          # ---- 1. Identify baseline individuals ----
+          # ------------------------------------------
+          # must be observed at baseline
+          lc[, has_baseline := any(year == start_year), by = pid]
+          
+          # must be event-free at baseline
+          lc[, baseline_free := any(year == start_year & chd_prvl == 0), by = pid]
+          
+          # age restriction: age <= 80 at baseline
+          lc[, baseline_age_ok := any(year == start_year & age <= 80), by = pid]
+          
+          # Combined flag: people eligible for 10-year risk estimation
+          lc[, eligible_10y := has_baseline & baseline_free & baseline_age_ok]
+          
+          # ----------------------------------------------------
+          # ---- 2. Identify chd events during follow-up ----
+          # ----------------------------------------------------
+          # chd_prvl >0 OR death from chd (all_cause_mrtl == 2)
+          lc[, had_chd_10y :=
+               any(
+                 (chd_prvl > 0 | all_cause_mrtl == 2) &
+                   year >= start_year & year <= end_year
+               ),
+             by = pid]
+          
+          # --------------------------------------------
+          # ---- 3. Final outcome variable -------------
+          # --------------------------------------------
+          #  1 = chd event during period
+          #  0 = no chd during period (even if died from other causes)
+          # NA = not eligible at baseline
+          lc[, chd_event_10y :=
+               fifelse(!eligible_10y, NA_integer_,
+                       fifelse(had_chd_10y, 1L, 0L)
+               )]
+          
+          # -----------------------------------------------------------
+          # ---- 4. Select only baseline rows for summarising risk ----
+          # -----------------------------------------------------------
+          lc_baseline <- lc[year == start_year & eligible_10y == TRUE]
+          
+          # -----------------------------------------------------------
+          # ---- 5. Create baseline-only risk factor groups (temporary)
+          # -----------------------------------------------------------
+          # Age group
+          lc_baseline[, age_group := fcase(
+            age >= 30 & age <= 49, "30-49",
+            age >= 50 & age <= 69, "50-69",
+            age >= 70 & age <= 90, "70-90",
+            default = NA_character_
+          )]
+          
+          lc_baseline[, age_group := factor(
+            age_group,
+            levels = c("30-49", "50-69", "70-90")
+          )]
+          
+          # BMI group
+          lc_baseline[, bmi_group := fcase(
+            bmi_curr_xps <  30, "BMI < 30",
+            bmi_curr_xps >= 30, "BMI ≥ 30",
+            default = NA_character_
+          )]
+          lc_baseline[, bmi_group := factor(
+            bmi_group,
+            levels = c("BMI < 30", "BMI ≥ 30")
+          )]
+          
+          # SBP group
+          lc_baseline[, sbp_group := fcase(
+            sbp_curr_xps <  130, "SBP < 130",
+            sbp_curr_xps >= 130, "SBP ≥ 130",
+            default = NA_character_
+          )]
+          lc_baseline[, sbp_group := factor(
+            sbp_group,
+            levels = c("SBP < 130", "SBP ≥ 130")
+          )]
+          
+          # Total cholesterol group
+          lc_baseline[, tchol_group := fcase(
+            tchol_curr_xps <  6, "TC < 6",
+            tchol_curr_xps >= 6, "TC ≥ 6",
+            default = NA_character_
+          )]
+          lc_baseline[, tchol_group := factor(
+            tchol_group,
+            levels = c("TC < 6", "TC ≥ 6")
+          )]
+          
+          # --------------------------------------------
+          # ---- 6. Compute weighted 10-year risk ------
+          # --------------------------------------------
+          tt_risk <- lc_baseline[
+            !is.na(chd_event_10y),
+            .(
+              popsize   = sum(wt),
+              events10y = sum(chd_event_10y * wt),
+              risk10y   = sum(chd_event_10y * wt) / sum(wt)
+            ),
+            # stratification variables you want
+            by = c("mc", "age_group", "sex", "bmi_group", "sbp_group", "tchol_group")
+          ]
+          
+          # ---- 6. Export ----
+          fwrite_safe(
+            tt_risk,
+            private$output_dir(
+              paste0("summaries/chd_10y_scaled_up.csv.gz") 
             )
           )
         }
@@ -1202,7 +1329,47 @@ Simulation <-
             to = ro$to
           )
 
+          # Load treatment cost data #
+          
+          price_index_GLP <- read_fst("./inputs/other_parameters/GLP_price_index.fst", as.data.table = TRUE)
+          cost_GLP <- read_fst("./inputs/other_parameters/GLP_treatment_costs.fst", as.data.table = TRUE)
+          
           # Setup lifecourse #
+          
+          lc[, trtm_year := {
+            first_trt_year <- anchor_year
+            
+            fifelse(
+              year < first_trt_year,
+              NA_real_,
+              trtm_theo
+            )
+          }, by = pid]
+          
+          ## Jane: For treatment costs, I need to merge the lc & cost_data via: scenario, uptake_group, trtm_year
+          ##       Also need to merge the lc & price trajectory via: year
+          
+          absorb_dt(lc, price_index_GLP)
+          absorb_dt(lc, cost_GLP)
+          
+          lc[, `:=`(
+            
+            GLP_cost = fifelse(is.na(GLP_cost), 0, GLP_cost),
+            
+            trtm_year = NULL
+            
+          )][, treat_cost := {
+            
+            fifelse(
+              scenario == "sc1" | scenario == "sc2", (GLP_cost * price_traj_sm),
+              fifelse(
+                scenario == "sc3" | scenario == "sc4", (GLP_cost * price_traj_tz),
+                0
+              )
+            )
+            
+          }]
+          
 
           lc[, `:=`(t2dm_stat = fifelse(t2dm_prvl > 1, 1, 0),
                     chd_stat = fifelse(chd_prvl == 1, 1,
@@ -1220,7 +1387,7 @@ Simulation <-
 
           lc[is.na(age_cost), age_cost := fifelse(age < 50, "<50", "80+")]
           lc[is.na(age_indir_cost), age_indir_cost := fifelse(age < 25, "<25", "65+")]
-
+          
           absorb_dt(lc, cost)
           absorb_dt(lc, indir_cost)
 
@@ -1370,10 +1537,28 @@ Simulation <-
 
           absorb_dt(cea, qalys_esp)
 
+          ## Jane April 2026, here I guess I will add:
+          
+          # Calculate Treatment Costs #
 
+          if (self$design$sim_prm$logs) message("Calculating treatment costs...")
+          
+          treat_costs_scl <- lc[, lapply(.SD, function(x){
+            
+            x <- sum(x * wt * dcv, na.rm = TRUE) ## Jane 16 Sep, add na.rm to all sum()
+            
+            return(x)
+            
+          }), .SDcols = c("treat_cost"),
+          keyby = c(cea_strata)]
+          
+          setnames(treat_costs_scl, c("treat_cost"), c("treat_cost_scl"))
+          
+          absorb_dt(cea, treat_costs_scl)
+          
           # Calculate Healthcare Costs #
 
-          if (self$design$sim_prm$logs) message("Calculating costs...")
+          if (self$design$sim_prm$logs) message("Calculating healthcare costs...")
 
           costs_scl <- lc[, lapply(.SD, function(x){
 
@@ -1406,7 +1591,9 @@ Simulation <-
 
 
           # Calculate Indirect Costs #
-
+          
+          if (self$design$sim_prm$logs) message("Calculating indirect costs...")
+          
           indir_costs_scl <- lc[, lapply(.SD, function(x){
 
             x <- sum(x * wt * dcv, na.rm = TRUE)
@@ -1472,6 +1659,7 @@ Simulation <-
               cost_slfmgt_t2dm_esp + cost_time_t2dm_esp + cost_time_esp,
             tot_dir_costs_scl = cost_scl + cost_t2dm_scl + cost_chd_scl + cost_stroke_scl,
             tot_dir_costs_esp = cost_esp + cost_t2dm_esp + cost_chd_esp + cost_stroke_esp,
+            tot_dir_costs_w_treat_scl = cost_scl + cost_t2dm_scl + cost_chd_scl + cost_stroke_scl + treat_cost_scl,
             tot_costs_scl = cost_scl + cost_t2dm_scl + cost_chd_scl + cost_stroke_scl +
               cost_death_scl + cost_rtr_t2dm_scl + cost_rtr_stroke_scl +
               cost_scklv_t2dm_scl + cost_scklv_stroke_scl +
@@ -1504,19 +1692,10 @@ Simulation <-
             by = setdiff(cea_strata, "uptake_group")
           ]
 
-          # Identify scenarios that have a baseline defined
-          #sc_map <- data.table(
-          #  scenario = c("sc2","sc3","sc4","sc5",
-          #               "sc7","sc8","sc9","sc10",
-          #               "sc12","sc13","sc14","sc15"),
-          #  baseline = c(rep("sc1", 4),
-          #               rep("sc6", 4),
-          #               rep("sc11", 4))
-          #)
           
           sc_map <- data.table(
-            scenario = c("sc2","sc3","sc4","sc5"),
-            baseline = c(rep("sc1", 4))
+            scenario = c("sc1","sc2","sc3","sc4"),
+            baseline = c(rep("sc0", 4))
           )
           
 
@@ -1533,7 +1712,7 @@ Simulation <-
 
             for (i in scenarios) {
 
-              base_i <- sc_map[scenario == i, baseline] # "sc6"
+              base_i <- sc_map[scenario == i, baseline] 
 
               xx <- cea_agg_no_up[scenario %in% c(base_i, i)]
 

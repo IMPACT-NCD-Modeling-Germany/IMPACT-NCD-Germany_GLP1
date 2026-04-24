@@ -95,8 +95,8 @@ Process the lifecourse files
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Simulation$export_summaries(
   multicore = TRUE,
-  type = c("le", "ly", "prvl", "incd", "mrtl", "dis_mrtl", "risk_10y", "xps", "BC",
-    "cea")
+  type = c("le", "ly", "prvl", "incd", "mrtl", "dis_mrtl", "stroke_risk_10y",
+    "chd_risk_10y", "xps", "cea")
 )}\if{html}{\out{</div>}}
 }
 
