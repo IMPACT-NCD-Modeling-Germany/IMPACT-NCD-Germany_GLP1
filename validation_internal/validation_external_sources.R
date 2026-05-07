@@ -21,7 +21,7 @@ external_path <- "./validation_internal/external_sources/"
 
 # analysis <- "with_direct_SSB_effects"
 
-tt <- fread(paste0("/mnt/Storage_1/IMPACT_Storage/GLP1/outputs/GLP_Dggoe/summaries/prvl_scaled_up.csv.gz")
+tt <- fread(paste0("/mnt/Storage_1/IMPACT_Storage/GLP1/outputs/GLP_final_sc0/summaries/prvl_scaled_up.csv.gz")
 )[, `:=` (year = year + 2000)]
 
 outstrata <- c("mc", "year", "sex", "agegrp", "scenario")
@@ -35,7 +35,7 @@ d <- d[, fquantile_byid(value, prbl, id = as.character(variable)), keyby = eval(
 setnames(d, c(setdiff(outstrata, "mc"), "disease", percent(prbl, prefix = "prvl_rate_")))
 
 
-tt <- fread(paste0("/mnt/Storage_1/IMPACT_Storage/GLP1/outputs/GLP_Dggoe/summaries/incd_scaled_up.csv.gz")
+tt <- fread(paste0("/mnt/Storage_1/IMPACT_Storage/GLP1/outputs/GLP_final_sc0/summaries/incd_scaled_up.csv.gz")
 )[, `:=` (year = year + 2000)]
 
 outstrata <- c("mc", "year", "sex", "agegrp", "scenario")

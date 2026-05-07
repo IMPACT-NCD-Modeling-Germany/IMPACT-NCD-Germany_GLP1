@@ -152,6 +152,7 @@ if(new_export){
                                                             "xps", "cea")) 
 } 
 
+
 if(new_export){
   IMPACTncd_cea$export_summaries(multicore = TRUE, type = c("cea")) 
 } 
@@ -209,7 +210,14 @@ if(new_runs){
 
 
 if(new_export){
-  IMPACTncd_biaN$export_summaries(multicore = TRUE) 
+  IMPACTncd_biaN$export_summaries(multicore = TRUE, type = c("ly",
+                                                            "prvl", "incd",
+                                                            "mrtl",  "dis_mrtl", 
+                                                            "xps", "cea")) 
+} 
+
+if(new_export){
+  IMPACTncd_biaN$export_summaries(multicore = TRUE, type = c("cea")) 
 } 
 
 ###################################################################################################
@@ -266,12 +274,9 @@ if(new_runs){
 
 
 if(new_export){
-  IMPACTncd_biaP$export_summaries(multicore = TRUE) 
+  IMPACTncd_biaP$export_summaries(multicore = TRUE, type = c("ly",
+                                                            "prvl", "incd",
+                                                            "mrtl",  "dis_mrtl", 
+                                                            "xps", "cea")) 
 } 
-
-# Selective Exports
-# export_type = "cea"
-if(new_export){
-  IMPACTncd_biaP$export_summaries(multicore = TRUE, type = export_type)
-}
 

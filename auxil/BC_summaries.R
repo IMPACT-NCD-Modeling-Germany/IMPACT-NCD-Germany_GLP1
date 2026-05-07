@@ -470,9 +470,6 @@ write.xlsx(list(
 ), file = file.path(out_dir, "baseline_char_elig_summaries_biaN.xlsx"))
 
 #####################################
-lc = fread("4_lifecourse.csv.gz")
-table(lc$scenario)
-test <- lc[scenario == "sc1" & uptake_group == 2]
 
 ###############################################################################################
 #---------------------------------------------------------------------------------------------#

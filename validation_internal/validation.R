@@ -51,10 +51,10 @@ theme_update(axis.text.x = element_text(size = 9), plot.title = element_text(hju
 ## Disease-specific Mortality ## ----
 
 # WARNING: For some reason some iteration have trailing comma!
-file_lines <- readLines("/mnt/Storage_1/IMPACT_Storage/GLP1/outputs/Mortality_calibration/summaries/dis_mrtl_scaled_up.csv.gz")
-writeLines(gsub(",+$", "", file_lines), "/mnt/Storage_1/IMPACT_Storage/GLP1/outputs/Mortality_calibration/summaries/dis_mrtl_scaled_up.csv.gz")
+file_lines <- readLines("/mnt/Storage_1/IMPACT_Storage/GLP1/outputs/GLP_final_sc0/summaries/dis_mrtl_scaled_up.csv.gz")
+writeLines(gsub(",+$", "", file_lines), "/mnt/Storage_1/IMPACT_Storage/GLP1/outputs/GLP_final_sc0/summaries/dis_mrtl_scaled_up.csv.gz")
 
-tt <- fread("/mnt/Storage_1/IMPACT_Storage/GLP1/outputs/Mortality_calibration/summaries/dis_mrtl_scaled_up.csv.gz", fill = TRUE,
+tt <- fread("/mnt/Storage_1/IMPACT_Storage/GLP1/outputs/GLP_final_sc0/summaries/dis_mrtl_scaled_up.csv.gz", fill = TRUE,
 )[, `:=` (year = year + 2000)]
 
 tt[, agegrp := fifelse(agegrp == "90-94", "90+", agegrp)]
@@ -248,7 +248,7 @@ ggplot(data_orig[sex == "men" & disease == "other"],
   geom_point() +
   geom_line(data = impact_disease[sex == "men" & disease == "nonmodelled"],
             aes(x = year, y = `mrtl_rate_50.0%`), col = cols[2]) +
-  geom_line(data = data_fdm[sex == "men" & disease == "other"],
+  geom_line(data = data_fdm[sex == "men" & disease == "nonmodelled"],
             aes(x = year, y = mx_total_mean), col = cols[1]) +
   geom_ribbon(data = impact_disease[sex == "men" & disease == "nonmodelled"], 
               aes(x = year, y = `mrtl_rate_50.0%`, ymin = `mrtl_rate_2.5%`, ymax= `mrtl_rate_97.5%`),
@@ -271,7 +271,7 @@ ggplot(data_orig[sex == "women" & disease == "other"],
   geom_point() +
   geom_line(data = impact_disease[sex == "women" & disease == "nonmodelled"],
             aes(x = year, y = `mrtl_rate_50.0%`), col = cols[2]) +
-  geom_line(data = data_fdm[sex == "women" & disease == "other"],
+  geom_line(data = data_fdm[sex == "women" & disease == "nonmodelled"],
             aes(x = year, y = mx_total_mean), col = cols[1]) +
   geom_ribbon(data = impact_disease[sex == "women" & disease == "nonmodelled"], 
               aes(x = year, y = `mrtl_rate_50.0%`, ymin = `mrtl_rate_2.5%`, ymax= `mrtl_rate_97.5%`),

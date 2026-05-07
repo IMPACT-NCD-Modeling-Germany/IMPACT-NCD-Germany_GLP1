@@ -1314,7 +1314,6 @@ Simulation <-
           # Load indirect cost data #
 
           indir_cost_indx <- read_fst("./inputs/other_parameters/indirect_costs_indx.fst", as.data.table = TRUE)
-          #indir_cost_indx <- read_fst("indirect_costs_indx.fst", as.data.table = TRUE)
 
           ro <- indir_cost_indx[
             mc %in% mc_,
@@ -1330,9 +1329,15 @@ Simulation <-
           )
 
           # Load treatment cost data #
-          
-          price_index_GLP <- read_fst("./inputs/other_parameters/GLP_price_index.fst", as.data.table = TRUE)
           cost_GLP <- read_fst("./inputs/other_parameters/GLP_treatment_costs.fst", as.data.table = TRUE)
+          
+          # Load price trajectory file #
+          price_index_GLP <- read_fst("./inputs/other_parameters/GLP_price_traj_1.fst", as.data.table = TRUE)
+          # price_index_GLP <- read_fst("./inputs/other_parameters/GLP_price_traj_2.fst", as.data.table = TRUE)
+          # price_index_GLP <- read_fst("./inputs/other_parameters/GLP_price_traj_3.fst", as.data.table = TRUE)
+          # price_index_GLP <- read_fst("./inputs/other_parameters/GLP_price_traj_4.fst", as.data.table = TRUE)
+          # price_index_GLP <- read_fst("./inputs/other_parameters/GLP_price_traj_5.fst", as.data.table = TRUE)
+          # price_index_GLP <- read_fst("./inputs/other_parameters/GLP_price_traj_6.fst", as.data.table = TRUE)
           
           # Setup lifecourse #
           
