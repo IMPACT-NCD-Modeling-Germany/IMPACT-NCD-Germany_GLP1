@@ -467,12 +467,14 @@ sbp_1y_samples <- data.table(
 write_fst(sbp_1y_samples, "sbp_1y_samples_tirzp.fst")
 
 ##########################################################################################
-#---------------------------  uncertainty on tcl efficacy  ------------------------------#
+#---------------------------  uncertainty on tchol efficacy  ------------------------------#
 ##########################################################################################
 #### Simulate uncertainty in Tchol efficacy input at treatment year 1 -------------------------------
 tchol_1y <- -0.074            # Data from SURMOUNT-1 RCT paper (Sample size: N=630 for Tirzepatide)
                               # -7.4 (-8.6, -6.2): least-square mean (95% CI)
-tchol_1y_se <- (8.6-6.2)/(2*1.96)
+
+tchol_1y_se <- (0.086-0.062)/(2*1.96) #--> Correct
+#tchol_1y_se <- (8.6-6.2)    /(2*1.96) #--> Wrong, the reason the uncertainty around Tirzepatide scenario is huge
 
 n_samples <- 10000
 
