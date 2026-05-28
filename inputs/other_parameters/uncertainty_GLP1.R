@@ -216,7 +216,6 @@ bmi_4y <- -0.025
 # In the absence of data on the variability around point estimates, 
 # variability was assumed as 25% of the mean value.
 bmi_4y_se <- 0.25*0.025
-
 n_samples <- 10000
 
 ## Ensure replicability #
@@ -389,12 +388,6 @@ write_fst(bmi_1y_samples, "bmi_1y_samples_tirzp.fst")
 bmi_3y <- -0.10                # Change in body weight from wk36 to 88, %
                                # 14.0 (12.8 to 15.2): least-square mean (95% CI)
 
-#(7.3/sqrt(670))/20.9            # se = sd/sqrt(N): 7.3/sqrt(670) --- % weight change from wk 0 to 36
-#(((0.152-0.128)/2)/1.96)/0.14   # se = (upper CI - lower CI)/(2*1.96) --- % weight change from wk 36 to 88
-# Get the average of these two %
-#((7.3/sqrt(670))/20.9 + (((0.152-0.128)/2)/1.96)/0.14)/2
-# we assumed that, the % of se on mean is the same (~3%)
-
 # In the absence of data on the variability around point estimates, 
 # variability was assumed as 25% of the mean value.
 bmi_3y_se <- 0.25*0.10 
@@ -467,12 +460,14 @@ sbp_1y_samples <- data.table(
 write_fst(sbp_1y_samples, "sbp_1y_samples_tirzp.fst")
 
 ##########################################################################################
-#---------------------------  uncertainty on tcl efficacy  ------------------------------#
+#---------------------------  uncertainty on tchol efficacy  ------------------------------#
 ##########################################################################################
 #### Simulate uncertainty in Tchol efficacy input at treatment year 1 -------------------------------
 tchol_1y <- -0.074            # Data from SURMOUNT-1 RCT paper (Sample size: N=630 for Tirzepatide)
                               # -7.4 (-8.6, -6.2): least-square mean (95% CI)
-tchol_1y_se <- (8.6-6.2)/(2*1.96)
+
+tchol_1y_se <- (0.086-0.062)/(2*1.96) #--> Correct
+#tchol_1y_se <- (8.6-6.2)   /(2*1.96) #--> Wrong, the reason the uncertainty around Tirzepatide scenario is huge
 
 n_samples <- 10000
 
