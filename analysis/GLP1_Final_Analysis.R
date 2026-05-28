@@ -145,16 +145,20 @@ if(new_runs){
 }
 
 
-if(new_export){
-  IMPACTncd_cea$export_summaries(multicore = TRUE, type = c("ly",
-                                                            "prvl", "incd",
-                                                            "mrtl",  "dis_mrtl", 
-                                                            "xps", "cea")) 
-} 
+#if(new_export){
+#  IMPACTncd_cea$export_summaries(multicore = TRUE, type = c("ly",
+#                                                            "prvl", "incd",
+#                                                            "mrtl",  "dis_mrtl", 
+#                                                            "xps", "cea")) 
+#} 
 
 
 if(new_export){
   IMPACTncd_cea$export_summaries(multicore = TRUE, type = c("cea")) 
+} 
+
+if(new_export){
+  IMPACTncd_cea$export_summaries(multicore = TRUE, type = c("dis_mrtl")) 
 } 
 
 ###################################################################################################

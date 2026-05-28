@@ -44,7 +44,9 @@ sc_map <- data.table(
   baseline = c(rep("sc0", 4))
 )
 
-analyses <- c("GLP_final_sc0", "GLP_final_cea", "GLP_final_bia_num", "GLP_final_bia_perc")
+# analyses <- c("GLP_final_sc0", "GLP_final_cea", "GLP_final_bia_num", "GLP_final_bia_perc")
+
+analyses <- c("GLP_final_cea")
 
 for(analysis in analyses){
 
@@ -2766,7 +2768,7 @@ for(analysis in analyses){
     file_lines <- readLines(paste0(in_path, "dis_mrtl_scaled_up.csv.gz"))
     writeLines(gsub(",+$", "", file_lines), paste0(in_path, "dis_mrtl_scaled_up.csv.gz"))
 
-    tt <- fread(paste0(in_path, "dis_mrtl_scaled_up.csv.gz"), fill = TRUE,
+    tt <- fread(paste0(in_path, "dis_mrtl_scaled_up.csv.gz"), fill = TRUE
     )[, `:=` (year = year + 2000,
               agegrp = fifelse(agegrp %in% c("30-34", "35-39", "40-44", "45-49"), "30-49",
                                ifelse(agegrp %in% c("50-54", "55-59", "60-64", "65-69"), "50-69",

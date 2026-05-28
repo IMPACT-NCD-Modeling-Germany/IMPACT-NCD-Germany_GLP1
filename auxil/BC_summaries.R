@@ -634,3 +634,119 @@ write.xlsx(list(
   "bmi_elig_ci"      = bmi_elig_ci
 ), file = file.path(out_dir, "baseline_char_elig_summaries_biapct.xlsx"))
 
+###############################################################################################
+#---------------------------------------------------------------------------------------------#
+#--------------- Calculate the size of uptake population by year in BIA_perc -----------------#
+#---------------------------------------------------------------------------------------------#
+#---------------------------- To loop through the uptake folder ------------------------------#
+#---------------------------------------------------------------------------------------------#
+###############################################################################################
+
+library(data.table)
+
+# folder containing the files
+in_path <- c("/mnt/Storage_1/IMPACT_Storage/GLP1/inputs/uptake/")
+
+# output file
+out_file <- c("/mnt/Storage_1/IMPACT_Storage/GLP1/inputs/uptake/mean_uptake_population.csv")
+
+# all files
+files <- list.files(
+  in_path,
+  pattern = "_uptake_bia_pct\\.csv$",
+  full.names = TRUE
+)
+
+# process each file
+res <- rbindlist(
+  lapply(seq_along(files), function(i) {
+    
+    dt <- fread(
+      files[i],
+      select = c("uptake_year", "wt_uptake")
+    )
+    
+    # sum wt_uptake by year within file
+    dt[
+      ,
+      .(uptake_pop = sum(wt_uptake, na.rm = TRUE)),
+      by = uptake_year
+    ][
+      ,
+      sim := i
+    ]
+  })
+)
+
+# average across files
+final <- res[
+  ,
+  .(
+    mean_uptake_pop = mean(uptake_pop, na.rm = TRUE)
+  ),
+  by = uptake_year
+]
+
+library(writexl)
+
+write_xlsx(
+  final,
+  path = "/mnt/Storage_1/IMPACT_Storage/GLP1/inputs/mean_uptake_population.xlsx"
+)
+
+###############################################################################################
+#---------------------------------------------------------------------------------------------#
+#--------------- Calculate the size of uptake population by year in BIA_num ------------------#
+#---------------------------------------------------------------------------------------------#
+#---------------------------- To loop through the uptake folder ------------------------------#
+#---------------------------------------------------------------------------------------------#
+###############################################################################################
+
+library(data.table)
+
+# folder containing the files
+in_path <- c("/mnt/Storage_1/IMPACT_Storage/GLP1/inputs/uptake/")
+
+# all files
+files <- list.files(
+  in_path,
+  pattern = "_uptake_bia_N\\.csv$",
+  full.names = TRUE
+)
+
+# process each file
+res <- rbindlist(
+  lapply(seq_along(files), function(i) {
+    
+    dt <- fread(
+      files[i],
+      select = c("uptake_year", "wt_uptake")
+    )
+    
+    # sum wt_uptake by year within file
+    dt[
+      ,
+      .(uptake_pop = sum(wt_uptake, na.rm = TRUE)),
+      by = uptake_year
+    ][
+      ,
+      sim := i
+    ]
+  })
+)
+
+# average across files
+final <- res[
+  ,
+  .(
+    mean_uptake_pop = mean(uptake_pop, na.rm = TRUE)
+  ),
+  by = uptake_year
+]
+
+library(writexl)
+
+write_xlsx(
+  final,
+  path = "/mnt/Storage_1/IMPACT_Storage/GLP1/inputs/mean_uptake_population_num.xlsx"
+)
