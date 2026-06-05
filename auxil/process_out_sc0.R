@@ -146,6 +146,32 @@ for(analysis in analyses){
     
   }
   
+  if("t2dm_10y_scaled_up.csv.gz" %in% list.files(in_path)){
+    
+    ## Prevalence by age and sex ## ----
+    
+    tt <- fread(paste0(in_path, "t2dm_10y_scaled_up.csv.gz"))
+    
+    outstrata <- c("mc", "age_group", "sex", "bmi_group", "sbp_group", "tchol_group")
+    
+    d_long <- melt(tt,
+                   id.vars = outstrata,
+                   measure.vars = c("popsize", "events10y", "risk10y"),
+                   variable.name = "metric",
+                   value.name = "value"
+    )
+    
+    d_quant <- d_long[,
+                      fquantile_byid(value, prbl, id = metric),
+                      keyby = setdiff(outstrata, "mc")
+    ]
+    
+    setnames(d_quant, c(setdiff(outstrata, "mc"), "metric", percent(prbl, prefix = "10y_risk_")))
+    
+    fwrite(d_quant, paste0(out_path_tables, "t2dm_10y_risk.csv"), sep = ";")
+    
+  }
+  
   #######################################################################################################
   
   if("prvl_scaled_up.csv.gz" %in% list.files(in_path)){

@@ -24,12 +24,17 @@ if(new_runs){
   
   # Create batches for batched simulation
   batch_size <- 5
-  iterations <- 250
-  first_iteration <- 251
+  iterations <- 100
+  first_iteration <- 1
   batches <- split(seq(first_iteration, iterations + first_iteration - 1),
                    f = findInterval(seq(first_iteration, iterations + first_iteration - 1),
                                     vec = seq(first_iteration, iterations + first_iteration - 1, batch_size)))
 }
+
+# 1. delete all output
+# 2. run without sc0, 1-250
+# 3. If the run crushes (e.g., at iteration 67), restart the run from which lifecourse table that crushed (iteration 68)
+# 4. Run and check the output for 100 iterations first and then restart run from 101
 
 ###################################################################################################
 #-------------------------------------------------------------------------------------------------#

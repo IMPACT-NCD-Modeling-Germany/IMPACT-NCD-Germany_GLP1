@@ -58,19 +58,19 @@ itt_cost_dose_escalation_tz <- 1738
 #------------------------------- Year 1 -------------------------------------#
 #----------------------------------------------------------------------------#
 # We assume a 8% of intolerance rate after dose escalation
-# We assume a 15% discontinuation rate each year during treatment
-itt_cost_1st_year_tz <- (1-0.08)*0.85*5868 + (1-0.08)*0.15*(0.5*5868) # This equals to ~4993
+# We assume a 8% discontinuation rate each year during treatment
+itt_cost_1st_year_tz <- (1-0.08)*0.92*(489*12) + (1-0.08)*0.08*(0.5*489*12) # This equals to ~5182
 
 #------------------------------- Year 2 -------------------------------------#
 #----------------------------------------------------------------------------#
-# We assume a 15% discontinuation rate each year during treatment
-itt_cost_2nd_year_tz <- (1-0.08)*(1-0.15)*0.85*5868 + (1-0.08)*(1-0.15)*0.15*(0.5*5868) # This equals to ~4244
+# We assume a 8% discontinuation rate each year during treatment
+itt_cost_2nd_year_tz <- (1-0.08)*(1-0.08)*0.92*(489*12) + (1-0.08)*(1-0.08)*0.08*(0.5*489*12) # This equals to ~4768
 
 #--------------------------  Year 3 onwards ---------------------------------#
 #----------------------------------------------------------------------------#
 # We assume no discontinuation after 2 years in the lifetime scenario
 # The effect and the cost will both be the same as the 2nd year
-itt_cost_life_tz <- (1-0.08)*(1-0.15)*0.85*5868 + (1-0.08)*(1-0.15)*0.15*(0.5*5868) # This equals to ~4244
+itt_cost_life_tz <- (1-0.08)*(1-0.08)*0.92*(489*12) + (1-0.08)*(1-0.08)*0.08*(0.5*489*12) # This equals to ~4768
 
 cost_combine <- data.table(NULL)
 
@@ -100,15 +100,15 @@ cost_combine <- data.table(NULL)
   ## CEA/BIA -- Scenario 3: tirzepatide for 2 years
   cost_data[scenario == "sc3", 
             GLP_cost := fifelse(trtm_year == 0, 1738,
-                                fifelse(trtm_year == 1, 4993,
-                                        fifelse(trtm_year == 2, 4244,
+                                fifelse(trtm_year == 1, 5182,
+                                        fifelse(trtm_year == 2, 4768,
                                                 0)))]
   
   ## CEA/BIA -- Scenario 4: tirzepatide for lifetime
   cost_data[scenario == "sc4", 
             GLP_cost := fifelse(trtm_year == 0, 1738,
-                                fifelse(trtm_year == 1, 4993,
-                                        fifelse(trtm_year >= 2, 4244,
+                                fifelse(trtm_year == 1, 5182,
+                                        fifelse(trtm_year >= 2, 4768,
                                                 0)))]
   
   

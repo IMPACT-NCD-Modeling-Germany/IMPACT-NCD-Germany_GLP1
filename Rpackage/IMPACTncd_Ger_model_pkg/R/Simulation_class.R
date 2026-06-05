@@ -338,7 +338,9 @@ Simulation <-
       export_summaries = function(multicore = TRUE, type = c("le", "ly",
                                                              "prvl", "incd",
                                                              "mrtl",  "dis_mrtl", 
-                                                             "stroke_risk_10y", "chd_risk_10y", 
+                                                             "stroke_risk_10y", 
+                                                             "chd_risk_10y", 
+                                                             "t2dm_risk_10y",
                                                              "xps", "cea")) { 
 
         fl <- list.files(private$output_dir("lifecourse"), full.names = TRUE)
@@ -353,7 +355,8 @@ Simulation <-
         if ("cea" %in% type) file_pth <- private$output_dir("summaries/health_economic_results.csv.gz") else
         if ("xps" %in% type) file_pth <- private$output_dir("summaries/xps_scaled_up.csv.gz") else
         if ("stroke_risk_10y" %in% type) file_pth <- private$output_dir("summaries/stroke_10y_scaled_up.csv.gz") else
-          if ("chd_risk_10y" %in% type) file_pth <- private$output_dir("summaries/chd_10y_scaled_up.csv.gz") 
+          if ("chd_risk_10y" %in% type) file_pth <- private$output_dir("summaries/chd_10y_scaled_up.csv.gz") else
+            if ("t2dm_risk_10y" %in% type) file_pth <- private$output_dir("summaries/t2dm_10y_scaled_up.csv.gz") 
 
         if (file.exists(file_pth)) {
           tt <- unique(fread(file_pth, select = "mc")$mc)
@@ -780,7 +783,9 @@ Simulation <-
       export_summaries_hlpr = function(lc, type = c("le", "ly",
                                                   "prvl", "incd",
                                                   "mrtl",  "dis_mrtl", 
-                                                  "stroke_risk_10y", "chd_risk_10y", 
+                                                  "stroke_risk_10y", 
+                                                  "chd_risk_10y", 
+                                                  "t2dm_risk_10y", 
                                                   "xps", "cea")) {   ## Removing "BC"
         if (self$design$sim_prm$logs) message("Exporting summaries...")
         # strata <- setdiff(self$design$sim_prm$cols_for_output, c("age", "pid", "wt"))
@@ -1173,6 +1178,129 @@ Simulation <-
           )
         }
         
+        if ("t2dm_risk_10y" %in% type) {
+          
+          if (self$design$sim_prm$logs) message("Exporting 10-year risk of t2dm...")
+          
+          # restrict to base scenario
+          # lc <- lc[scenario == "sc0"] -> This is no longer needed given we now have lifecourse with only sc0
+          
+          start_year <- 13L
+          end_year   <- 22L
+          
+          # ------------------------------------------
+          # ---- 1. Identify baseline individuals ----
+          # ------------------------------------------
+          # must be observed at baseline
+          lc[, has_baseline := any(year == start_year), by = pid]
+          
+          # must be event-free at baseline
+          lc[, baseline_free := any(year == start_year & t2dm_prvl == 0), by = pid]
+          
+          # age restriction: age <= 80 at baseline
+          lc[, baseline_age_ok := any(year == start_year & age <= 80), by = pid]
+          
+          # Combined flag: people eligible for 10-year risk estimation
+          lc[, eligible_10y := has_baseline & baseline_free & baseline_age_ok]
+          
+          # ----------------------------------------------------
+          # ---- 2. Identify t2dm events during follow-up ----
+          # ----------------------------------------------------
+          # t2dm_prvl >0 OR death from type 2 diabetes, however, people in the model cannot die from T2D
+          lc[, had_t2dm_10y :=
+               any(
+                 (t2dm_prvl > 0) &
+                   year >= start_year & year <= end_year
+               ),
+             by = pid]
+          
+          # --------------------------------------------
+          # ---- 3. Final outcome variable -------------
+          # --------------------------------------------
+          #  1 = t2dm event during period
+          #  0 = no t2dm during period (even if died from other causes)
+          # NA = not eligible at baseline
+          lc[, t2dm_event_10y :=
+               fifelse(!eligible_10y, NA_integer_,
+                       fifelse(had_t2dm_10y, 1L, 0L)
+               )]
+          
+          # -----------------------------------------------------------
+          # ---- 4. Select only baseline rows for summarising risk ----
+          # -----------------------------------------------------------
+          lc_baseline <- lc[year == start_year & eligible_10y == TRUE]
+          
+          # -----------------------------------------------------------
+          # ---- 5. Create baseline-only risk factor groups (temporary)
+          # -----------------------------------------------------------
+          # Age group
+          lc_baseline[, age_group := fcase(
+            age >= 30 & age <= 49, "30-49",
+            age >= 50 & age <= 69, "50-69",
+            age >= 70 & age <= 90, "70-90",
+            default = NA_character_
+          )]
+          
+          lc_baseline[, age_group := factor(
+            age_group,
+            levels = c("30-49", "50-69", "70-90")
+          )]
+          
+          # BMI group
+          lc_baseline[, bmi_group := fcase(
+            bmi_curr_xps <  30, "BMI < 30",
+            bmi_curr_xps >= 30, "BMI ≥ 30",
+            default = NA_character_
+          )]
+          lc_baseline[, bmi_group := factor(
+            bmi_group,
+            levels = c("BMI < 30", "BMI ≥ 30")
+          )]
+          
+          # SBP group
+          lc_baseline[, sbp_group := fcase(
+            sbp_curr_xps <  130, "SBP < 130",
+            sbp_curr_xps >= 130, "SBP ≥ 130",
+            default = NA_character_
+          )]
+          lc_baseline[, sbp_group := factor(
+            sbp_group,
+            levels = c("SBP < 130", "SBP ≥ 130")
+          )]
+          
+          # Total cholesterol group
+          lc_baseline[, tchol_group := fcase(
+            tchol_curr_xps <  6, "TC < 6",
+            tchol_curr_xps >= 6, "TC ≥ 6",
+            default = NA_character_
+          )]
+          lc_baseline[, tchol_group := factor(
+            tchol_group,
+            levels = c("TC < 6", "TC ≥ 6")
+          )]
+          
+          # --------------------------------------------
+          # ---- 6. Compute weighted 10-year risk ------
+          # --------------------------------------------
+          tt_risk <- lc_baseline[
+            !is.na(t2dm_event_10y),
+            .(
+              popsize   = sum(wt),
+              events10y = sum(t2dm_event_10y * wt),
+              risk10y   = sum(t2dm_event_10y * wt) / sum(wt)
+            ),
+            # stratification variables you want
+            by = c("mc", "age_group", "sex", "bmi_group", "sbp_group", "tchol_group")
+          ]
+          
+          # ---- 6. Export ----
+          fwrite_safe(
+            tt_risk,
+            private$output_dir(
+              paste0("summaries/t2dm_10y_scaled_up.csv.gz")
+            )
+          )
+        }
 
         if("mrtl" %in% type){
 
@@ -1336,8 +1464,6 @@ Simulation <-
           # price_index_GLP <- read_fst("./inputs/other_parameters/GLP_price_traj_2.fst", as.data.table = TRUE)
           price_index_GLP <- read_fst("./inputs/other_parameters/GLP_price_traj_3.fst", as.data.table = TRUE)
           # price_index_GLP <- read_fst("./inputs/other_parameters/GLP_price_traj_4.fst", as.data.table = TRUE)
-          # price_index_GLP <- read_fst("./inputs/other_parameters/GLP_price_traj_5.fst", as.data.table = TRUE)
-          # price_index_GLP <- read_fst("./inputs/other_parameters/GLP_price_traj_6.fst", as.data.table = TRUE)
           
           # Setup lifecourse #
           
