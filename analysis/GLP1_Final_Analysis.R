@@ -16,7 +16,7 @@ runif(10)
 set.seed(12345)
 
 # New runs?
-new_runs <- FALSE
+new_runs <- TRUE
 new_export <- TRUE
 
 
@@ -24,8 +24,8 @@ if(new_runs){
   
   # Create batches for batched simulation
   batch_size <- 5
-  iterations <- 100
-  first_iteration <- 1
+  iterations <- 300
+  first_iteration <- 201
   batches <- split(seq(first_iteration, iterations + first_iteration - 1),
                    f = findInterval(seq(first_iteration, iterations + first_iteration - 1),
                                     vec = seq(first_iteration, iterations + first_iteration - 1, batch_size)))
@@ -98,7 +98,9 @@ if(new_export){
   IMPACTncd_sc0$export_summaries(multicore = TRUE, type = c("ly",
                                                             "prvl", "incd",
                                                             "mrtl",  "dis_mrtl", 
-                                                            "stroke_risk_10y", "chd_risk_10y"))
+                                                            "stroke_risk_10y", 
+                                                            "chd_risk_10y",
+                                                            "t2dm_risk_10y"))
 } 
 
 ###################################################################################################
@@ -150,12 +152,12 @@ if(new_runs){
 }
 
 
-#if(new_export){
-#  IMPACTncd_cea$export_summaries(multicore = TRUE, type = c("ly",
-#                                                            "prvl", "incd",
-#                                                            "mrtl",  "dis_mrtl", 
-#                                                            "xps", "cea")) 
-#} 
+if(new_export){
+  IMPACTncd_cea$export_summaries(multicore = TRUE, type = c("ly",
+                                                            "prvl", "incd",
+                                                            "mrtl",  "dis_mrtl", 
+                                                            "xps", "cea")) 
+} 
 
 
 if(new_export){

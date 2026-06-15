@@ -1460,9 +1460,9 @@ Simulation <-
           cost_GLP <- read_fst("./inputs/other_parameters/GLP_treatment_costs.fst", as.data.table = TRUE)
           
           # Load price trajectory file #
-          # price_index_GLP <- read_fst("./inputs/other_parameters/GLP_price_traj_1.fst", as.data.table = TRUE)
+          price_index_GLP <- read_fst("./inputs/other_parameters/GLP_price_traj_1.fst", as.data.table = TRUE)
           # price_index_GLP <- read_fst("./inputs/other_parameters/GLP_price_traj_2.fst", as.data.table = TRUE)
-          price_index_GLP <- read_fst("./inputs/other_parameters/GLP_price_traj_3.fst", as.data.table = TRUE)
+          # price_index_GLP <- read_fst("./inputs/other_parameters/GLP_price_traj_3.fst", as.data.table = TRUE)
           # price_index_GLP <- read_fst("./inputs/other_parameters/GLP_price_traj_4.fst", as.data.table = TRUE)
           
           # Setup lifecourse #
