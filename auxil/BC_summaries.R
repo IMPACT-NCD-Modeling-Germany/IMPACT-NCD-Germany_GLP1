@@ -1143,3 +1143,125 @@ write.xlsx(
    final_result,
    file = "/mnt/Storage_1/IMPACT_Storage/GLP1/inputs/population_on_drug_sc4.xlsx")
  
+ ###############################################################################################
+ #---------------------------------------------------------------------------------------------#
+ #----------------- Calculating the Nr. of people active on drug every year -------------------#
+ #----------------- Calculating the Nr. of eligible people every year -------------------------#
+ #--------------------------------------   in BIA_N     ---------------------------------------#       
+ #---------------------------------------------------------------------------------------------#
+ #---------------------------- To loop through the bia_N folder -------------------------------#
+ #---------------------------------------------------------------------------------------------#
+ ###############################################################################################
+ library(data.table)
+ library(openxlsx)
+ 
+ analysis_name <- "GLP_final_bia_num"
+ lc_dir <- paste0("/mnt/Storage_1/IMPACT_Storage/GLP1/outputs/", analysis_name, "/lifecourse")
+ lc_files <- list.files(lc_dir, pattern = "lifecourse.csv.gz$", full.names = TRUE)
+ 
+ # ---- Initialise result lists for all 4 scenarios ---------------------------
+ all_results_sc1 <- list()
+ all_results_sc2 <- list()
+ all_results_sc3 <- list()
+ all_results_sc4 <- list()
+ 
+ # ---- Helper function to compute yearly summary for one scenario ------------
+ compute_summary <- function(lc, sc, mc_i, trtm_filter) {
+   
+   lc_sc <- lc[scenario == sc]
+   lc_sc[, mc := mc_i]
+   
+   # Treatment year variable
+   lc_sc[, trtm_year := fifelse(
+     !is.na(anchor_year) & year >= anchor_year,
+     trtm_theo,
+     NA_real_
+   )]
+   
+   # Eligibility indicator
+   lc_sc[, eligible_bi := ifelse(
+     age <= 80 & bmi_curr_xps >= 35 & t2dm_prvl == 0, 1, 0
+   )]
+   
+   # Treatment population filter depends on scenario
+   yearly_treatment <- lc_sc[
+     year >= 25 & trtm_filter(trtm_year),
+     .(pop_on_treatment = sum(wt, na.rm = TRUE)),
+     by = .(mc, year)
+   ]
+   
+   # Eligible population
+   yearly_eligible <- lc_sc[
+     year >= 25,
+     .(pop_eligible = sum(wt * eligible_bi, na.rm = TRUE)),
+     by = .(mc, year)
+   ]
+   
+   # Combine
+   merge(yearly_treatment, yearly_eligible, by = c("mc", "year"), all = TRUE)
+ }
+ 
+ # ---- Single loop: read each file ONCE, process all 4 scenarios -------------
+ for (i in seq_along(lc_files)) {
+   
+   cat("Processing file", i, "of", length(lc_files), ":", basename(lc_files[i]), "\n")
+   
+   # Read file ONCE
+   lc <- fread(lc_files[i])
+   mc_i <- as.integer(gsub("\\D", "", basename(lc_files[i])))
+   
+   # sc1: 2-year treatment filter (trtm_year == 0, 1, 2)
+   all_results_sc1[[i]] <- compute_summary(
+     lc, "sc1", mc_i,
+     trtm_filter = function(x) x == 0 | x == 1 | x == 2)
+   
+   # sc2: lifetime treatment filter (!is.na)
+   all_results_sc2[[i]] <- compute_summary(
+     lc, "sc2", mc_i,
+     trtm_filter = function(x) !is.na(x))
+   
+   # sc3: 2-year treatment filter (trtm_year == 0, 1, 2)
+   all_results_sc3[[i]] <- compute_summary(
+     lc, "sc3", mc_i,
+     trtm_filter = function(x) x == 0 | x == 1 | x == 2)
+   
+   # sc4: lifetime treatment filter (!is.na)
+   all_results_sc4[[i]] <- compute_summary(
+     lc, "sc4", mc_i,
+     trtm_filter = function(x) !is.na(x))
+   
+   # Free memory after processing
+   rm(lc)
+   gc()
+ }
+ 
+ # ---- Helper function to aggregate across MC runs ---------------------------
+ aggregate_results <- function(results_list) {
+   dt <- rbindlist(results_list)
+   dt[, .(
+     mean_n            = mean(pop_on_treatment,  na.rm = TRUE),
+     lower_95          = quantile(pop_on_treatment,  0.025, na.rm = TRUE),
+     upper_95          = quantile(pop_on_treatment,  0.975, na.rm = TRUE),
+     mean_eligible     = mean(pop_eligible,      na.rm = TRUE),
+     lower_95_eligible = quantile(pop_eligible,      0.025, na.rm = TRUE),
+     upper_95_eligible = quantile(pop_eligible,      0.975, na.rm = TRUE)
+   ), by = year]
+ }
+ 
+ # ---- Aggregate and write results -------------------------------------------
+ for (sc in c("sc1", "sc2", "sc3", "sc4")) {
+   
+   results_list <- get(paste0("all_results_", sc))
+   final_result <- aggregate_results(results_list)
+   setorder(final_result, year)
+   
+   write.xlsx(
+     final_result,
+     file = paste0("/mnt/Storage_1/IMPACT_Storage/GLP1/inputs/population_on_drug_", sc, ".xlsx"))
+   cat("Saved results for", sc, "\n")
+ }
+ 
+ cat("All done!\n")
+ 
+ 
+ 
