@@ -306,6 +306,164 @@ write.xlsx(list(
   "bmi_elig_ci"      = bmi_elig_ci
 ), file = file.path(out_dir, "baseline_char_elig_summaries_cea.xlsx"))
 
+
+###############################################################################################
+#---------------------------------------------------------------------------------------------#
+#----------------- Descriptive statistics for eligible population in CEA ---------------------#
+#---------------------------------------------------------------------------------------------#
+#----------------------------- To loop through the cea folder --------------------------------#
+#---------------------------------------------------------------------------------------------#
+###############################################################################################
+
+library(data.table)
+library(openxlsx)
+library(parallel)    # <-- CHANGE: added for multicore
+library(doParallel)  # <-- CHANGE: added for multicore
+library(foreach)     # <-- CHANGE: added for multicore
+
+analysis_name <- "GLP_final_cea"
+lc_dir <- paste0("/mnt/Storage_1/IMPACT_Storage/GLP1/outputs/", analysis_name, "/lifecourse")
+out_dir <- paste0("/mnt/Storage_1/IMPACT_Storage/GLP1/inputs/BC_summary")
+dir.create(out_dir, recursive = TRUE, showWarnings = FALSE)
+lc_files <- list.files(lc_dir, pattern = "lifecourse.csv.gz$", full.names = TRUE)
+
+# ================== CHANGE START: set up parallel processing ================
+n_cores <- detectCores() - 2  # leave 2 cores free for the system
+cat("Using", n_cores, "cores out of", detectCores(), "available\n")
+cl <- makeCluster(n_cores)
+registerDoParallel(cl)
+# ================== CHANGE END ==============================================
+
+# ================== CHANGE START: parallel loop using foreach ===============
+results_list <- foreach(
+  i = seq_along(lc_files),
+  .packages = c("data.table"),
+  .errorhandling = "pass"   # if one file fails, continue with others
+) %dopar% {
+  
+  cat("Processing file", i, "of", length(lc_files), ":", basename(lc_files[i]), "\n")
+  
+  lc <- fread(lc_files[i])
+  mc_i <- as.integer(gsub("\\D", "", basename(lc_files[i])))
+  lc[, mc := mc_i]
+  
+  lc[, age_cat := cut(age,
+                      breaks = c(-Inf, 49, 69, 90),
+                      labels = c("30-49", "50-69", "70-90"))]
+  
+  lc[, bmi_cat := cut(bmi_curr_xps,
+                      breaks = c(-Inf, 30, 35, 40, Inf),
+                      labels = c("<30", "30-35", "35-40", ">40"))]
+  
+  lc$bmi_cat <- factor(lc$bmi_cat, ordered = TRUE,
+                       levels = c("<30", "30-35", "35-40", ">40"))
+  
+  overall <- lc[scenario == "sc0" & year == 25 & uptake_group == 1, .(
+    popsize      = sum(wt),
+    mean_age     = weighted.mean(age, wt, na.rm = TRUE),
+    mean_bmi     = weighted.mean(bmi_curr_xps, wt, na.rm = TRUE),
+    mean_sbp     = weighted.mean(sbp_curr_xps, wt, na.rm = TRUE),
+    mean_chol    = weighted.mean(tchol_curr_xps, wt, na.rm = TRUE),
+    pct_male     = 100 * sum((sex == "men") * wt, na.rm = TRUE) / sum(wt),
+    pct_t2dm     = 100 * sum((t2dm_prvl > 0) * wt, na.rm = TRUE) / sum(wt),
+    pct_chd      = 100 * sum((chd_prvl > 0) * wt, na.rm = TRUE) / sum(wt),
+    pct_stroke   = 100 * sum((stroke_prvl > 0) * wt, na.rm = TRUE) / sum(wt),
+    pct_obesity  = 100 * sum((obesity_prvl > 0) * wt, na.rm = TRUE) / sum(wt)
+  ), by = mc]
+  
+  age <- lc[scenario == "sc0" & year == 25 & uptake_group == 1, .(
+    numerator   = sum(wt),
+    denominator = sum(lc[scenario == "sc0" & year == 25 & uptake_group == 1, wt]),
+    pct         = 100 * sum(wt) / sum(lc[scenario == "sc0" & year == 25 & uptake_group == 1, wt])
+  ), by = c("mc", "age_cat")]
+  
+  bmi <- lc[scenario == "sc0" & year == 25 & uptake_group == 1, .(
+    numerator   = sum(wt),
+    denominator = sum(lc[scenario == "sc0" & year == 25 & uptake_group == 1, wt]),
+    pct         = 100 * sum(wt) / sum(lc[scenario == "sc0" & year == 25 & uptake_group == 1, wt])
+  ), by = c("mc", "bmi_cat")]
+  
+  # Return all three as a list
+  list(overall = overall, age = age, bmi = bmi)
+}
+# ================== CHANGE END ==============================================
+
+# ================== CHANGE START: stop cluster after loop ==================
+stopCluster(cl)
+# ================== CHANGE END =============================================
+
+# ---- Extract results from list ---------------------------------------------
+overall_elig_all <- rbindlist(lapply(results_list, `[[`, "overall"))
+age_elig_all     <- rbindlist(lapply(results_list, `[[`, "age"))
+bmi_elig_all     <- rbindlist(lapply(results_list, `[[`, "bmi"))
+
+# ================== CHANGE START: SE instead of 95% CI for mean values =====
+n_mc <- length(lc_files)  # number of MC iterations = 500
+
+overall_elig_ci <- overall_elig_all[, .(
+  mean_popsize   = mean(popsize,   na.rm = TRUE),
+  se_popsize     = sd(popsize,     na.rm = TRUE) / sqrt(n_mc),
+  mean_age       = mean(mean_age,  na.rm = TRUE),
+  se_age         = sd(mean_age,    na.rm = TRUE) / sqrt(n_mc),
+  mean_bmi       = mean(mean_bmi,  na.rm = TRUE),
+  se_bmi         = sd(mean_bmi,    na.rm = TRUE) / sqrt(n_mc),
+  mean_sbp       = mean(mean_sbp,  na.rm = TRUE),
+  se_sbp         = sd(mean_sbp,    na.rm = TRUE) / sqrt(n_mc),
+  mean_chol      = mean(mean_chol, na.rm = TRUE),
+  se_chol        = sd(mean_chol,   na.rm = TRUE) / sqrt(n_mc),
+  # Proportions keep 95% CI as before
+  mean_pct_male     = mean(pct_male,   na.rm = TRUE),
+  lower_pct_male    = quantile(pct_male,   0.025, na.rm = TRUE),
+  upper_pct_male    = quantile(pct_male,   0.975, na.rm = TRUE),
+  mean_pct_t2dm     = mean(pct_t2dm,   na.rm = TRUE),
+  lower_pct_t2dm    = quantile(pct_t2dm,   0.025, na.rm = TRUE),
+  upper_pct_t2dm    = quantile(pct_t2dm,   0.975, na.rm = TRUE),
+  mean_pct_chd      = mean(pct_chd,    na.rm = TRUE),
+  lower_pct_chd     = quantile(pct_chd,    0.025, na.rm = TRUE),
+  upper_pct_chd     = quantile(pct_chd,    0.975, na.rm = TRUE),
+  mean_pct_stroke   = mean(pct_stroke, na.rm = TRUE),
+  lower_pct_stroke  = quantile(pct_stroke, 0.025, na.rm = TRUE),
+  upper_pct_stroke  = quantile(pct_stroke, 0.975, na.rm = TRUE),
+  mean_pct_obesity  = mean(pct_obesity,na.rm = TRUE),
+  lower_pct_obesity = quantile(pct_obesity,0.025, na.rm = TRUE),
+  upper_pct_obesity = quantile(pct_obesity,0.975, na.rm = TRUE)
+)]
+
+age_elig_ci <- age_elig_all[, .(
+  mean_numerator   = mean(numerator,   na.rm = TRUE),
+  se_numerator     = sd(numerator,     na.rm = TRUE) / sqrt(n_mc),
+  mean_denominator = mean(denominator, na.rm = TRUE),
+  se_denominator   = sd(denominator,   na.rm = TRUE) / sqrt(n_mc),
+  # Proportion keeps 95% CI
+  mean_pct  = mean(pct,  na.rm = TRUE),
+  lower_pct = quantile(pct, 0.025, na.rm = TRUE),
+  upper_pct = quantile(pct, 0.975, na.rm = TRUE)
+), by = age_cat]
+
+bmi_elig_ci <- bmi_elig_all[, .(
+  mean_numerator   = mean(numerator,   na.rm = TRUE),
+  se_numerator     = sd(numerator,     na.rm = TRUE) / sqrt(n_mc),
+  mean_denominator = mean(denominator, na.rm = TRUE),
+  se_denominator   = sd(denominator,   na.rm = TRUE) / sqrt(n_mc),
+  # Proportion keeps 95% CI
+  mean_pct  = mean(pct,  na.rm = TRUE),
+  lower_pct = quantile(pct, 0.025, na.rm = TRUE),
+  upper_pct = quantile(pct, 0.975, na.rm = TRUE)
+), by = bmi_cat]
+# ================== CHANGE END =============================================
+
+# ---- Write to Excel --------------------------------------------------------
+write.xlsx(list(
+  "overall_elig_raw" = overall_elig_all,
+  "overall_elig_ci"  = overall_elig_ci,
+  "age_elig_raw"     = age_elig_all,
+  "age_elig_ci"      = age_elig_ci,
+  "bmi_elig_raw"     = bmi_elig_all,
+  "bmi_elig_ci"      = bmi_elig_ci
+), file = file.path(out_dir, "baseline_char_elig_summaries_cea.xlsx"))
+
+cat("Done!\n")
+
 ###############################################################################################
 #---------------------------------------------------------------------------------------------#
 #---------------- Descriptive statistics for eligible population in BIA_N --------------------#
