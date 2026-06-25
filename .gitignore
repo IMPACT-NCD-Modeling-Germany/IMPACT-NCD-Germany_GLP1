@@ -52,6 +52,7 @@ NAMESPACE
 # RStudio files
 .Rproj.user/
 /rstudio/
+*.Rproj
 
 # RStudio files
 .Rproj.user/
